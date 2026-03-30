@@ -71,9 +71,9 @@
 <div class="container" id="reward-screen">
     <h1>Promotion Earned! 🌟</h1>
     <p>Choose your reward to notify Mum & Dad:</p>
-    <button class="reward-btn" onclick="sendRewardEmail('15 min Screen Time')">📱 15 min Screen Time</button>
-    <button class="reward-btn" onclick="sendRewardEmail('Ice-Cream')">🍦 Ice-Cream</button>
-    <button class="reward-btn" onclick="sendRewardEmail('2000 Won')">💰 2000 Won</button>
+    <button class="reward-btn" onclick="handleRewardChoice('15 min Screen Time')">📱 15 min Screen Time</button>
+    <button class="reward-btn" onclick="handleRewardChoice('Ice-Cream')">🍦 Ice-Cream</button>
+    <button class="reward-btn" onclick="handleRewardChoice('2000 Won')">💰 2000 Won</button>
     
     <button class="reward-btn" style="border-color: #0984e3; color: #0984e3;" onclick="showCustomInput()">✨ Something Else...</button>
     
@@ -95,6 +95,10 @@
     let revealsUsed = 0;
     let revealTimer;
     let secondsRemaining = 60;
+
+    // Tracking for the email report
+    let correctWords = [];
+    let incorrectWords = [];
 
     async function loadWords() {
         try {
@@ -127,6 +131,10 @@
     function setupRound() {
         currentIndex = 0;
         revealsUsed = 0;
+        if(currentRound === 2) {
+            correctWords = [];
+            incorrectWords = [];
+        }
         document.getElementById("reveal-count").innerText = revealsUsed;
         document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1: Investigation" : "Round 2: Master Mode";
         document.getElementById("report-screen").style.display = "none";
@@ -185,6 +193,12 @@
         revealsUsed++;
         document.getElementById("reveal-count").innerText = revealsUsed;
         
+        // Mark as incorrect for report if they reveal it
+        if(currentRound === 2) {
+            const word = sessionWords[currentIndex].word;
+            if(!incorrectWords.includes(word)) incorrectWords.push(word);
+        }
+
         if (revealsUsed > 3) {
             alert("Strike 4! Too many reveals used. You must restart the entire quiz.");
             location.reload();
@@ -202,11 +216,23 @@
         let guess = document.getElementById("user-input").value.toUpperCase().trim();
         let target = sessionWords[currentIndex].word;
         if (guess === target) {
-            if (currentRound === 2) score++;
+            if (currentRound === 2) {
+                // Only count as score if they didn't reveal it
+                const wasRevealed = document.getElementById("message").innerText.includes("The word is:");
+                if(!wasRevealed) {
+                    score++;
+                    correctWords.push(target);
+                } else {
+                    // It was already added to incorrectWords in revealFullWord()
+                }
+            }
             handleSuccess();
         } else {
             document.getElementById("message").style.color = "var(--error)";
             document.getElementById("message").innerText = "❌ Try again!";
+            if(currentRound === 2) {
+                if(!incorrectWords.includes(target) && !correctWords.includes(target)) incorrectWords.push(target);
+            }
         }
     }
 
@@ -255,17 +281,33 @@
         document.getElementById("custom-reward-input").style.display = "block";
     }
 
-    function sendRewardEmail(reward) {
-        const body = encodeURIComponent(`Hi Mum & Dad! I mastered my spelling list with a score of ${score}/10. I have chosen my reward: ${reward}.`);
-        window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward Claimed!&body=${body}`;
-        alert("Notification sent! Great job.");
-        location.reload();
+    function handleRewardChoice(reward) {
+        sendEmail(reward);
     }
 
     function sendCustomReward() {
         const customReward = document.getElementById("custom-text").value;
         if (!customReward) { alert("Please type your request!"); return; }
-        sendRewardEmail(`CUSTOM REQUEST: ${customReward}`);
+        sendEmail(`CUSTOM REQUEST: ${customReward}`);
+    }
+
+    function sendEmail(chosenReward) {
+        const reportCorrect = correctWords.length > 0 ? correctWords.join(", ") : "None";
+        const reportIncorrect = incorrectWords.length > 0 ? incorrectWords.join(", ") : "None";
+        
+        let mailBody = `Hi Mum & Dad!\n\nI mastered my spelling list with a score of ${score}/10.\n\n`;
+        mailBody += `REWARD CHOSEN: ${chosenReward}\n\n`;
+        mailBody += `---------------------------\n`;
+        mailBody += `WORDS SPELLED CORRECTLY:\n${reportCorrect}\n\n`;
+        mailBody += `WORDS TO PRACTICE (Revealed or Missed):\n${reportIncorrect}\n`;
+        mailBody += `---------------------------`;
+
+        const subject = encodeURIComponent("Spelling Reward Claimed!");
+        const body = encodeURIComponent(mailBody);
+        
+        window.location.href = `mailto:${PARENT_EMAILS}?subject=${subject}&body=${body}`;
+        alert("Notification sent! Great job today.");
+        location.reload();
     }
 
     document.getElementById("user-input").addEventListener("keyup", (e) => {
