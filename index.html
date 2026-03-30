@@ -27,7 +27,9 @@
         
         #game-ui, #report-screen, #reward-screen, #loading-screen { display: none; }
         #loading-screen { display: block; }
+        
         .reward-btn { border: 2px solid var(--gold); color: #d35400; background: #fff9db; padding: 15px; margin: 10px auto; border-radius: 12px; cursor: pointer; font-weight: bold; width: 85%; display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
+        #custom-reward-input { display: none; margin-top: 15px; }
         #timer-text { font-size: 0.8em; color: #666; margin-top: 5px; }
     </style>
 </head>
@@ -39,7 +41,7 @@
     <div class="round-indicator" id="round-tag">Round 1: Investigation</div>
     <div class="stats-bar">
         <span>Word: <span id="current-count">1</span>/10</span>
-        <span>Reveals Used: <span id="reveal-count">0</span>/3</span>
+        <span>Reveals: <span id="reveal-count">0</span>/3</span>
         <span>Score: <span id="score-display">0</span></span>
     </div>
     
@@ -53,7 +55,7 @@
         <button class="action-btn btn-hint" id="hint-btn" onclick="showFirstLetter()">First Letter</button>
         <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled>Reveal Word</button>
     </div>
-    <div id="timer-text">Reveal button active in: <span id="timer-countdown">60</span>s</div>
+    <div id="timer-text">Reveal active in: <span id="timer-countdown">60</span>s</div>
     <button class="action-btn btn-next" id="next-btn" onclick="nextWord()">Next Word →</button>
 
     <div id="grammar-box"></div>
@@ -68,10 +70,17 @@
 
 <div class="container" id="reward-screen">
     <h1>Promotion Earned! 🌟</h1>
-    <p>Choose your reward and Dad will be notified:</p>
+    <p>Choose your reward to notify Mum & Dad:</p>
     <button class="reward-btn" onclick="sendRewardEmail('15 min Screen Time')">📱 15 min Screen Time</button>
     <button class="reward-btn" onclick="sendRewardEmail('Ice-Cream')">🍦 Ice-Cream</button>
     <button class="reward-btn" onclick="sendRewardEmail('2000 Won')">💰 2000 Won</button>
+    
+    <button class="reward-btn" style="border-color: #0984e3; color: #0984e3;" onclick="showCustomInput()">✨ Something Else...</button>
+    
+    <div id="custom-reward-input">
+        <input type="text" id="custom-text" placeholder="Enter your request here..." autocorrect="off" spellcheck="false">
+        <button class="action-btn btn-check" onclick="sendCustomReward()">Send Request</button>
+    </div>
 </div>
 
 <script>
@@ -102,7 +111,7 @@
                 };
             }).filter(item => item.word);
             startDailyQuiz();
-        } catch (e) { alert("Sheet Link Error"); }
+        } catch (e) { alert("Data Sync Error"); }
     }
 
     function startDailyQuiz() {
@@ -177,13 +186,13 @@
         document.getElementById("reveal-count").innerText = revealsUsed;
         
         if (revealsUsed > 3) {
-            alert("Detective, you used too many reveals! You must restart the whole quiz.");
+            alert("Strike 4! Too many reveals used. You must restart the entire quiz.");
             location.reload();
             return;
         }
 
         const target = sessionWords[currentIndex].word;
-        document.getElementById("message").innerText = `The word is: ${target}. Now type it yourself!`;
+        document.getElementById("message").innerText = `The word is: ${target}. Now type it!`;
         document.getElementById("message").style.color = "var(--warning)";
         document.getElementById("reveal-btn").disabled = true;
         document.getElementById("reveal-btn").classList.remove("active");
@@ -202,7 +211,6 @@
     }
 
     function handleSuccess() {
-        let obj = sessionWords[currentIndex];
         clearInterval(revealTimer);
         document.getElementById("user-input").disabled = true;
         document.getElementById("message").style.color = "var(--success)";
@@ -212,8 +220,8 @@
         document.getElementById("reveal-btn").style.display = "none";
         document.getElementById("timer-text").style.display = "none";
         document.getElementById("next-btn").style.display = "block";
-        if (obj.grammar) {
-            document.getElementById("grammar-box").innerText = obj.grammar;
+        if (sessionWords[currentIndex].grammar) {
+            document.getElementById("grammar-box").innerText = sessionWords[currentIndex].grammar;
             document.getElementById("grammar-box").style.display = "block";
         }
     }
@@ -224,11 +232,13 @@
         document.getElementById("game-ui").style.display = "none";
         document.getElementById("report-screen").style.display = "inline-block";
         if (currentRound === 1) {
-            document.getElementById("session-summary").innerText = "Round 1 Complete!";
-            document.getElementById("round-action-btn").innerText = "Start Master Round";
+            document.getElementById("report-title").innerText = "Round 1 Complete!";
+            document.getElementById("session-summary").innerText = "Ready for Master Mode?";
+            document.getElementById("round-action-btn").innerText = "Start Round 2";
         } else {
             const pct = (score / 10) * 100;
-            document.getElementById("session-summary").innerText = `Mastery Score: ${pct}%`;
+            document.getElementById("report-title").innerText = "Final Results";
+            document.getElementById("session-summary").innerText = `Mastery: ${pct}%`;
             document.getElementById("round-action-btn").innerText = (pct >= 90) ? "Claim Reward! 🎁" : "Finish Session";
         }
     }
@@ -241,11 +251,21 @@
         } else { location.reload(); }
     }
 
+    function showCustomInput() {
+        document.getElementById("custom-reward-input").style.display = "block";
+    }
+
     function sendRewardEmail(reward) {
-        const body = encodeURIComponent(`Hi Dad! I completed my spelling and earned 90%+. I chose: ${reward}.`);
-        window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward!&body=${body}`;
-        alert("Notification sent! Reloading page...");
+        const body = encodeURIComponent(`Hi Mum & Dad! I mastered my spelling list with a score of ${score}/10. I have chosen my reward: ${reward}.`);
+        window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward Claimed!&body=${body}`;
+        alert("Notification sent! Great job.");
         location.reload();
+    }
+
+    function sendCustomReward() {
+        const customReward = document.getElementById("custom-text").value;
+        if (!customReward) { alert("Please type your request!"); return; }
+        sendRewardEmail(`CUSTOM REQUEST: ${customReward}`);
     }
 
     document.getElementById("user-input").addEventListener("keyup", (e) => {
