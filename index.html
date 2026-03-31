@@ -31,7 +31,7 @@
 <body>
 
 <div class="container" id="loading-screen">
-    <h1>🔍 Detective Memory Loading...</h1>
+    <h1>🔍 Detective Intelligence</h1>
     <p id="status-text">Fetching latest files from HQ...</p>
     <button class="action-btn btn-check" id="start-btn" onclick="startGame()" style="display:none;">START MISSION</button>
 </div>
@@ -66,18 +66,14 @@
 </div>
 
 <div class="container" id="reward-screen">
-    <h1>Top Detective Promotion! 🌟</h1>
-    <p>Choose your reward:</p>
+    <h1>Promotion Earned! 🌟</h1>
     <button class="reward-btn" onclick="sendEmail('15 min Screen Time')">📱 15 min Screen Time</button>
     <button class="reward-btn" onclick="sendEmail('Ice-Cream')">🍦 Ice-Cream</button>
     <button class="reward-btn" onclick="sendEmail('2000 Won')">💰 2000 Won</button>
 </div>
 
 <script>
-    // ==========================================
-    // CONFIGURATION
-    // ==========================================
-    const CSV_URL = 'YOUR_PUBLISHED_CSV_URL_HERE'; // PASTE YOUR LINK HERE
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv'; // MUST BE THE CSV LINK
     const PARENT_EMAILS = "nscarlett@nlcsjeju.kr,okjuscarlett@gmail.com";
 
     let allWords = [], sessionWords = [], currentIndex = 0, currentRound = 1, score = 0;
@@ -86,39 +82,45 @@
     let sessionResults = { correct: [], needsPractice: [] };
     let needsTraining = false, revealTimer, secondsRemaining = 60;
 
-    // Load words from Google Sheets
     window.onload = async function() {
         try {
             const response = await fetch(CSV_URL);
             const data = await response.text();
+            
+            // Safety Check: If it looks like HTML, the user grabbed the wrong link
+            if (data.includes("<!DOCTYPE") || data.includes("<html")) {
+                document.getElementById("status-text").innerText = "⚠️ Error: You used the 'Web Page' link instead of the 'CSV' link in Google Sheets!";
+                return;
+            }
+
             allWords = parseCSV(data);
-            document.getElementById("status-text").innerText = `HQ Connected. ${troubleWords.length} trouble words tracked.`;
+            document.getElementById("status-text").innerText = `Ready. Tracking ${troubleWords.length} tricky words.`;
             document.getElementById("start-btn").style.display = "inline-block";
         } catch (e) {
-            document.getElementById("status-text").innerText = "Connection error. Using backup data.";
-            // Fallback backup words if URL fails
-            allWords = [{word:"EXAMPLE", sentence: "This is an _______.", phonetic:"EX•AM•PLE"}];
-            document.getElementById("start-btn").style.display = "inline-block";
+            document.getElementById("status-text").innerText = "Connection error. Please check the link.";
         }
     };
 
     function parseCSV(text) {
-        return text.split('\n').slice(1).map(line => {
-            const parts = line.split(',');
-            return { 
-                word: parts[0]?.trim().toUpperCase(), 
-                sentence: parts[1]?.trim(), 
-                phonetic: parts[2]?.trim() || parts[0]?.trim()
-            };
-        }).filter(item => item.word && item.word.length > 1);
+        return text.split('\n')
+            .filter(line => line.trim() !== "" && !line.startsWith('<')) // Ignore empty or HTML lines
+            .slice(1) // Skip Header
+            .map(line => {
+                const parts = line.split(',');
+                return { 
+                    word: parts[0]?.trim().toUpperCase(), 
+                    sentence: parts[1]?.trim(), 
+                    phonetic: parts[2]?.trim() || parts[0]?.trim()
+                };
+            }).filter(item => item.word && item.word.length > 1);
     }
 
     function startGame() {
-        // 1. Pick up to 3 words from Trouble List
+        // Priority: Words she failed before
         let selection = allWords.filter(w => troubleWords.includes(w.word))
                                 .sort(() => 0.5 - Math.random()).slice(0, 3);
         
-        // 2. Fill the rest with new words she hasn't mastered
+        // Fill remaining with new words she hasn't mastered yet
         let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
         let fillCount = 5 - selection.length;
         let freshWords = available.sort(() => 0.5 - Math.random()).slice(0, fillCount);
@@ -127,6 +129,7 @@
         
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
+        currentRound = 1; 
         setupRound();
     }
 
@@ -151,6 +154,7 @@
         document.getElementById("user-input").disabled = false;
         document.getElementById("feedback-area").style.display = "none";
         document.getElementById("phonetic-reveal-area").style.display = "none";
+        document.getElementById("action-buttons").style.display = "block";
         document.getElementById("check-btn").style.display = "inline-block";
         document.getElementById("hint-btn").style.display = "inline-block";
         document.getElementById("reveal-btn").style.display = "inline-block";
@@ -161,7 +165,7 @@
             let letters = obj.word.split('').sort(() => 0.5 - Math.random());
             scrambleArea.innerHTML = letters.map((l, i) => `<span class="letter-slot" id="slot-${i}">${l}</span>`).join(' ');
         } else {
-            scrambleArea.innerHTML = ""; // No scramble in Round 2
+            scrambleArea.innerHTML = ""; 
         }
         
         startRevealTimer();
@@ -170,7 +174,7 @@
 
     function startRevealTimer() {
         clearInterval(revealTimer);
-        secondsRemaining = 20; // Shortened for better flow
+        secondsRemaining = 60; 
         const btn = document.getElementById("reveal-btn");
         const txt = document.getElementById("timer-text");
         btn.disabled = true; btn.classList.remove("active"); txt.style.display = "block";
@@ -203,8 +207,7 @@
         if (guess === target) {
             if (currentRound === 2 && !needsTraining) { 
                 score++; 
-                sessionResults.correct.push(target);
-                // Remove from trouble list if they master it
+                if(!sessionResults.correct.includes(target)) sessionResults.correct.push(target);
                 troubleWords = troubleWords.filter(w => w !== target);
                 if(!masteredWords.includes(target)) masteredWords.push(target);
             }
@@ -213,17 +216,17 @@
             needsTraining = true;
             showFeedback("❌ Try again!", "var(--error)");
             if(!troubleWords.includes(target)) troubleWords.push(target);
-            // If they get it wrong, remove from mastered
             masteredWords = masteredWords.filter(w => w !== target);
         }
-        saveProgress();
+        localStorage.setItem('troubleWords', JSON.stringify(troubleWords));
+        localStorage.setItem('masteredWords', JSON.stringify(masteredWords));
     }
 
     function revealFullWord() {
         needsTraining = true;
         let target = sessionWords[currentIndex].word;
         if(!troubleWords.includes(target)) troubleWords.push(target);
-        saveProgress();
+        localStorage.setItem('troubleWords', JSON.stringify(troubleWords));
         showFeedback(`Word: ${target}`, "var(--warning)");
     }
 
@@ -236,7 +239,9 @@
         clearInterval(revealTimer);
         document.getElementById("user-input").disabled = true;
         document.getElementById("timer-text").style.display = "none";
-        document.getElementById("action-buttons").style.display = "none";
+        document.getElementById("check-btn").style.display = "none";
+        document.getElementById("hint-btn").style.display = "none";
+        document.getElementById("reveal-btn").style.display = "none";
 
         if (!needsTraining) {
             showFeedback("💎 PERFECT!", "var(--success)");
@@ -269,7 +274,6 @@
 
     function nextWord() { 
         currentIndex++; 
-        document.getElementById("action-buttons").style.display = "block";
         showWord(); 
     }
 
@@ -279,10 +283,10 @@
         const sum = document.getElementById("session-summary");
         
         if (currentRound === 1) {
-            sum.innerHTML = "Investigation Complete!<br>Ready for Master Mode? (No Scrambled Letters!)";
+            sum.innerHTML = "Investigation Complete!<br>Ready for Master Mode? (The scrambled letters will vanish!)";
             document.getElementById("round-action-btn").innerText = "Start Round 2";
         } else {
-            sum.innerHTML = `<strong>Final Score: ${score}/5</strong><br>Mastered: ${sessionResults.correct.length}<br>Next time we will practice the others!`;
+            sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}`;
             document.getElementById("round-action-btn").innerText = (score >= 4) ? "Claim Reward! 🎁" : "Retry Master Mode";
         }
     }
@@ -295,7 +299,7 @@
             document.getElementById("report-screen").style.display = "none"; 
             document.getElementById("reward-screen").style.display = "inline-block"; 
         } else { 
-            currentRound = 2; // Reset Round 2 attempt
+            currentRound = 2; // Keep them in Round 2 until they pass
             setupRound();
         }
     }
@@ -305,15 +309,10 @@
         fb.innerText = text; fb.style.backgroundColor = color; fb.style.display = "block";
     }
 
-    function saveProgress() {
-        localStorage.setItem('troubleWords', JSON.stringify(troubleWords));
-        localStorage.setItem('masteredWords', JSON.stringify(masteredWords));
-    }
-
     function sendEmail(reward) {
         let b = `Detective Report:\nScore: ${score}/5\nReward: ${reward}\n\nMastered:\n${sessionResults.correct.join(", ") || "None"}`;
         window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward Claimed&body=${encodeURIComponent(b)}`;
-        alert("Sent to Dad! Great job."); location.reload();
+        alert("Sent to Dad!"); location.reload();
     }
 </script>
 </body>
