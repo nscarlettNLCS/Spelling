@@ -1,3 +1,8 @@
+Here is the complete, updated code. 
+
+I have integrated the **anti-cheat attributes** into the input field to block autocorrect and suggestions. I also updated the reward system to use the **Web Share API**, which triggers the native sharing menu on mobile devices (allowing the student to choose KakaoTalk, WhatsApp, or Gmail) and includes a detailed breakdown of mastered vs. practice words.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,7 +49,14 @@
     </div>
     <div id="sentence-display" class="sentence"></div>
     <div id="scrambled-word" class="scrambled"></div>
-    <input type="text" id="user-input" placeholder="Solve the word..." autocomplete="off" oninput="updateScrambleStrike()">
+    
+    <input type="text" id="user-input" placeholder="Solve the word..." 
+           autocomplete="off" 
+           autocorrect="off" 
+           autocapitalize="none" 
+           spellcheck="false" 
+           oninput="updateScrambleStrike()">
+
     <div id="action-buttons">
         <button class="action-btn btn-check" id="check-btn" onclick="checkWord()">Check</button>
         <button class="action-btn btn-hint" id="hint-btn" onclick="showFirstLetter()">Hint</button>
@@ -67,13 +79,13 @@
 
 <div class="container" id="reward-screen">
     <h1>Promotion Earned! 🌟</h1>
-    <button class="reward-btn" onclick="sendEmail('15 min Screen Time')">📱 15 min Screen Time</button>
-    <button class="reward-btn" onclick="sendEmail('Ice-Cream')">🍦 Ice-Cream</button>
-    <button class="reward-btn" onclick="sendEmail('2000 Won')">💰 2000 Won</button>
+    <button class="reward-btn" onclick="shareReport('15 min Screen Time')">📱 15 min Screen Time</button>
+    <button class="reward-btn" onclick="shareReport('Ice-Cream')">🍦 Ice-Cream</button>
+    <button class="reward-btn" onclick="shareReport('2000 Won')">💰 2000 Won</button>
 </div>
 
 <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv'; // MUST BE THE CSV LINK
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
     const PARENT_EMAILS = "nscarlett@nlcsjeju.kr,okjuscarlett@gmail.com";
 
     let allWords = [], sessionWords = [], currentIndex = 0, currentRound = 1, score = 0;
@@ -86,25 +98,22 @@
         try {
             const response = await fetch(CSV_URL);
             const data = await response.text();
-            
-            // Safety Check: If it looks like HTML, the user grabbed the wrong link
             if (data.includes("<!DOCTYPE") || data.includes("<html")) {
-                document.getElementById("status-text").innerText = "⚠️ Error: You used the 'Web Page' link instead of the 'CSV' link in Google Sheets!";
+                document.getElementById("status-text").innerText = "⚠️ Error: CSV link issue.";
                 return;
             }
-
             allWords = parseCSV(data);
             document.getElementById("status-text").innerText = `Ready. Tracking ${troubleWords.length} tricky words.`;
             document.getElementById("start-btn").style.display = "inline-block";
         } catch (e) {
-            document.getElementById("status-text").innerText = "Connection error. Please check the link.";
+            document.getElementById("status-text").innerText = "Connection error.";
         }
     };
 
     function parseCSV(text) {
         return text.split('\n')
-            .filter(line => line.trim() !== "" && !line.startsWith('<')) // Ignore empty or HTML lines
-            .slice(1) // Skip Header
+            .filter(line => line.trim() !== "" && !line.startsWith('<'))
+            .slice(1)
             .map(line => {
                 const parts = line.split(',');
                 return { 
@@ -116,17 +125,12 @@
     }
 
     function startGame() {
-        // Priority: Words she failed before
         let selection = allWords.filter(w => troubleWords.includes(w.word))
                                 .sort(() => 0.5 - Math.random()).slice(0, 3);
-        
-        // Fill remaining with new words she hasn't mastered yet
         let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
         let fillCount = 5 - selection.length;
         let freshWords = available.sort(() => 0.5 - Math.random()).slice(0, fillCount);
-
         sessionWords = [...selection, ...freshWords].sort(() => 0.5 - Math.random());
-        
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
         currentRound = 1; 
@@ -138,7 +142,7 @@
         document.getElementById("report-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
         document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1: Investigation 🔍" : "Round 2: Master Mode 🔥";
-        if(currentRound === 1) score = 0; 
+        if(currentRound === 1) { score = 0; sessionResults.correct = []; } 
         showWord();
     }
 
@@ -146,7 +150,6 @@
         if (currentIndex >= sessionWords.length) { showReport(); return; }
         let obj = sessionWords[currentIndex];
         needsTraining = false;
-        
         document.getElementById("score-display").innerText = score;
         document.getElementById("current-count").innerText = currentIndex + 1;
         document.getElementById("sentence-display").innerText = obj.sentence;
@@ -159,7 +162,6 @@
         document.getElementById("hint-btn").style.display = "inline-block";
         document.getElementById("reveal-btn").style.display = "inline-block";
         document.getElementById("next-btn").style.display = "none";
-        
         const scrambleArea = document.getElementById("scrambled-word");
         if(currentRound === 1) {
             let letters = obj.word.split('').sort(() => 0.5 - Math.random());
@@ -167,7 +169,6 @@
         } else {
             scrambleArea.innerHTML = ""; 
         }
-        
         startRevealTimer();
         setTimeout(() => document.getElementById("user-input").focus(), 100);
     }
@@ -203,7 +204,6 @@
     function checkWord() {
         let guess = document.getElementById("user-input").value.toUpperCase().trim();
         let target = sessionWords[currentIndex].word;
-        
         if (guess === target) {
             if (currentRound === 2 && !needsTraining) { 
                 score++; 
@@ -242,7 +242,6 @@
         document.getElementById("check-btn").style.display = "none";
         document.getElementById("hint-btn").style.display = "none";
         document.getElementById("reveal-btn").style.display = "none";
-
         if (!needsTraining) {
             showFeedback("💎 PERFECT!", "var(--success)");
             document.getElementById("next-btn").style.display = "block";
@@ -272,22 +271,18 @@
         });
     }
 
-    function nextWord() { 
-        currentIndex++; 
-        showWord(); 
-    }
+    function nextWord() { currentIndex++; showWord(); }
 
     function showReport() {
         document.getElementById("game-ui").style.display = "none";
         document.getElementById("report-screen").style.display = "inline-block";
         const sum = document.getElementById("session-summary");
-        
         if (currentRound === 1) {
             sum.innerHTML = "Investigation Complete!<br>Ready for Master Mode? (The scrambled letters will vanish!)";
             document.getElementById("round-action-btn").innerText = "Start Round 2";
         } else {
             sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}`;
-            document.getElementById("round-action-btn").innerText = (score >= 4) ? "Claim Reward! 🎁" : "Retry Master Mode";
+            document.getElementById("round-action-btn").innerText = (score >= 4) ? "Share Report & Reward! 🎁" : "Retry Master Mode";
         }
     }
 
@@ -299,7 +294,7 @@
             document.getElementById("report-screen").style.display = "none"; 
             document.getElementById("reward-screen").style.display = "inline-block"; 
         } else { 
-            currentRound = 2; // Keep them in Round 2 until they pass
+            currentRound = 2;
             setupRound();
         }
     }
@@ -309,11 +304,37 @@
         fb.innerText = text; fb.style.backgroundColor = color; fb.style.display = "block";
     }
 
-    function sendEmail(reward) {
-        let b = `Detective Report:\nScore: ${score}/5\nReward: ${reward}\n\nMastered:\n${sessionResults.correct.join(", ") || "None"}`;
-        window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward Claimed&body=${encodeURIComponent(b)}`;
-        alert("Sent to Dad!"); location.reload();
+    // UPDATED SHARING FUNCTION
+    function shareReport(reward) {
+        const mastered = sessionResults.correct.length > 0 ? sessionResults.correct.join(", ") : "None";
+        // Filter session words to find which ones the user struggled with during THIS specific session
+        const currentTrouble = sessionWords.filter(w => !sessionResults.correct.includes(w.word)).map(w => w.word);
+        
+        const reportText = `🕵️ SPELLING MISSION REPORT\n` +
+                           `--------------------------\n` +
+                           `🎯 Final Score: ${score}/5\n` +
+                           `🎁 Reward: ${reward}\n\n` +
+                           `✅ Mastered: ${mastered}\n` +
+                           `🔍 Needs More Practice: ${currentTrouble.join(", ") || "None!"}\n` +
+                           `--------------------------`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Detective Intelligence Case',
+                text: reportText
+            }).then(() => {
+                alert("Report Sent!");
+                location.reload();
+            }).catch(() => {
+                console.log("Share cancelled");
+            });
+        } else {
+            // Email Fallback
+            window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward Claimed&body=${encodeURIComponent(reportText)}`;
+            alert("Opening Email...");
+        }
     }
 </script>
 </body>
 </html>
+```
