@@ -29,6 +29,7 @@
         .syl-color-3.revealed { background: #e17055; }
         .syl-color-4.revealed { background: #0984e3; }
         .syl-color-5.revealed { background: #fdcb6e; color: #2d3436 !important; }
+        .grammar-rule-box { display: none; margin-top: 14px; background: #fff9db; border-left: 5px solid var(--gold); border-radius: 10px; padding: 12px 16px; font-size: 0.95em; color: #5d4037; text-align: left; line-height: 1.6; }
 
         input { font-size: 1.5em; padding: 15px; border-radius: 15px; border: 3px solid #dfe6e9; width: 85%; text-align: center; margin-bottom: 10px; outline: none; }
         button.action-btn { font-size: 1.1em; padding: 14px 24px; margin: 5px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
@@ -132,8 +133,14 @@
     <div id="sentence-display" class="sentence"></div>
     <div id="scrambled-word" class="scrambled"></div>
 
-    <input type="text" id="user-input" placeholder="Solve the word..."
-           autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+    <input type="search" id="user-input" placeholder="Solve the word..."
+           autocomplete="off"
+           autocorrect="off"
+           autocapitalize="none"
+           autocomplete="new-password"
+           spellcheck="false"
+           inputmode="text"
+           enterkeyhint="done"
            oninput="updateScrambleStrike()">
 
     <div id="action-buttons">
@@ -146,6 +153,7 @@
     <div id="phonetic-reveal-area">
         <p><strong>Training:</strong> Click all sound blocks!</p>
         <div id="syllable-container"></div>
+        <div class="grammar-rule-box" id="grammar-rule-box"></div>
     </div>
     <button class="action-btn btn-next" id="next-btn" onclick="nextWord()">Next Word →</button>
 </div>
@@ -285,13 +293,20 @@
             .filter(line => line.trim() !== "" && !line.startsWith('<'))
             .slice(1)
             .map(line => {
-                const firstComma = line.indexOf(',');
-                const secondComma = line.indexOf(',', firstComma + 1);
-                if (firstComma === -1) return null;
-                const word = line.slice(0, firstComma).trim().toUpperCase();
-                const sentence = secondComma > -1 ? line.slice(firstComma + 1, secondComma).trim() : line.slice(firstComma + 1).trim();
-                const phonetic = secondComma > -1 ? line.slice(secondComma + 1).trim() : word;
-                return { word, sentence, phonetic };
+                // Find up to 4 comma positions for columns A,B,C,D
+                const c1 = line.indexOf(',');
+                if (c1 === -1) return null;
+                const c2 = line.indexOf(',', c1 + 1);
+                const c3 = c2 > -1 ? line.indexOf(',', c2 + 1) : -1;
+
+                const word       = line.slice(0, c1).trim().toUpperCase();
+                const sentence   = c2 > -1 ? line.slice(c1 + 1, c2).trim() : line.slice(c1 + 1).trim();
+                const phonetic   = c2 > -1 && c3 > -1 ? line.slice(c2 + 1, c3).trim()
+                                 : c2 > -1              ? line.slice(c2 + 1).trim()
+                                 : word;
+                const grammarRule = c3 > -1 ? line.slice(c3 + 1).trim() : '';
+
+                return { word, sentence, phonetic, grammarRule };
             }).filter(item => item && item.word && item.word.length > 1);
     }
 
@@ -397,6 +412,7 @@
         document.getElementById("user-input").disabled = false;
         document.getElementById("feedback-area").style.display = "none";
         document.getElementById("phonetic-reveal-area").style.display = "none";
+        document.getElementById("grammar-rule-box").style.display = "none";
         document.getElementById("action-buttons").style.display = "block";
         document.getElementById("check-btn").style.display = "inline-block";
         document.getElementById("hint-btn").style.display = "inline-block";
@@ -493,24 +509,41 @@
         }
     }
 
-    // IMPROVEMENT 2: Colourful syllable buttons
+    // Colourful syllable buttons — column C (phonetic) only
     const SYLLABLE_COLORS = ['syl-color-0','syl-color-1','syl-color-2','syl-color-3','syl-color-4','syl-color-5'];
 
     function setupPhoneticTraining() {
         const area = document.getElementById("phonetic-reveal-area");
         const cont = document.getElementById("syllable-container");
-        area.style.display = "block"; cont.innerHTML = "";
-        let parts = (sessionWords[currentIndex].phonetic).split(/[•·\-\s/]+/).filter(p => p.trim());
+        const grammarBox = document.getElementById("grammar-rule-box");
+        area.style.display = "block";
+        cont.innerHTML = "";
+        grammarBox.style.display = "none";
+        grammarBox.innerHTML = "";
+
+        const currentWord = sessionWords[currentIndex];
+
+        // Split ONLY column C (phonetic) into syllable buttons
+        const parts = currentWord.phonetic.split(/[•·\-\s/]+/).filter(p => p.trim());
         let clicked = 0;
+
         parts.forEach((p, i) => {
-            let btn = document.createElement("button");
+            const btn = document.createElement("button");
             const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
             btn.className = `syllable-btn ${colorClass}`;
             btn.innerText = p.toUpperCase();
             btn.onclick = function() {
-                if(!this.classList.contains("revealed")) {
-                    this.classList.add("revealed"); clicked++;
-                    if(clicked === parts.length) document.getElementById("next-btn").style.display = "block";
+                if (!this.classList.contains("revealed")) {
+                    this.classList.add("revealed");
+                    clicked++;
+                    if (clicked === parts.length) {
+                        // Show grammar rule (column D) once all syllables revealed
+                        if (currentWord.grammarRule) {
+                            grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
+                            grammarBox.style.display = "block";
+                        }
+                        document.getElementById("next-btn").style.display = "block";
+                    }
                 }
             };
             cont.appendChild(btn);
