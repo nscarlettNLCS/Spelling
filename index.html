@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spelling Detective: Intelligence Case</title>
+    <title>Word Sleuth: Daily Mission</title>
     <style>
         :root { --primary: #6c5ce7; --success: #00b894; --error: #d63031; --bg: #f0f4f8; --dark: #2d3436; --gold: #f1c40f; --hint: #fd79a8; --warning: #e17055; }
         body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg); padding: 20px; color: var(--dark); }
@@ -16,8 +15,21 @@
         .used-letter { text-decoration: line-through; opacity: 0.2; transform: scale(0.8); color: #b2bec3; }
         .sentence { font-size: 1.3em; margin: 20px; font-style: italic; color: #555; background: #fdfdfd; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); }
         #phonetic-reveal-area { display: none; margin: 20px 0; padding: 20px; background: #f1f2f6; border-radius: 15px; }
-        .syllable-btn { border: none; padding: 15px 25px; margin: 5px; border-radius: 12px; cursor: pointer; font-size: 1.3em; font-weight: 800; color: transparent; transition: 0.3s; background: #dfe6e9; }
-        .syllable-btn.revealed { color: white; background: var(--primary); transform: translateY(-3px); }
+
+        /* IMPROVEMENT 2: Colourful syllable buttons */
+        .syllable-btn {
+            border: none; padding: 15px 25px; margin: 5px; border-radius: 12px;
+            cursor: pointer; font-size: 1.3em; font-weight: 800;
+            color: transparent; transition: all 0.3s; background: #dfe6e9;
+        }
+        .syllable-btn.revealed { color: white; transform: translateY(-3px) scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .syl-color-0.revealed { background: #6c5ce7; }
+        .syl-color-1.revealed { background: #00b894; }
+        .syl-color-2.revealed { background: #fd79a8; }
+        .syl-color-3.revealed { background: #e17055; }
+        .syl-color-4.revealed { background: #0984e3; }
+        .syl-color-5.revealed { background: #fdcb6e; color: #2d3436 !important; }
+
         input { font-size: 1.5em; padding: 15px; border-radius: 15px; border: 3px solid #dfe6e9; width: 85%; text-align: center; margin-bottom: 10px; outline: none; }
         button.action-btn { font-size: 1.1em; padding: 14px 24px; margin: 5px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
         .btn-check { background: var(--success); color: white; }
@@ -25,32 +37,103 @@
         .btn-reveal { background: var(--warning); color: white; opacity: 0.5; }
         .btn-reveal.active { opacity: 1; }
         .btn-next { background: var(--primary); color: white; display: none; width: 100%; font-size: 1.3em; }
-        #game-ui, #report-screen, #reward-screen { display: none; }
-        .reward-btn { border: 3px solid var(--gold); background: #fff9db; padding: 18px; margin: 12px auto; border-radius: 18px; cursor: pointer; font-weight: 800; width: 90%; font-size: 1.2em; display: block; }
+        .btn-secondary { background: #b2bec3; color: white; }
+        #game-ui, #report-screen, #reward-screen, #fitb-screen { display: none; }
+
+        /* IMPROVEMENT 1: Reward screen styles */
+        .reward-btn { border: 3px solid var(--gold); background: #fff9db; padding: 18px; margin: 12px auto; border-radius: 18px; cursor: pointer; font-weight: 800; width: 90%; font-size: 1.2em; display: block; transition: transform 0.15s; }
+        .reward-btn:hover { transform: scale(1.02); }
+        .custom-reward-area { margin-top: 16px; border-top: 2px dashed #f1c40f; padding-top: 16px; }
+        .custom-reward-input { font-size: 1.1em; padding: 12px; border-radius: 12px; border: 3px solid #dfe6e9; width: 80%; text-align: center; margin-bottom: 10px; outline: none; }
+        .custom-reward-input:focus { border-color: var(--gold); }
+
+        .streak-display { font-size: 1.1em; font-weight: bold; color: var(--warning); min-height: 1.4em; margin: 5px 0; }
+        .copy-box { width: 90%; height: 110px; font-size: 12px; border-radius: 10px; border: 2px solid #dfe6e9; padding: 10px; margin-top: 10px; resize: none; }
+
+        /* IMPROVEMENT 3: Fill-in-the-blank styles */
+        #fitb-screen h2 { color: var(--primary); margin-bottom: 5px; }
+        .fitb-progress { font-size: 0.9em; color: #888; margin-bottom: 15px; }
+        .fitb-sentence { font-size: 1.25em; font-style: italic; color: #444; background: #fdfdfd; padding: 18px; border-radius: 12px; border-left: 5px solid var(--hint); margin: 15px 0; line-height: 1.8; }
+        .fitb-blank { display: inline-block; min-width: 110px; border-bottom: 3px solid var(--primary); font-weight: 900; font-style: normal; color: var(--primary); }
+        .fitb-choices { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 15px 0; }
+        .fitb-choice { padding: 12px 22px; border-radius: 12px; border: 2px solid #dfe6e9; background: white; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.2s; color: var(--dark); }
+        .fitb-choice:hover { border-color: var(--primary); background: #f0eeff; }
+        .fitb-choice.correct { background: var(--success); color: white; border-color: var(--success); }
+        .fitb-choice.wrong { background: var(--error); color: white; border-color: var(--error); opacity: 0.7; }
+        .fitb-choice.show-answer { background: var(--success); color: white; border-color: var(--success); }
+        .fitb-feedback { font-size: 1.2em; font-weight: bold; min-height: 1.5em; margin: 8px 0; }
+        .fitb-score-bar { background: #f8f9fa; border-radius: 12px; padding: 10px 20px; margin-bottom: 15px; font-weight: bold; color: var(--primary); }
+
+        /* Daily streak panel on welcome screen */
+        .streak-panel { display: flex; justify-content: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+        .streak-card { background: #f8f9fa; border-radius: 16px; padding: 14px 20px; min-width: 110px; }
+        .streak-card .sc-label { font-size: 0.78em; color: #888; margin-bottom: 4px; }
+        .streak-card .sc-value { font-size: 2em; font-weight: 900; line-height: 1; }
+        .streak-card.current .sc-value { color: var(--warning); }
+        .streak-card.best .sc-value { color: var(--gold); }
+        .streak-warning { background: #fff3f3; border: 2px solid var(--error); border-radius: 14px; padding: 12px 16px; margin: 10px 0; font-size: 0.95em; color: var(--error); font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
+<!-- LOADING / WELCOME SCREEN -->
 <div class="container" id="loading-screen">
-    <h1>🔍 Detective Intelligence</h1>
+    <h1>🔎 Word Sleuth</h1>
+    <p style="font-size:1.1em;color:#888;margin-top:-10px;margin-bottom:16px;">Daily Mission</p>
     <p id="status-text">Fetching latest files from HQ...</p>
-    <button class="action-btn btn-check" id="start-btn" onclick="startGame()" style="display:none;">START MISSION</button>
+    <div id="welcome-buttons" style="display:none;">
+
+        <!-- Daily streak panel -->
+        <div class="streak-panel">
+            <div class="streak-card current">
+                <div class="sc-label">🔥 Current Streak</div>
+                <div class="sc-value" id="daily-streak-display">0</div>
+                <div class="sc-label" style="margin-top:2px;">days</div>
+            </div>
+            <div class="streak-card best">
+                <div class="sc-label">🏆 Best Streak</div>
+                <div class="sc-value" id="best-streak-display">0</div>
+                <div class="sc-label" style="margin-top:2px;">days</div>
+            </div>
+        </div>
+
+        <!-- Warning shown if yesterday's mission was failed/missed -->
+        <div class="streak-warning" id="streak-warning">
+            ⚠️ Complete today's mission to start a new winning streak!
+        </div>
+
+        <button class="action-btn btn-check" onclick="startFITB()" style="margin-bottom:8px;width:80%;">📖 Warm Up: Sentence Practice</button>
+        <br>
+        <button class="action-btn" style="background:var(--primary);color:white;width:80%;" onclick="startGame()">🕵️ START MISSION</button>
+        <p style="font-size:0.85em;color:#888;margin-top:12px;">Tracking <span id="trouble-count">0</span> tricky words</p>
+    </div>
 </div>
 
+<!-- IMPROVEMENT 3: Fill-in-the-blank screen -->
+<div class="container" id="fitb-screen">
+    <h2>📖 Sentence Warm-Up</h2>
+    <div class="fitb-progress">Question <span id="fitb-current">1</span> of <span id="fitb-total">5</span></div>
+    <div class="fitb-score-bar">⭐ Score: <span id="fitb-score">0</span></div>
+    <div id="fitb-sentence" class="fitb-sentence"></div>
+    <div id="fitb-choices" class="fitb-choices"></div>
+    <div id="fitb-feedback" class="fitb-feedback"></div>
+    <button class="action-btn btn-next" id="fitb-next-btn" onclick="nextFITB()" style="display:none;width:90%;">Next →</button>
+    <button class="action-btn btn-secondary" onclick="endFITB()" style="margin-top:10px;width:90%;font-size:0.95em;">Skip to Mission</button>
+</div>
+
+<!-- GAME UI -->
 <div class="container" id="game-ui">
     <div id="round-tag" class="round-indicator">Round 1: Investigation 🔍</div>
     <div class="stats-bar">
         <span>Case <span id="current-count">1</span>/5</span>
         <span>🔥 Score: <span id="score-display">0</span></span>
     </div>
+    <div id="streak-display" class="streak-display"></div>
     <div id="sentence-display" class="sentence"></div>
     <div id="scrambled-word" class="scrambled"></div>
-    
-    <input type="text" id="user-input" placeholder="Solve the word..." 
-           autocomplete="off" 
-           autocorrect="off" 
-           autocapitalize="none" 
-           spellcheck="false" 
+
+    <input type="text" id="user-input" placeholder="Solve the word..."
+           autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
            oninput="updateScrambleStrike()">
 
     <div id="action-buttons">
@@ -58,7 +141,7 @@
         <button class="action-btn btn-hint" id="hint-btn" onclick="showFirstLetter()">Hint</button>
         <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled>Reveal</button>
     </div>
-    <div id="timer-text" style="font-size: 0.8em; margin-top:5px; color: var(--warning);">Reveal unlocks in: <span id="timer-countdown">60</span>s</div>
+    <div id="attempt-text" style="font-size: 0.85em; margin-top:5px; color: var(--warning);">Reveal unlocks after <span id="attempt-countdown">3</span> wrong tries</div>
     <div id="feedback-area" style="font-size: 1.3em; margin: 10px; font-weight: bold; border-radius: 10px; padding: 10px; display:none; color: white;"></div>
     <div id="phonetic-reveal-area">
         <p><strong>Training:</strong> Click all sound blocks!</p>
@@ -67,28 +150,115 @@
     <button class="action-btn btn-next" id="next-btn" onclick="nextWord()">Next Word →</button>
 </div>
 
+<!-- REPORT SCREEN -->
 <div class="container" id="report-screen">
     <h1 id="report-header">Mission Status</h1>
     <div id="session-summary" style="font-size:1.5em; margin: 25px 0; line-height: 1.6;"></div>
     <button class="action-btn btn-check" id="round-action-btn" style="width:100%" onclick="handleRoundTransition()"></button>
 </div>
 
+<!-- IMPROVEMENT 1: Reward screen with custom reward input + money instead of 2000 Won -->
 <div class="container" id="reward-screen">
-    <h1>Promotion Earned! 🌟</h1>
+    <h1>Mission Complete! 🌟</h1>
     <button class="reward-btn" onclick="shareReport('15 min Screen Time')">📱 15 min Screen Time</button>
     <button class="reward-btn" onclick="shareReport('Ice-Cream')">🍦 Ice-Cream</button>
-    <button class="reward-btn" onclick="shareReport('2000 Won')">💰 2000 Won</button>
+    <button class="reward-btn" onclick="shareReport('Money')">💰 Money</button>
+    <div class="custom-reward-area">
+        <p style="font-size:0.9em;color:#888;margin-bottom:8px;">Or type your own reward:</p>
+        <input type="text" class="custom-reward-input" id="custom-reward-input" placeholder="e.g. Extra playtime..." maxlength="50">
+        <br>
+        <button class="action-btn btn-check" onclick="claimCustomReward()" style="margin-top:8px;">🎁 Claim This Reward</button>
+    </div>
 </div>
 
 <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
-    const PARENT_EMAILS = "nscarlett@nlcsjeju.kr,okjuscarlett@gmail.com";
+    // IMPROVEMENT 4: Parent emails removed
+
+    function safeGet(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+        catch(e) { return fallback; }
+    }
+    function safeSet(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); }
+        catch(e) {}
+    }
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
 
     let allWords = [], sessionWords = [], currentIndex = 0, currentRound = 1, score = 0;
-    let troubleWords = JSON.parse(localStorage.getItem('troubleWords')) || [];
-    let masteredWords = JSON.parse(localStorage.getItem('masteredWords')) || [];
+    let troubleWords = safeGet('troubleWords', []);
+    let masteredWords = safeGet('masteredWords', []);
     let sessionResults = { correct: [], needsPractice: [] };
-    let needsTraining = false, revealTimer, secondsRemaining = 60;
+    let needsTraining = false, usedHelpThisWord = false;
+    let wrongAttempts = 0, streak = 0;
+
+    // ── Daily streak helpers ───────────────────────────────────────────────────
+    // Stored as { currentStreak, bestStreak, lastWinDate, wonToday }
+    // lastWinDate is "YYYY-MM-DD". wonToday is true once a mission is passed today.
+    function todayStr() {
+        return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    }
+
+    function loadDailyStreak() {
+        const data = safeGet('dailyStreak', { currentStreak: 0, bestStreak: 0, lastWinDate: null, wonToday: false });
+        const today = todayStr();
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+        // If last win was today already, streak is intact
+        if (data.lastWinDate === today) {
+            data.wonToday = true;
+            return data;
+        }
+        data.wonToday = false;
+        // If last win was yesterday, streak is still alive — player just hasn't played yet today
+        if (data.lastWinDate === yesterday) {
+            return data;  // streak preserved, warning NOT shown
+        }
+        // Last win was 2+ days ago — streak broken (unless they've never played)
+        if (data.lastWinDate !== null && data.lastWinDate !== yesterday) {
+            data.currentStreak = 0;
+        }
+        return data;
+    }
+
+    function recordDailyWin() {
+        const data = loadDailyStreak();
+        const today = todayStr();
+        if (data.lastWinDate === today) return; // already recorded a win today, don't double-count
+        data.currentStreak += 1;
+        data.bestStreak = Math.max(data.bestStreak, data.currentStreak);
+        data.lastWinDate = today;
+        data.wonToday = true;
+        safeSet('dailyStreak', data);
+        return data;
+    }
+
+    function showStreakOnWelcome() {
+        const data = loadDailyStreak();
+        const today = todayStr();
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        document.getElementById("daily-streak-display").innerText = data.currentStreak;
+        document.getElementById("best-streak-display").innerText = data.bestStreak;
+
+        // Show warning only if streak > 0, player hasn't won today, and last win wasn't yesterday or today
+        const streakBroken = data.currentStreak === 0 && data.lastWinDate !== null
+                             && data.lastWinDate !== today && data.lastWinDate !== yesterday;
+        if (streakBroken) {
+            document.getElementById("streak-warning").style.display = "block";
+        }
+    }
+    // ──────────────────────────────────────────────────────────────────────────
+
+    // IMPROVEMENT 3: FITB state
+    let fitbWords = [], fitbIndex = 0, fitbScore = 0;
 
     window.onload = async function() {
         try {
@@ -99,10 +269,14 @@
                 return;
             }
             allWords = parseCSV(data);
-            document.getElementById("status-text").innerText = `Ready. Tracking ${troubleWords.length} tricky words.`;
-            document.getElementById("start-btn").style.display = "inline-block";
-        } catch (e) {
-            document.getElementById("status-text").innerText = "Connection error.";
+            masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
+            safeSet('masteredWords', masteredWords);
+            document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
+            document.getElementById("trouble-count").innerText = troubleWords.length;
+            document.getElementById("welcome-buttons").style.display = "block";
+            showStreakOnWelcome();
+        } catch(e) {
+            document.getElementById("status-text").innerHTML = 'Connection error. <button class="action-btn btn-hint" onclick="location.reload()" style="font-size:0.9em;padding:8px 16px;">Retry</button>';
         }
     };
 
@@ -111,41 +285,111 @@
             .filter(line => line.trim() !== "" && !line.startsWith('<'))
             .slice(1)
             .map(line => {
-                const parts = line.split(',');
-                return { 
-                    word: parts[0]?.trim().toUpperCase(), 
-                    sentence: parts[1]?.trim(), 
-                    phonetic: parts[2]?.trim() || parts[0]?.trim()
-                };
-            }).filter(item => item.word && item.word.length > 1);
+                const firstComma = line.indexOf(',');
+                const secondComma = line.indexOf(',', firstComma + 1);
+                if (firstComma === -1) return null;
+                const word = line.slice(0, firstComma).trim().toUpperCase();
+                const sentence = secondComma > -1 ? line.slice(firstComma + 1, secondComma).trim() : line.slice(firstComma + 1).trim();
+                const phonetic = secondComma > -1 ? line.slice(secondComma + 1).trim() : word;
+                return { word, sentence, phonetic };
+            }).filter(item => item && item.word && item.word.length > 1);
     }
 
+    // ── IMPROVEMENT 3: Fill-in-the-blank ──────────────────────────────────────
+    function startFITB() {
+        const eligible = allWords.filter(w => w.sentence && w.sentence.length > 0);
+        fitbWords = shuffle(eligible).slice(0, Math.min(8, eligible.length));
+        fitbIndex = 0; fitbScore = 0;
+        document.getElementById("loading-screen").style.display = "none";
+        document.getElementById("fitb-screen").style.display = "inline-block";
+        document.getElementById("fitb-total").innerText = fitbWords.length;
+        showFITB();
+    }
+
+    function showFITB() {
+        if (fitbIndex >= fitbWords.length) { endFITB(); return; }
+        const item = fitbWords[fitbIndex];
+        document.getElementById("fitb-current").innerText = fitbIndex + 1;
+        document.getElementById("fitb-score").innerText = fitbScore;
+        document.getElementById("fitb-feedback").innerText = "";
+        document.getElementById("fitb-next-btn").style.display = "none";
+
+        // Build sentence with blank
+        const display = item.sentence.replace(
+            new RegExp(`\\b${item.word}\\b`, 'i'),
+            `<span class="fitb-blank">______</span>`
+        );
+        document.getElementById("fitb-sentence").innerHTML = display;
+
+        // Pick 2 wrong words
+        const others = shuffle(allWords.filter(w => w.word !== item.word)).slice(0, 2);
+        const choices = shuffle([item, ...others]);
+
+        const cont = document.getElementById("fitb-choices");
+        cont.innerHTML = "";
+        choices.forEach(c => {
+            const btn = document.createElement("button");
+            btn.className = "fitb-choice";
+            btn.innerText = c.word;
+            btn.onclick = () => checkFITB(btn, c.word, item.word, choices, cont);
+            cont.appendChild(btn);
+        });
+    }
+
+    function checkFITB(btn, chosen, correct, allChoices, cont) {
+        // Disable all buttons
+        cont.querySelectorAll(".fitb-choice").forEach(b => b.onclick = null);
+        const fb = document.getElementById("fitb-feedback");
+        if (chosen === correct) {
+            btn.classList.add("correct");
+            fitbScore++;
+            document.getElementById("fitb-score").innerText = fitbScore;
+            fb.style.color = "var(--success)";
+            fb.innerText = "✅ Correct!";
+        } else {
+            btn.classList.add("wrong");
+            // Highlight correct answer
+            cont.querySelectorAll(".fitb-choice").forEach(b => {
+                if (b.innerText === correct) b.classList.add("show-answer");
+            });
+            fb.style.color = "var(--error)";
+            fb.innerText = `❌ The answer was: ${correct}`;
+        }
+        document.getElementById("fitb-next-btn").style.display = "block";
+    }
+
+    function nextFITB() { fitbIndex++; showFITB(); }
+
+    function endFITB() {
+        document.getElementById("fitb-screen").style.display = "none";
+        document.getElementById("loading-screen").style.display = "inline-block";
+        document.getElementById("status-text").innerText = `Warm-up done! You scored ${fitbScore}/${fitbWords.length}. Ready to start?`;
+    }
+    // ──────────────────────────────────────────────────────────────────────────
+
     function startGame() {
-        let selection = allWords.filter(w => troubleWords.includes(w.word))
-                                .sort(() => 0.5 - Math.random()).slice(0, 3);
+        let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
         let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
-        let fillCount = 5 - selection.length;
-        let freshWords = available.sort(() => 0.5 - Math.random()).slice(0, fillCount);
-        sessionWords = [...selection, ...freshWords].sort(() => 0.5 - Math.random());
+        sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
-        currentRound = 1; 
+        currentRound = 1; streak = 0;
         setupRound();
     }
 
     function setupRound() {
-        currentIndex = 0; 
+        currentIndex = 0;
         document.getElementById("report-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
         document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1: Investigation 🔍" : "Round 2: Master Mode 🔥";
-        if(currentRound === 1) { score = 0; sessionResults.correct = []; } 
+        if(currentRound === 1) { score = 0; sessionResults.correct = []; }
         showWord();
     }
 
     function showWord() {
         if (currentIndex >= sessionWords.length) { showReport(); return; }
         let obj = sessionWords[currentIndex];
-        needsTraining = false;
+        needsTraining = false; usedHelpThisWord = false; wrongAttempts = 0;
         document.getElementById("score-display").innerText = score;
         document.getElementById("current-count").innerText = currentIndex + 1;
         document.getElementById("sentence-display").innerText = obj.sentence;
@@ -158,32 +402,24 @@
         document.getElementById("hint-btn").style.display = "inline-block";
         document.getElementById("reveal-btn").style.display = "inline-block";
         document.getElementById("next-btn").style.display = "none";
+        const revealBtn = document.getElementById("reveal-btn");
+        revealBtn.disabled = true; revealBtn.classList.remove("active");
+        document.getElementById("attempt-text").style.display = "block";
+        document.getElementById("attempt-countdown").innerText = 3;
         const scrambleArea = document.getElementById("scrambled-word");
         if(currentRound === 1) {
-            let letters = obj.word.split('').sort(() => 0.5 - Math.random());
-            scrambleArea.innerHTML = letters.map((l, i) => `<span class="letter-slot" id="slot-${i}">${l}</span>`).join(' ');
+            scrambleArea.innerHTML = shuffle(obj.word.split('')).map((l, i) => `<span class="letter-slot" id="slot-${i}">${l}</span>`).join(' ');
         } else {
-            scrambleArea.innerHTML = ""; 
+            scrambleArea.innerHTML = "";
         }
-        startRevealTimer();
         setTimeout(() => document.getElementById("user-input").focus(), 100);
     }
 
-    function startRevealTimer() {
-        clearInterval(revealTimer);
-        secondsRemaining = 60; 
-        const btn = document.getElementById("reveal-btn");
-        const txt = document.getElementById("timer-text");
-        btn.disabled = true; btn.classList.remove("active"); txt.style.display = "block";
-        revealTimer = setInterval(() => {
-            secondsRemaining--;
-            document.getElementById("timer-countdown").innerText = Math.max(0, secondsRemaining);
-            if (secondsRemaining <= 0) {
-                clearInterval(revealTimer);
-                btn.disabled = false; btn.classList.add("active"); txt.style.display = "none";
-            }
-        }, 1000);
-    }
+    window.addEventListener("load", () => {
+        document.getElementById("user-input").addEventListener("keydown", e => {
+            if (e.key === "Enter") checkWord();
+        });
+    });
 
     function updateScrambleStrike() {
         if(currentRound !== 1) return;
@@ -201,44 +437,54 @@
         let guess = document.getElementById("user-input").value.toUpperCase().trim();
         let target = sessionWords[currentIndex].word;
         if (guess === target) {
-            if (currentRound === 2 && !needsTraining) { 
-                score++; 
+            if (currentRound === 2 && !usedHelpThisWord) {
+                score++;
                 if(!sessionResults.correct.includes(target)) sessionResults.correct.push(target);
                 troubleWords = troubleWords.filter(w => w !== target);
                 if(!masteredWords.includes(target)) masteredWords.push(target);
             }
+            streak = usedHelpThisWord ? 0 : streak + 1;
             handleSuccess();
         } else {
-            needsTraining = true;
+            needsTraining = true; usedHelpThisWord = true; streak = 0;
+            wrongAttempts++;
+            const remaining = Math.max(0, 3 - wrongAttempts);
+            document.getElementById("attempt-countdown").innerText = remaining;
+            if (wrongAttempts >= 3) {
+                const rb = document.getElementById("reveal-btn");
+                rb.disabled = false; rb.classList.add("active");
+                document.getElementById("attempt-text").style.display = "none";
+            }
             showFeedback("❌ Try again!", "var(--error)");
             if(!troubleWords.includes(target)) troubleWords.push(target);
             masteredWords = masteredWords.filter(w => w !== target);
         }
-        localStorage.setItem('troubleWords', JSON.stringify(troubleWords));
-        localStorage.setItem('masteredWords', JSON.stringify(masteredWords));
+        safeSet('troubleWords', troubleWords);
+        safeSet('masteredWords', masteredWords);
     }
 
     function revealFullWord() {
-        needsTraining = true;
+        needsTraining = true; usedHelpThisWord = true; streak = 0;
         let target = sessionWords[currentIndex].word;
         if(!troubleWords.includes(target)) troubleWords.push(target);
-        localStorage.setItem('troubleWords', JSON.stringify(troubleWords));
+        safeSet('troubleWords', troubleWords);
         showFeedback(`Word: ${target}`, "var(--warning)");
     }
 
     function showFirstLetter() {
-        needsTraining = true;
+        needsTraining = true; usedHelpThisWord = true;
         showFeedback(`Starts with: ${sessionWords[currentIndex].word[0]}`, "var(--hint)");
     }
 
     function handleSuccess() {
-        clearInterval(revealTimer);
         document.getElementById("user-input").disabled = true;
-        document.getElementById("timer-text").style.display = "none";
+        document.getElementById("attempt-text").style.display = "none";
         document.getElementById("check-btn").style.display = "none";
         document.getElementById("hint-btn").style.display = "none";
         document.getElementById("reveal-btn").style.display = "none";
-        if (!needsTraining) {
+        const streakEl = document.getElementById("streak-display");
+        streakEl.innerText = streak >= 3 ? `🔥 ${streak} in a row!` : streak === 2 ? `✨ 2 correct in a row!` : "";
+        if (!usedHelpThisWord) {
             showFeedback("💎 PERFECT!", "var(--success)");
             document.getElementById("next-btn").style.display = "block";
         } else {
@@ -247,15 +493,19 @@
         }
     }
 
+    // IMPROVEMENT 2: Colourful syllable buttons
+    const SYLLABLE_COLORS = ['syl-color-0','syl-color-1','syl-color-2','syl-color-3','syl-color-4','syl-color-5'];
+
     function setupPhoneticTraining() {
         const area = document.getElementById("phonetic-reveal-area");
         const cont = document.getElementById("syllable-container");
         area.style.display = "block"; cont.innerHTML = "";
         let parts = (sessionWords[currentIndex].phonetic).split(/[•·\-\s/]+/).filter(p => p.trim());
         let clicked = 0;
-        parts.forEach((p) => {
+        parts.forEach((p, i) => {
             let btn = document.createElement("button");
-            btn.className = `syllable-btn`;
+            const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
+            btn.className = `syllable-btn ${colorClass}`;
             btn.innerText = p.toUpperCase();
             btn.onclick = function() {
                 if(!this.classList.contains("revealed")) {
@@ -267,32 +517,44 @@
         });
     }
 
-    function nextWord() { currentIndex++; showWord(); }
+    function nextWord() {
+        currentIndex++;
+        safeSet('session_backup', { round: currentRound, index: currentIndex, words: sessionWords, score });
+        showWord();
+    }
 
     function showReport() {
+        safeSet('session_backup', null);
         document.getElementById("game-ui").style.display = "none";
         document.getElementById("report-screen").style.display = "inline-block";
+        document.getElementById("streak-display").innerText = "";
         const sum = document.getElementById("session-summary");
         if (currentRound === 1) {
             sum.innerHTML = "Investigation Complete!<br>Ready for Master Mode? (The scrambled letters will vanish!)";
             document.getElementById("round-action-btn").innerText = "Start Round 2";
         } else {
-            sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}`;
-            document.getElementById("round-action-btn").innerText = (score >= 4) ? "Share Report & Reward! 🎁" : "Retry Master Mode";
+            const passed = score >= 4;
+            if (passed) {
+                const streakData = recordDailyWin();
+                const streakLine = streakData.currentStreak > 1
+                    ? `<br><span style="color:var(--warning);font-size:0.8em;">🔥 ${streakData.currentStreak}-day streak!</span>`
+                    : `<br><span style="color:var(--success);font-size:0.8em;">✅ Mission complete — streak started!</span>`;
+                sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}${streakLine}`;
+                document.getElementById("round-action-btn").innerText = "Share Report & Reward! 🎁";
+            } else {
+                sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>
+                    <span style="color:var(--error);font-size:0.85em;">⚠️ Score 4 or more to keep your daily streak — try again!</span>`;
+                document.getElementById("round-action-btn").innerText = "Retry Master Mode";
+            }
         }
     }
 
     function handleRoundTransition() {
-        if (currentRound === 1) { 
-            currentRound = 2; 
-            setupRound(); 
-        } else if (score >= 4) { 
-            document.getElementById("report-screen").style.display = "none"; 
-            document.getElementById("reward-screen").style.display = "inline-block"; 
-        } else { 
-            currentRound = 2;
-            setupRound();
-        }
+        if (currentRound === 1) { currentRound = 2; setupRound(); }
+        else if (score >= 4) {
+            document.getElementById("report-screen").style.display = "none";
+            document.getElementById("reward-screen").style.display = "inline-block";
+        } else { currentRound = 2; setupRound(); }
     }
 
     function showFeedback(text, color) {
@@ -300,37 +562,51 @@
         fb.innerText = text; fb.style.backgroundColor = color; fb.style.display = "block";
     }
 
-    // UPDATED SHARING FUNCTION
+    // IMPROVEMENT 1: Custom reward handler
+    function claimCustomReward() {
+        const val = document.getElementById("custom-reward-input").value.trim();
+        if (!val) { alert("Please type a reward first!"); return; }
+        shareReport(val);
+    }
+
+    // IMPROVEMENT 4: No parent email — share only
     function shareReport(reward) {
         const mastered = sessionResults.correct.length > 0 ? sessionResults.correct.join(", ") : "None";
-        // Filter session words to find which ones the user struggled with during THIS specific session
         const currentTrouble = sessionWords.filter(w => !sessionResults.correct.includes(w.word)).map(w => w.word);
-        
-        const reportText = `🕵️ SPELLING MISSION REPORT\n` +
+        const streakData = loadDailyStreak();
+        const reportText = `🔎 WORD SLEUTH: DAILY MISSION REPORT\n` + +
                            `--------------------------\n` +
                            `🎯 Final Score: ${score}/5\n` +
+                           `🔥 Daily Streak: ${streakData.currentStreak} day${streakData.currentStreak !== 1 ? 's' : ''}\n` +
+                           `🏆 Best Streak: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}\n` +
                            `🎁 Reward: ${reward}\n\n` +
                            `✅ Mastered: ${mastered}\n` +
                            `🔍 Needs More Practice: ${currentTrouble.join(", ") || "None!"}\n` +
                            `--------------------------`;
 
         if (navigator.share) {
-            navigator.share({
-                title: 'Detective Intelligence Case',
-                text: reportText
-            }).then(() => {
-                alert("Report Sent!");
-                location.reload();
-            }).catch(() => {
-                console.log("Share cancelled");
-            });
+            navigator.share({ title: 'Word Sleuth: Daily Mission', text: reportText })
+                .then(() => { alert("Report Sent!"); location.reload(); })
+                .catch(() => showCopyBox(reportText));
         } else {
-            // Email Fallback
-            window.location.href = `mailto:${PARENT_EMAILS}?subject=Spelling Reward Claimed&body=${encodeURIComponent(reportText)}`;
-            alert("Opening Email...");
+            showCopyBox(reportText);
         }
+    }
+
+    function showCopyBox(reportText) {
+        const existing = document.getElementById("copy-fallback");
+        if (existing) return;
+        const box = document.createElement("div");
+        box.id = "copy-fallback";
+        box.innerHTML = `<p style="font-size:0.9em;color:#555;margin-top:16px;">Copy & share this report with a parent:</p>
+            <textarea class="copy-box" readonly>${reportText}</textarea>
+            <button class="action-btn btn-check" style="margin-top:8px;" onclick="
+                this.previousElementSibling.select();
+                document.execCommand('copy');
+                this.innerText='✅ Copied!';
+            ">Copy Report</button>`;
+        document.getElementById("reward-screen").appendChild(box);
     }
 </script>
 </body>
 </html>
-
