@@ -133,15 +133,17 @@
     <div id="sentence-display" class="sentence"></div>
     <div id="scrambled-word" class="scrambled"></div>
 
-    <input type="search" id="user-input" placeholder="Solve the word..."
-           autocomplete="off"
-           autocorrect="off"
-           autocapitalize="none"
-           autocomplete="new-password"
-           spellcheck="false"
-           inputmode="text"
-           enterkeyhint="done"
-           oninput="updateScrambleStrike()">
+    <!-- Hidden input traps keystrokes — Android cannot show autocomplete on a hidden element -->
+    <input type="text" id="user-input"
+           autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false"
+           style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;"
+           oninput="syncDisplay()">
+    <!-- Visible display the user actually sees -->
+    <div id="input-display" onclick="focusInput()"
+         style="font-size:1.5em;padding:15px;border-radius:15px;border:3px solid #dfe6e9;width:85%;text-align:center;margin:0 auto 10px;min-height:60px;line-height:1.4;cursor:text;box-sizing:border-box;background:white;color:#2d3436;letter-spacing:3px;font-weight:700;display:flex;align-items:center;justify-content:center;">
+        <span id="input-text"></span><span id="input-cursor" style="display:inline-block;width:2px;height:1em;background:#6c5ce7;vertical-align:middle;margin-left:2px;animation:blink 1s infinite;"></span>
+    </div>
+    <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}</style>
 
     <div id="action-buttons">
         <button class="action-btn btn-check" id="check-btn" onclick="checkWord()">Check</button>
@@ -165,17 +167,62 @@
     <button class="action-btn btn-check" id="round-action-btn" style="width:100%" onclick="handleRoundTransition()"></button>
 </div>
 
-<!-- IMPROVEMENT 1: Reward screen with custom reward input + money instead of 2000 Won -->
+<!-- Reward screen -->
 <div class="container" id="reward-screen">
     <h1>Mission Complete! 🌟</h1>
-    <button class="reward-btn" onclick="shareReport('15 min Screen Time')">📱 15 min Screen Time</button>
-    <button class="reward-btn" onclick="shareReport('Ice-Cream')">🍦 Ice-Cream</button>
-    <button class="reward-btn" onclick="shareReport('Money')">💰 Money</button>
+    <p style="color:#888;font-size:0.95em;margin-top:-10px;margin-bottom:18px;">Pick your reward, then share the report with a parent.</p>
+
+    <button class="reward-btn" onclick="selectReward('15 min Screen Time', this)">📱 15 min Screen Time</button>
+    <button class="reward-btn" onclick="selectReward('Ice-Cream', this)">🍦 Ice-Cream</button>
+    <button class="reward-btn" onclick="selectReward('Money', this)">💰 Money</button>
+
     <div class="custom-reward-area">
         <p style="font-size:0.9em;color:#888;margin-bottom:8px;">Or type your own reward:</p>
         <input type="text" class="custom-reward-input" id="custom-reward-input" placeholder="e.g. Extra playtime..." maxlength="50">
         <br>
-        <button class="action-btn btn-check" onclick="claimCustomReward()" style="margin-top:8px;">🎁 Claim This Reward</button>
+        <button class="action-btn btn-secondary" onclick="selectCustomReward()" style="margin-top:8px;">Set Reward</button>
+    </div>
+
+    <!-- Share panel — shown after reward is selected -->
+    <div id="share-panel" style="display:none;margin-top:20px;border-top:2px solid #f0f4f8;padding-top:20px;">
+        <p style="font-weight:800;font-size:1.05em;margin-bottom:14px;">Now share your report! 👇</p>
+
+        <!-- Primary: native share sheet (works on Android + iOS — opens WhatsApp, KakaoTalk, etc.) -->
+        <button class="action-btn btn-check" id="native-share-btn"
+                onclick="doNativeShare()"
+                style="width:90%;font-size:1.15em;margin-bottom:10px;display:none;">
+            📤 Share via... (WhatsApp, KakaoTalk, Email…)
+        </button>
+
+        <!-- Fallback deep-link buttons shown on desktop or if native share unavailable -->
+        <div id="deeplink-btns" style="display:none;">
+            <button class="action-btn" onclick="shareViaWhatsApp()"
+                    style="background:#25D366;color:white;width:90%;margin-bottom:8px;font-size:1em;">
+                💬 WhatsApp
+            </button>
+            <button class="action-btn" onclick="shareViaKakao()"
+                    style="background:#FAE100;color:#3A1D1D;width:90%;margin-bottom:8px;font-size:1em;">
+                💛 KakaoTalk
+            </button>
+            <button class="action-btn" onclick="shareViaSMS()"
+                    style="background:#34C759;color:white;width:90%;margin-bottom:8px;font-size:1em;">
+                💬 SMS / Messages
+            </button>
+            <button class="action-btn" onclick="shareViaEmail()"
+                    style="background:#0984e3;color:white;width:90%;margin-bottom:8px;font-size:1em;">
+                ✉️ Email
+            </button>
+        </div>
+
+        <!-- Copy fallback always available -->
+        <button class="action-btn btn-secondary" onclick="showCopyBox()"
+                style="width:90%;margin-top:4px;font-size:0.95em;">
+            📋 Copy Report Text
+        </button>
+        <div id="copy-fallback" style="display:none;margin-top:12px;">
+            <textarea class="copy-box" id="copy-text-area" readonly></textarea>
+            <button class="action-btn btn-check" style="margin-top:8px;" onclick="doCopy(this)">Copy</button>
+        </div>
     </div>
 </div>
 
@@ -410,6 +457,12 @@
         document.getElementById("sentence-display").innerText = obj.sentence;
         document.getElementById("user-input").value = "";
         document.getElementById("user-input").disabled = false;
+        // Reset visible display
+        const displayText = document.getElementById("input-text");
+        displayText.innerText = "Solve the word...";
+        displayText.style.color = "#b2bec3";
+        document.getElementById("input-display").style.borderColor = "#dfe6e9";
+        document.getElementById("input-cursor").style.display = "inline-block";
         document.getElementById("feedback-area").style.display = "none";
         document.getElementById("phonetic-reveal-area").style.display = "none";
         document.getElementById("grammar-rule-box").style.display = "none";
@@ -428,14 +481,32 @@
         } else {
             scrambleArea.innerHTML = "";
         }
-        setTimeout(() => document.getElementById("user-input").focus(), 100);
+        setTimeout(() => focusInput(), 100);
     }
 
     window.addEventListener("load", () => {
-        document.getElementById("user-input").addEventListener("keydown", e => {
+        const inp = document.getElementById("user-input");
+        inp.addEventListener("keydown", e => {
             if (e.key === "Enter") checkWord();
         });
+        // Keep display in sync on any input event (covers Android voice/paste)
+        inp.addEventListener("input", syncDisplay);
     });
+
+    function focusInput() {
+        const inp = document.getElementById("user-input");
+        if (!inp.disabled) inp.focus();
+    }
+
+    function syncDisplay() {
+        const val = document.getElementById("user-input").value;
+        const display = document.getElementById("input-text");
+        display.innerText = val ? val.toUpperCase() : "";
+        // Show placeholder text in muted colour when empty
+        display.style.color = val ? "#2d3436" : "#b2bec3";
+        if (!val) display.innerText = "Solve the word...";
+        updateScrambleStrike();
+    }
 
     function updateScrambleStrike() {
         if(currentRound !== 1) return;
@@ -484,6 +555,11 @@
         let target = sessionWords[currentIndex].word;
         if(!troubleWords.includes(target)) troubleWords.push(target);
         safeSet('troubleWords', troubleWords);
+        // Show the answer in the display
+        const displayText = document.getElementById("input-text");
+        displayText.innerText = target;
+        displayText.style.color = "#e17055";
+        document.getElementById("user-input").value = target;
         showFeedback(`Word: ${target}`, "var(--warning)");
     }
 
@@ -494,6 +570,7 @@
 
     function handleSuccess() {
         document.getElementById("user-input").disabled = true;
+        document.getElementById("input-cursor").style.display = "none";
         document.getElementById("attempt-text").style.display = "none";
         document.getElementById("check-btn").style.display = "none";
         document.getElementById("hint-btn").style.display = "none";
@@ -595,51 +672,105 @@
         fb.innerText = text; fb.style.backgroundColor = color; fb.style.display = "block";
     }
 
-    // IMPROVEMENT 1: Custom reward handler
-    function claimCustomReward() {
-        const val = document.getElementById("custom-reward-input").value.trim();
-        if (!val) { alert("Please type a reward first!"); return; }
-        shareReport(val);
-    }
+    // ── Reward & Share ─────────────────────────────────────────────────────────
+    let currentReportText = "";
 
-    // IMPROVEMENT 4: No parent email — share only
-    function shareReport(reward) {
+    function buildReportText(reward) {
         const mastered = sessionResults.correct.length > 0 ? sessionResults.correct.join(", ") : "None";
         const currentTrouble = sessionWords.filter(w => !sessionResults.correct.includes(w.word)).map(w => w.word);
         const streakData = loadDailyStreak();
-        const reportText = `🔎 WORD SLEUTH: DAILY MISSION REPORT\n` + +
-                           `--------------------------\n` +
-                           `🎯 Final Score: ${score}/5\n` +
-                           `🔥 Daily Streak: ${streakData.currentStreak} day${streakData.currentStreak !== 1 ? 's' : ''}\n` +
-                           `🏆 Best Streak: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}\n` +
-                           `🎁 Reward: ${reward}\n\n` +
-                           `✅ Mastered: ${mastered}\n` +
-                           `🔍 Needs More Practice: ${currentTrouble.join(", ") || "None!"}\n` +
-                           `--------------------------`;
+        return `🔎 WORD SLEUTH: DAILY MISSION REPORT\n` +
+               `--------------------------\n` +
+               `🎯 Final Score: ${score}/5\n` +
+               `🔥 Daily Streak: ${streakData.currentStreak} day${streakData.currentStreak !== 1 ? 's' : ''}\n` +
+               `🏆 Best Streak: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}\n` +
+               `🎁 Reward: ${reward}\n\n` +
+               `✅ Mastered: ${mastered}\n` +
+               `🔍 Needs More Practice: ${currentTrouble.join(", ") || "None!"}\n` +
+               `--------------------------`;
+    }
 
+    function selectReward(reward, btn) {
+        // Highlight selected reward button
+        document.querySelectorAll(".reward-btn").forEach(b => b.style.borderColor = "var(--gold)");
+        if (btn) btn.style.borderColor = "var(--success)";
+        openSharePanel(reward);
+    }
+
+    function selectCustomReward() {
+        const val = document.getElementById("custom-reward-input").value.trim();
+        if (!val) { alert("Please type a reward first!"); return; }
+        openSharePanel(val);
+    }
+
+    function openSharePanel(reward) {
+        currentReportText = buildReportText(reward);
+        document.getElementById("copy-text-area").value = currentReportText;
+        document.getElementById("share-panel").style.display = "block";
+        document.getElementById("copy-fallback").style.display = "none";
+
+        // Show native share button if supported (Android + iOS)
         if (navigator.share) {
-            navigator.share({ title: 'Word Sleuth: Daily Mission', text: reportText })
-                .then(() => { alert("Report Sent!"); location.reload(); })
-                .catch(() => showCopyBox(reportText));
+            document.getElementById("native-share-btn").style.display = "block";
+            document.getElementById("deeplink-btns").style.display = "none";
         } else {
-            showCopyBox(reportText);
+            // Desktop: show individual deep-link buttons
+            document.getElementById("native-share-btn").style.display = "none";
+            document.getElementById("deeplink-btns").style.display = "block";
+        }
+
+        // Scroll share panel into view
+        document.getElementById("share-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function doNativeShare() {
+        navigator.share({ title: 'Word Sleuth: Daily Mission', text: currentReportText })
+            .then(() => setTimeout(() => location.reload(), 1500))
+            .catch(err => {
+                // User cancelled or share failed — fall back to deep links
+                document.getElementById("deeplink-btns").style.display = "block";
+            });
+    }
+
+    function shareViaWhatsApp() {
+        window.open("https://wa.me/?text=" + encodeURIComponent(currentReportText), "_blank");
+    }
+
+    function shareViaKakao() {
+        // KakaoTalk deep link — opens app if installed, else falls back gracefully
+        window.open("kakaolink://send?text=" + encodeURIComponent(currentReportText), "_blank");
+        // Brief delay then show copy box in case KakaoTalk isn't installed
+        setTimeout(() => document.getElementById("copy-fallback").style.display = "block", 1200);
+    }
+
+    function shareViaSMS() {
+        const sep = /iphone|ipad|ipod/i.test(navigator.userAgent) ? "&" : "?";
+        window.open("sms:" + sep + "body=" + encodeURIComponent(currentReportText), "_blank");
+    }
+
+    function shareViaEmail() {
+        window.open("mailto:?subject=" + encodeURIComponent("Word Sleuth Mission Report") +
+                    "&body=" + encodeURIComponent(currentReportText), "_blank");
+    }
+
+    function showCopyBox() {
+        document.getElementById("copy-fallback").style.display = "block";
+    }
+
+    function doCopy(btn) {
+        const ta = document.getElementById("copy-text-area");
+        ta.select();
+        try {
+            document.execCommand("copy");
+            btn.innerText = "✅ Copied!";
+        } catch(e) {
+            // Clipboard API fallback
+            navigator.clipboard.writeText(currentReportText)
+                .then(() => { btn.innerText = "✅ Copied!"; })
+                .catch(() => { btn.innerText = "Select & copy manually"; });
         }
     }
-
-    function showCopyBox(reportText) {
-        const existing = document.getElementById("copy-fallback");
-        if (existing) return;
-        const box = document.createElement("div");
-        box.id = "copy-fallback";
-        box.innerHTML = `<p style="font-size:0.9em;color:#555;margin-top:16px;">Copy & share this report with a parent:</p>
-            <textarea class="copy-box" readonly>${reportText}</textarea>
-            <button class="action-btn btn-check" style="margin-top:8px;" onclick="
-                this.previousElementSibling.select();
-                document.execCommand('copy');
-                this.innerText='✅ Copied!';
-            ">Copy Report</button>`;
-        document.getElementById("reward-screen").appendChild(box);
-    }
+    // ──────────────────────────────────────────────────────────────────────────
 </script>
 </body>
 </html>
