@@ -155,7 +155,7 @@
         <button class="action-btn btn-hint"   id="hint-btn"   onclick="showFirstLetter()"
                 style="flex:1;font-size:1em;padding:12px 6px;">Hint</button>
         <button class="action-btn btn-check"  id="check-btn"  onclick="handleCheckTap()"
-                style="flex:1;font-size:1em;padding:12px 6px;">Check ✓</button>
+                style="flex:1;font-size:1em;padding:12px 6px;background:var(--warning);color:white;">Check</button>
     </div>
     <div id="attempt-text" style="font-size: 0.85em; margin-top:5px; color: var(--warning);">Reveal unlocks after <span id="attempt-countdown">3</span> wrong tries</div>
     <div id="feedback-area" style="font-size: 1.3em; margin: 10px; font-weight: bold; border-radius: 10px; padding: 10px; display:none; color: white;"></div>
@@ -511,37 +511,24 @@
             if (kbDisabled) return;
             if (e.key === "Enter") { handleCheckTap(); return; }
             if (e.key === "Backspace") { kbDelete(); return; }
-            if (/^[a-zA-Z]$/.test(e.key)) kbType(e.key.toUpperCase());
+            if (/^[a-zA-Z']$/.test(e.key)) kbType(e.key.toUpperCase());
         });
     });
 
-    // Double-tap / double-press to confirm Check — prevents accidental submission
+    // Check button: orange "Check" → green "-- Go --" on first tap → resets to orange if word changes
     let checkPrimed = false;
-    let checkPrimeTimer = null;
 
     function handleCheckTap() {
         if (kbDisabled) return;
         const btn = document.getElementById("check-btn");
         if (!checkPrimed) {
-            // First tap — prime the button
+            // First tap — prime green
             checkPrimed = true;
-            btn.innerText = "Confirm ✓";
-            btn.style.background = "#00a381";
-            btn.style.outline = "3px solid #fff";
-            // Auto-reset after 2.5 s if no second tap
-            checkPrimeTimer = setTimeout(() => {
-                checkPrimed = false;
-                btn.innerText = "Check ✓";
-                btn.style.background = "";
-                btn.style.outline = "";
-            }, 2500);
+            btn.innerText = "-- Go --";
+            btn.style.background = "var(--success)";
+            btn.style.color = "white";
         } else {
-            // Second tap — actually submit
-            clearTimeout(checkPrimeTimer);
-            checkPrimed = false;
-            btn.innerText = "Check ✓";
-            btn.style.background = "";
-            btn.style.outline = "";
+            // Second tap — submit
             checkWord();
         }
     }
@@ -550,8 +537,14 @@
         checkPrimed = false;
         clearTimeout(checkPrimeTimer);
         const btn = document.getElementById("check-btn");
-        if (btn) { btn.innerText = "Check ✓"; btn.style.background = ""; btn.style.outline = ""; }
+        if (btn) {
+            btn.innerText = "Check";
+            btn.style.background = "var(--warning)";
+            btn.style.color = "white";
+        }
     }
+
+    let checkPrimeTimer = null; // kept for compatibility, unused
 
     // ── Custom keyboard ────────────────────────────────────────────────────────
     let kbValue = "";
@@ -559,7 +552,7 @@
     const KB_ROWS = [
         ["Q","W","E","R","T","Y","U","I","O","P"],
         ["A","S","D","F","G","H","J","K","L"],
-        ["Z","X","C","V","B","N","M","⌫"]
+        ["Z","X","C","V","B","N","M","'","⌫"]
     ];
 
     function buildKeyboard() {
@@ -598,12 +591,14 @@
         kbValue += letter;
         renderDisplay();
         updateScrambleStrike();
+        resetCheckBtn(); // word changed — reset back to orange Check
     }
 
     function kbDelete() {
         kbValue = kbValue.slice(0, -1);
         renderDisplay();
         updateScrambleStrike();
+        resetCheckBtn(); // word changed — reset back to orange Check
     }
 
     function kbReset() {
