@@ -99,31 +99,19 @@
     </div>
 </div>
 
-<!-- Spelling Warm-Up screen (uses same session words, custom keyboard, no scramble) -->
+<!-- Warm-Up: fill-in-the-blank with 3 word choices -->
 <div class="container" id="fitb-screen">
     <div class="round-indicator" style="background:linear-gradient(135deg,var(--hint),#fd79a8);">Warm-Up 🌅</div>
     <div class="stats-bar">
         <span>Word <span id="fitb-current">1</span> of <span id="fitb-total">5</span></span>
         <span>⭐ <span id="fitb-score">0</span> correct</span>
     </div>
-    <div id="fitb-sentence" class="sentence"></div>
-    <div id="fitb-scrambled" class="scrambled"></div>
-
-    <!-- Reuse the same fixed-height display -->
-    <div id="wu-input-display"
-         style="font-size:1.6em;padding:0 15px;border-radius:15px;border:3px solid #dfe6e9;width:85%;text-align:center;margin:0 auto 12px;height:58px;line-height:58px;overflow:hidden;box-sizing:border-box;background:white;color:#2d3436;letter-spacing:4px;font-weight:800;display:flex;align-items:center;justify-content:center;white-space:nowrap;">
-        <span id="wu-input-text" style="color:#b2bec3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 10px);">Spell the word...</span><span id="wu-input-cursor" style="display:inline-block;width:2px;height:0.75em;background:var(--hint);vertical-align:middle;margin-left:3px;flex-shrink:0;animation:blink 1s infinite;"></span>
-    </div>
-
-    <!-- Warm-up uses same custom keyboard — keyboard div is shared, moved by JS -->
-    <div id="wu-keyboard-slot" style="margin:8px auto 12px;"></div>
-
-    <div id="wu-action-buttons">
-        <button class="action-btn btn-check" onclick="checkWarmUp()">Check</button>
-        <button class="action-btn btn-hint" onclick="wuHint()">Hint</button>
-    </div>
-    <div id="wu-feedback" style="font-size:1.3em;margin:10px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
-    <button class="action-btn btn-next" id="wu-next-btn" onclick="nextWarmUp()" style="display:none;width:90%;">Next Word →</button>
+    <!-- Sentence with the blank -->
+    <div id="fitb-sentence" class="sentence" style="border-left-color:var(--hint);font-size:1.2em;"></div>
+    <!-- 3 word choice buttons -->
+    <div id="fitb-choices" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;"></div>
+    <div id="wu-feedback" style="font-size:1.2em;margin:8px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
+    <button class="action-btn btn-next" id="wu-next-btn" onclick="nextWarmUp()" style="display:none;width:90%;">Next →</button>
     <button class="action-btn btn-secondary" onclick="endWarmUp()" style="margin-top:8px;width:90%;font-size:0.9em;">Skip to Mission →</button>
 </div>
 
@@ -136,28 +124,35 @@
     </div>
     <div id="streak-display" class="streak-display"></div>
     <div id="sentence-display" class="sentence"></div>
-    <div id="scrambled-word" class="scrambled"></div>
 
-    <!-- Answer display — fixed single-row, never reflows -->
+    <!-- Scrambled letters — single line, smaller font so they always fit -->
+    <div id="scrambled-word"
+         style="font-size:1.5em;font-weight:900;letter-spacing:5px;margin:12px auto;text-transform:uppercase;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:98%;"></div>
+
+    <!-- Answer display — wide enough for 14 chars, fixed single-row height -->
     <div id="input-display"
-         style="font-size:1.6em;padding:0 15px;border-radius:15px;border:3px solid #dfe6e9;width:85%;text-align:center;margin:0 auto 12px;height:58px;line-height:58px;overflow:hidden;box-sizing:border-box;background:white;color:#2d3436;letter-spacing:4px;font-weight:800;display:flex;align-items:center;justify-content:center;white-space:nowrap;">
+         style="font-size:1.4em;padding:0 12px;border-radius:15px;border:3px solid #dfe6e9;width:95%;text-align:center;margin:0 auto 12px;height:56px;line-height:56px;overflow:hidden;box-sizing:border-box;background:white;color:#2d3436;letter-spacing:3px;font-weight:800;display:flex;align-items:center;justify-content:center;white-space:nowrap;">
         <span id="input-text" style="color:#b2bec3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 10px);">Solve the word...</span><span id="input-cursor" style="display:inline-block;width:2px;height:0.75em;background:#6c5ce7;vertical-align:middle;margin-left:3px;flex-shrink:0;animation:blink 1s infinite;"></span>
     </div>
     <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}</style>
 
-    <!-- Custom on-screen keyboard — bypasses Android GBoard entirely -->
+    <!-- Custom on-screen keyboard -->
     <div id="custom-keyboard-wrapper">
     <div id="custom-keyboard" style="margin:8px auto 12px;max-width:420px;user-select:none;">
-        <div id="kb-row-1" style="display:flex;justify-content:center;gap:5px;margin-bottom:5px;"></div>
-        <div id="kb-row-2" style="display:flex;justify-content:center;gap:5px;margin-bottom:5px;"></div>
-        <div id="kb-row-3" style="display:flex;justify-content:center;gap:5px;"></div>
+        <div id="kb-row-1" style="display:flex;justify-content:center;gap:4px;margin-bottom:4px;"></div>
+        <div id="kb-row-2" style="display:flex;justify-content:center;gap:4px;margin-bottom:4px;"></div>
+        <div id="kb-row-3" style="display:flex;justify-content:center;gap:4px;"></div>
     </div>
     </div>
 
-    <div id="action-buttons">
-        <button class="action-btn btn-check" id="check-btn" onclick="checkWord()">Check</button>
-        <button class="action-btn btn-hint" id="hint-btn" onclick="showFirstLetter()">Hint</button>
-        <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled>Reveal</button>
+    <!-- Buttons: Reveal (left) | Hint (centre) | Check (right) — equal width, one row -->
+    <div id="action-buttons" style="display:flex;justify-content:center;gap:6px;margin:8px 0;width:95%;margin-left:auto;margin-right:auto;">
+        <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled
+                style="flex:1;font-size:1em;padding:12px 6px;">Reveal</button>
+        <button class="action-btn btn-hint"   id="hint-btn"   onclick="showFirstLetter()"
+                style="flex:1;font-size:1em;padding:12px 6px;">Hint</button>
+        <button class="action-btn btn-check"  id="check-btn"  onclick="checkWord()"
+                style="flex:1;font-size:1em;padding:12px 6px;">Check ✓</button>
     </div>
     <div id="attempt-text" style="font-size: 0.85em; margin-top:5px; color: var(--warning);">Reveal unlocks after <span id="attempt-countdown">3</span> wrong tries</div>
     <div id="feedback-area" style="font-size: 1.3em; margin: 10px; font-weight: bold; border-radius: 10px; padding: 10px; display:none; color: white;"></div>
@@ -322,12 +317,11 @@
     }
     // ──────────────────────────────────────────────────────────────────────────
 
-    // ── Spelling Warm-Up (Fix 4) ───────────────────────────────────────────────
-    // Uses the same sessionWords the main game will use. No scramble, custom KB.
-    let wuIndex = 0, wuScore = 0, wuValue = "", wuDisabled = false;
+    // ── Warm-Up: fill-in-the-blank with 3 word choices ────────────────────────
+    let wuIndex = 0, wuScore = 0;
 
     function startWarmUp() {
-        // Build session words now so warm-up uses the same set
+        // Build session words now so warm-up and main game use the same set
         let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
         let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
         sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
@@ -336,100 +330,78 @@
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "inline-block";
         document.getElementById("fitb-total").innerText = sessionWords.length;
-
-        // Move the keyboard into the warm-up slot
-        const kb = document.getElementById("custom-keyboard");
-        document.getElementById("wu-keyboard-slot").appendChild(kb);
-
         showWarmUp();
     }
 
     function showWarmUp() {
         if (wuIndex >= sessionWords.length) { endWarmUp(); return; }
         const item = sessionWords[wuIndex];
-        wuValue = ""; wuDisabled = false;
+
         document.getElementById("fitb-current").innerText = wuIndex + 1;
         document.getElementById("fitb-score").innerText = wuScore;
-        document.getElementById("fitb-sentence").innerText = item.sentence;
-
-        // Show scrambled letters as a visual hint in warm-up
-        const scrambled = shuffle(item.word.split(''));
-        document.getElementById("fitb-scrambled").innerHTML = scrambled.map(l => `<span class="letter-slot">${l}</span>`).join(' ');
-
-        // Reset display
-        const disp = document.getElementById("wu-input-text");
-        disp.innerText = "Spell the word...";
-        disp.style.color = "#b2bec3";
-        document.getElementById("wu-input-cursor").style.display = "inline-block";
         document.getElementById("wu-feedback").style.display = "none";
         document.getElementById("wu-next-btn").style.display = "none";
-        document.getElementById("wu-action-buttons").style.display = "block";
 
-        // Point keyboard events to warm-up
-        kbDisabled = false;
-        kbValue = ""; // reset shared kb state
-        kbRenderTarget = "wu"; // tells kbType/kbDelete which display to update
+        // Build sentence with blank — replace the target word with ______
+        const blanked = item.sentence.replace(
+            new RegExp(`\\b${item.word}\\b`, 'i'),
+            `<span style="display:inline-block;min-width:90px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`
+        );
+        document.getElementById("fitb-sentence").innerHTML = blanked;
+
+        // Pick 2 distractors from other session words, fall back to allWords if needed
+        const pool = allWords.filter(w => w.word !== item.word);
+        const distractors = shuffle(pool).slice(0, 2);
+        const choices = shuffle([item, ...distractors]);
+
+        const cont = document.getElementById("fitb-choices");
+        cont.innerHTML = "";
+        choices.forEach(c => {
+            const btn = document.createElement("button");
+            btn.style.cssText = "padding:14px 22px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:1.1em;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--dark);min-width:100px;";
+            btn.innerText = c.word;
+            btn.onpointerdown = () => checkWarmUp(btn, c.word, item.word, cont);
+            cont.appendChild(btn);
+        });
     }
 
-    function checkWarmUp() {
-        const guess = wuValue.toUpperCase().trim();
-        const target = sessionWords[wuIndex].word;
+    function checkWarmUp(btn, chosen, correct, cont) {
+        // Disable all choices
+        cont.querySelectorAll("button").forEach(b => { b.onpointerdown = null; b.style.cursor = "default"; });
         const fb = document.getElementById("wu-feedback");
         fb.style.display = "block";
-        wuDisabled = true;
-        kbDisabled = true;
-        document.getElementById("wu-input-cursor").style.display = "none";
-        document.getElementById("wu-action-buttons").style.display = "none";
-        if (guess === target) {
+        if (chosen === correct) {
+            btn.style.background = "var(--success)";
+            btn.style.color = "white";
+            btn.style.borderColor = "var(--success)";
             wuScore++;
             document.getElementById("fitb-score").innerText = wuScore;
             fb.style.backgroundColor = "var(--success)";
-            fb.innerText = "💎 Correct!";
+            fb.innerText = "✅ Correct!";
         } else {
+            btn.style.background = "var(--error)";
+            btn.style.color = "white";
+            btn.style.borderColor = "var(--error)";
+            // Highlight the correct answer
+            cont.querySelectorAll("button").forEach(b => {
+                if (b.innerText === correct) {
+                    b.style.background = "var(--success)";
+                    b.style.color = "white";
+                    b.style.borderColor = "var(--success)";
+                }
+            });
             fb.style.backgroundColor = "var(--error)";
-            fb.innerText = `❌ The word was: ${target}`;
-            // Show correct spelling in display
-            document.getElementById("wu-input-text").innerText = target;
-            document.getElementById("wu-input-text").style.color = "#e17055";
+            fb.innerText = `❌ The answer was: ${correct}`;
         }
         document.getElementById("wu-next-btn").style.display = "block";
     }
 
-    function wuHint() {
-        // Show first letter in display if empty, otherwise keep going
-        const first = sessionWords[wuIndex].word[0];
-        if (!wuValue) {
-            wuValue = first;
-            wuRenderDisplay();
-        }
-    }
-
-    function nextWarmUp() {
-        wuIndex++;
-        showWarmUp();
-    }
+    function nextWarmUp() { wuIndex++; showWarmUp(); }
 
     function endWarmUp() {
-        // Return keyboard to game UI wrapper
-        const kb = document.getElementById("custom-keyboard");
-        document.getElementById("custom-keyboard-wrapper").appendChild(kb);
-        kbRenderTarget = "game";
-        kbDisabled = false;
-
         document.getElementById("fitb-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
-        document.getElementById("status-text").innerText = `Warm-up done! ${wuScore}/${sessionWords.length} correct. Ready to start?`;
-    }
-
-    function wuRenderDisplay() {
-        const disp = document.getElementById("wu-input-text");
-        if (wuValue) {
-            disp.innerText = wuValue.toUpperCase();
-            disp.style.color = "#2d3436";
-        } else {
-            disp.innerText = "Spell the word...";
-            disp.style.color = "#b2bec3";
-        }
+        document.getElementById("status-text").innerText = `Warm-up done! ${wuScore}/${sessionWords.length} correct. Ready?`;
     }
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -478,16 +450,12 @@
     // (FITB functions removed — replaced by spelling warm-up above)
 
     function startGame() {
-        // If warm-up already built sessionWords, reuse them; otherwise build fresh
+        // Reuse sessionWords built by warm-up, or build fresh
         if (!sessionWords || sessionWords.length === 0) {
             let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
             let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
             sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
         }
-        // Ensure keyboard is in game UI
-        const kb = document.getElementById("custom-keyboard");
-        document.getElementById("custom-keyboard-wrapper").appendChild(kb);
-        kbRenderTarget = "game";
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
@@ -528,8 +496,9 @@
         document.getElementById("attempt-text").style.display = "block";
         document.getElementById("attempt-countdown").innerText = 3;
         const scrambleArea = document.getElementById("scrambled-word");
-        if(currentRound === 1) {
-            scrambleArea.innerHTML = shuffle(obj.word.split('')).map((l, i) => `<span class="letter-slot" id="slot-${i}">${l}</span>`).join(' ');
+        if (currentRound === 1) {
+            const letters = shuffle(obj.word.split(''));
+            scrambleArea.innerHTML = letters.map((l, i) => `<span class="letter-slot" id="slot-${i}">${l}</span>`).join('&thinsp;');
         } else {
             scrambleArea.innerHTML = "";
         }
@@ -550,7 +519,6 @@
     // ── Custom keyboard ────────────────────────────────────────────────────────
     let kbValue = "";
     let kbDisabled = false;
-    let kbRenderTarget = "game"; // "game" or "wu"
     const KB_ROWS = [
         ["Q","W","E","R","T","Y","U","I","O","P"],
         ["A","S","D","F","G","H","J","K","L"],
@@ -590,19 +558,15 @@
     }
 
     function kbType(letter) {
-        if (kbRenderTarget === "wu") {
-            wuValue += letter; wuRenderDisplay();
-        } else {
-            kbValue += letter; renderDisplay(); updateScrambleStrike();
-        }
+        kbValue += letter;
+        renderDisplay();
+        updateScrambleStrike();
     }
 
     function kbDelete() {
-        if (kbRenderTarget === "wu") {
-            wuValue = wuValue.slice(0, -1); wuRenderDisplay();
-        } else {
-            kbValue = kbValue.slice(0, -1); renderDisplay(); updateScrambleStrike();
-        }
+        kbValue = kbValue.slice(0, -1);
+        renderDisplay();
+        updateScrambleStrike();
     }
 
     function kbReset() {
