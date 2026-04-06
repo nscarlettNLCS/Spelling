@@ -320,36 +320,35 @@
     // ── Warm-Up: fill-in-the-blank with 3 word choices ────────────────────────
     let wuIndex = 0, wuScore = 0;
 
+    let warmUpSessionWords = null; // set by warm-up, consumed by startGame
+
     function startWarmUp() {
-        // Build session words now so warm-up and main game use the same set
         let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
-        let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
-        sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
+        let available = allWords.filter(w => !selection.map(s=>s.word).includes(w.word) && !masteredWords.includes(w.word));
+        warmUpSessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
 
         wuIndex = 0; wuScore = 0;
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "inline-block";
-        document.getElementById("fitb-total").innerText = sessionWords.length;
+        document.getElementById("fitb-total").innerText = warmUpSessionWords.length;
         showWarmUp();
     }
 
     function showWarmUp() {
-        if (wuIndex >= sessionWords.length) { endWarmUp(); return; }
-        const item = sessionWords[wuIndex];
+        if (wuIndex >= warmUpSessionWords.length) { endWarmUp(); return; }
+        const item = warmUpSessionWords[wuIndex];
 
         document.getElementById("fitb-current").innerText = wuIndex + 1;
         document.getElementById("fitb-score").innerText = wuScore;
         document.getElementById("wu-feedback").style.display = "none";
         document.getElementById("wu-next-btn").style.display = "none";
 
-        // Build sentence with blank — replace the target word with ______
         const blanked = item.sentence.replace(
             new RegExp(`\\b${item.word}\\b`, 'i'),
             `<span style="display:inline-block;min-width:90px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`
         );
         document.getElementById("fitb-sentence").innerHTML = blanked;
 
-        // Pick 2 distractors from other session words, fall back to allWords if needed
         const pool = allWords.filter(w => w.word !== item.word);
         const distractors = shuffle(pool).slice(0, 2);
         const choices = shuffle([item, ...distractors]);
@@ -366,29 +365,19 @@
     }
 
     function checkWarmUp(btn, chosen, correct, cont) {
-        // Disable all choices
         cont.querySelectorAll("button").forEach(b => { b.onpointerdown = null; b.style.cursor = "default"; });
         const fb = document.getElementById("wu-feedback");
         fb.style.display = "block";
         if (chosen === correct) {
-            btn.style.background = "var(--success)";
-            btn.style.color = "white";
-            btn.style.borderColor = "var(--success)";
+            btn.style.background = "var(--success)"; btn.style.color = "white"; btn.style.borderColor = "var(--success)";
             wuScore++;
             document.getElementById("fitb-score").innerText = wuScore;
             fb.style.backgroundColor = "var(--success)";
             fb.innerText = "✅ Correct!";
         } else {
-            btn.style.background = "var(--error)";
-            btn.style.color = "white";
-            btn.style.borderColor = "var(--error)";
-            // Highlight the correct answer
+            btn.style.background = "var(--error)"; btn.style.color = "white"; btn.style.borderColor = "var(--error)";
             cont.querySelectorAll("button").forEach(b => {
-                if (b.innerText === correct) {
-                    b.style.background = "var(--success)";
-                    b.style.color = "white";
-                    b.style.borderColor = "var(--success)";
-                }
+                if (b.innerText === correct) { b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)"; }
             });
             fb.style.backgroundColor = "var(--error)";
             fb.innerText = `❌ The answer was: ${correct}`;
@@ -401,9 +390,8 @@
     function endWarmUp() {
         document.getElementById("fitb-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
-        document.getElementById("status-text").innerText = `Warm-up done! ${wuScore}/${sessionWords.length} correct. Ready?`;
+        document.getElementById("status-text").innerText = `Warm-up done! ${wuScore}/${warmUpSessionWords.length} correct. Ready?`;
     }
-    // ──────────────────────────────────────────────────────────────────────────
 
     window.onload = async function() {
         try {
@@ -450,26 +438,27 @@
     // (FITB functions removed — replaced by spelling warm-up above)
 
     function startGame() {
-        // Reuse sessionWords built by warm-up, or build fresh
-        if (!sessionWords || sessionWords.length === 0) {
-            let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
-            let available = allWords.filter(w => !selection.includes(w) && !masteredWords.includes(w.word));
-            sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
-        }
+        // Always build a fresh set of session words for each new game
+        let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
+        let available = allWords.filter(w => !selection.map(s=>s.word).includes(w.word) && !masteredWords.includes(w.word));
+        sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
+        currentRound = 1;
+        streak = 0;
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "none";
+        document.getElementById("reward-screen").style.display = "none";
+        document.getElementById("report-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
-        currentRound = 1; streak = 0;
         setupRound();
     }
 
     function setupRound() {
         currentIndex = 0;
+        score = 0;
+        sessionResults.correct = [];
         document.getElementById("report-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
         document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1: Investigation 🔍" : "Round 2: Master Mode 🔥";
-        // Fix 2: reset score for round 1 AND every round 2 attempt (including retries)
-        if (currentRound === 1 || currentRound === 2) { score = 0; sessionResults.correct = []; }
         showWord();
     }
 
@@ -727,32 +716,44 @@
         document.getElementById("report-screen").style.display = "inline-block";
         document.getElementById("streak-display").innerText = "";
         const sum = document.getElementById("session-summary");
-        if (currentRound === 1) {
-            sum.innerHTML = "Investigation Complete!<br>Ready for Master Mode? (The scrambled letters will vanish!)";
-            document.getElementById("round-action-btn").innerText = "Start Round 2";
+        const roundJustFinished = currentRound; // snapshot — don't let later changes affect display
+
+        if (roundJustFinished === 1) {
+            sum.innerHTML = "Round 1 complete! 🎉<br><span style='font-size:0.8em;color:#888;'>Ready for Master Mode? The scrambled letters disappear!</span>";
+            document.getElementById("round-action-btn").innerText = "▶ Start Round 2";
+            document.getElementById("round-action-btn").onclick = function() {
+                currentRound = 2;
+                document.getElementById("report-screen").style.display = "none";
+                setupRound();
+            };
         } else {
+            // Round 2 finished
             const passed = score >= 4;
             if (passed) {
                 const streakData = recordDailyWin();
-                const streakLine = streakData.currentStreak > 1
+                const streakLine = streakData && streakData.currentStreak > 1
                     ? `<br><span style="color:var(--warning);font-size:0.8em;">🔥 ${streakData.currentStreak}-day streak!</span>`
                     : `<br><span style="color:var(--success);font-size:0.8em;">✅ Mission complete — streak started!</span>`;
                 sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}${streakLine}`;
-                document.getElementById("round-action-btn").innerText = "Share Report & Reward! 🎁";
+                document.getElementById("round-action-btn").innerText = "🎁 Share Report & Reward!";
+                document.getElementById("round-action-btn").onclick = function() {
+                    document.getElementById("report-screen").style.display = "none";
+                    document.getElementById("reward-screen").style.display = "inline-block";
+                };
             } else {
                 sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>
-                    <span style="color:var(--error);font-size:0.85em;">⚠️ Score 4 or more to keep your daily streak — try again!</span>`;
-                document.getElementById("round-action-btn").innerText = "Retry Master Mode";
+                    <span style="color:var(--error);font-size:0.85em;">⚠️ Score 4 or more to keep your daily streak!</span>`;
+                document.getElementById("round-action-btn").innerText = "🔄 Retry Round 2";
+                document.getElementById("round-action-btn").onclick = function() {
+                    document.getElementById("report-screen").style.display = "none";
+                    setupRound(); // currentRound is still 2, score already reset in setupRound
+                };
             }
         }
     }
 
     function handleRoundTransition() {
-        if (currentRound === 1) { currentRound = 2; setupRound(); }
-        else if (score >= 4) {
-            document.getElementById("report-screen").style.display = "none";
-            document.getElementById("reward-screen").style.display = "inline-block";
-        } else { currentRound = 2; setupRound(); }
+        // Kept for safety but logic now lives in showReport's inline onclick handlers
     }
 
     function showFeedback(text, color) {
