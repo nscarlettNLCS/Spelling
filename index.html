@@ -117,13 +117,15 @@
 
 <!-- GAME UI -->
 <div class="container" id="game-ui">
-    <div id="round-tag" class="round-indicator">Round 1: Investigation 🔍</div>
-    <div class="stats-bar">
-        <span>Case <span id="current-count">1</span>/5</span>
-        <span>🔥 Score: <span id="score-display">0</span></span>
+    <!-- Single compact header row: Round label + Case + Score -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--primary),#a29bfe);border-radius:14px;padding:10px 16px;margin-bottom:10px;color:white;font-weight:bold;">
+        <span id="round-tag" style="font-size:1em;">Round 1</span>
+        <span style="font-size:0.9em;opacity:0.92;">Case <span id="current-count">1</span>/5</span>
+        <span style="font-size:0.9em;opacity:0.92;">🔥 <span id="score-display">0</span></span>
     </div>
     <div id="streak-display" class="streak-display"></div>
-    <div id="sentence-display" class="sentence"></div>
+    <!-- Sentence immediately under header -->
+    <div id="sentence-display" class="sentence" style="margin-top:0;"></div>
 
     <!-- Scrambled letters — flex tiles, wrap on small screens -->
     <div id="scrambled-word"
@@ -146,12 +148,13 @@
     </div>
 
     <!-- Buttons: Reveal (left) | Hint (centre) | Check (right) — equal width, one row -->
-    <div id="action-buttons" style="display:flex;justify-content:center;gap:6px;margin:8px 0;width:95%;margin-left:auto;margin-right:auto;">
+    <!-- Check requires two taps to prevent accidental submission -->
+    <div id="action-buttons" style="display:flex;justify-content:center;gap:6px;margin-top:16px;width:95%;margin-left:auto;margin-right:auto;">
         <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled
                 style="flex:1;font-size:1em;padding:12px 6px;">Reveal</button>
         <button class="action-btn btn-hint"   id="hint-btn"   onclick="showFirstLetter()"
                 style="flex:1;font-size:1em;padding:12px 6px;">Hint</button>
-        <button class="action-btn btn-check"  id="check-btn"  onclick="checkWord()"
+        <button class="action-btn btn-check"  id="check-btn"  onclick="handleCheckTap()"
                 style="flex:1;font-size:1em;padding:12px 6px;">Check ✓</button>
     </div>
     <div id="attempt-text" style="font-size: 0.85em; margin-top:5px; color: var(--warning);">Reveal unlocks after <span id="attempt-countdown">3</span> wrong tries</div>
@@ -462,7 +465,7 @@
         currentIndex = 0;
         document.getElementById("report-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
-        document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1: Investigation 🔍" : "Round 2: Master Mode 🔥";
+        document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1" : "Round 2";
         showWord();
     }
 
@@ -470,6 +473,7 @@
         if (currentIndex >= sessionWords.length) { showReport(); return; }
         let obj = sessionWords[currentIndex];
         needsTraining = false; usedHelpThisWord = false; wrongAttempts = 0; countedWrongThisWord = false;
+        resetCheckBtn();
         document.getElementById("score-display").innerText = score;
         document.getElementById("current-count").innerText = currentIndex + 1;
         document.getElementById("sentence-display").innerText = obj.sentence;
@@ -502,14 +506,52 @@
 
     window.addEventListener("load", () => {
         buildKeyboard();
-        // Physical keyboard support for desktop
+        // Physical keyboard: Enter requires two presses to submit
         document.addEventListener("keydown", e => {
             if (kbDisabled) return;
-            if (e.key === "Enter") { checkWord(); return; }
+            if (e.key === "Enter") { handleCheckTap(); return; }
             if (e.key === "Backspace") { kbDelete(); return; }
             if (/^[a-zA-Z]$/.test(e.key)) kbType(e.key.toUpperCase());
         });
     });
+
+    // Double-tap / double-press to confirm Check — prevents accidental submission
+    let checkPrimed = false;
+    let checkPrimeTimer = null;
+
+    function handleCheckTap() {
+        if (kbDisabled) return;
+        const btn = document.getElementById("check-btn");
+        if (!checkPrimed) {
+            // First tap — prime the button
+            checkPrimed = true;
+            btn.innerText = "Confirm ✓";
+            btn.style.background = "#00a381";
+            btn.style.outline = "3px solid #fff";
+            // Auto-reset after 2.5 s if no second tap
+            checkPrimeTimer = setTimeout(() => {
+                checkPrimed = false;
+                btn.innerText = "Check ✓";
+                btn.style.background = "";
+                btn.style.outline = "";
+            }, 2500);
+        } else {
+            // Second tap — actually submit
+            clearTimeout(checkPrimeTimer);
+            checkPrimed = false;
+            btn.innerText = "Check ✓";
+            btn.style.background = "";
+            btn.style.outline = "";
+            checkWord();
+        }
+    }
+
+    function resetCheckBtn() {
+        checkPrimed = false;
+        clearTimeout(checkPrimeTimer);
+        const btn = document.getElementById("check-btn");
+        if (btn) { btn.innerText = "Check ✓"; btn.style.background = ""; btn.style.outline = ""; }
+    }
 
     // ── Custom keyboard ────────────────────────────────────────────────────────
     let kbValue = "";
