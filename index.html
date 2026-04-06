@@ -194,14 +194,12 @@
     <div id="share-panel" style="display:none;margin-top:20px;border-top:2px solid #f0f4f8;padding-top:20px;">
         <p style="font-weight:800;font-size:1.05em;margin-bottom:14px;">Now share your report! 👇</p>
 
-        <!-- Primary: native share sheet (works on Android + iOS — opens WhatsApp, KakaoTalk, etc.) -->
         <button class="action-btn btn-check" id="native-share-btn"
                 onclick="doNativeShare()"
                 style="width:90%;font-size:1.15em;margin-bottom:10px;display:none;">
             📤 Share via... (WhatsApp, KakaoTalk, Email…)
         </button>
 
-        <!-- Fallback deep-link buttons shown on desktop or if native share unavailable -->
         <div id="deeplink-btns" style="display:none;">
             <button class="action-btn" onclick="shareViaWhatsApp()"
                     style="background:#25D366;color:white;width:90%;margin-bottom:8px;font-size:1em;">
@@ -221,7 +219,6 @@
             </button>
         </div>
 
-        <!-- Copy fallback always available -->
         <button class="action-btn btn-secondary" onclick="showCopyBox()"
                 style="width:90%;margin-top:4px;font-size:0.95em;">
             📋 Copy Report Text
@@ -230,6 +227,13 @@
             <textarea class="copy-box" id="copy-text-area" readonly></textarea>
             <button class="action-btn btn-check" style="margin-top:8px;" onclick="doCopy(this)">Copy</button>
         </div>
+    </div>
+
+    <!-- Back to menu -->
+    <div style="margin-top:24px;border-top:2px solid #f0f4f8;padding-top:16px;">
+        <button class="action-btn btn-secondary" onclick="goToMenu()" style="width:90%;font-size:1em;">
+            🏠 Back to Main Menu
+        </button>
     </div>
 </div>
 
@@ -261,7 +265,8 @@
     let sessionResults = { correct: [], needsPractice: [] };
     let needsTraining = false, usedHelpThisWord = false;
     let wrongAttempts = 0, streak = 0;
-    let countedWrongThisWord = false; // Fix 3: track if wrong already counted for this word in round 2
+    let countedWrongThisWord = false;
+    let sessionNeedsPractice = []; // words got wrong in ANY round this session
 
     // ── Daily streak helpers ───────────────────────────────────────────────────
     // Stored as { currentStreak, bestStreak, lastWinDate, wonToday }
@@ -453,6 +458,7 @@
         streak = 0;
         score = 0;
         sessionResults.correct = [];
+        sessionNeedsPractice = [];
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "none";
         document.getElementById("reward-screen").style.display = "none";
@@ -657,6 +663,7 @@
                 countedWrongThisWord = true;
                 if(!troubleWords.includes(target)) troubleWords.push(target);
                 masteredWords = masteredWords.filter(w => w !== target);
+                if(!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
             }
             const remaining = Math.max(0, 3 - wrongAttempts);
             document.getElementById("attempt-countdown").innerText = remaining;
@@ -675,6 +682,7 @@
         needsTraining = true; usedHelpThisWord = true; streak = 0;
         let target = sessionWords[currentIndex].word;
         if(!troubleWords.includes(target)) troubleWords.push(target);
+        if(!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
         safeSet('troubleWords', troubleWords);
         // Show the answer in the display
         kbValue = target;
@@ -809,7 +817,8 @@
 
     function buildReportText(reward) {
         const mastered = sessionResults.correct.length > 0 ? sessionResults.correct.join(", ") : "None";
-        const currentTrouble = sessionWords.filter(w => !sessionResults.correct.includes(w.word)).map(w => w.word);
+        // Words that need practice = got wrong at any point this session (minus any they ultimately mastered)
+        const needsPracticeList = sessionNeedsPractice.filter(w => !sessionResults.correct.includes(w));
         const streakData = loadDailyStreak();
         return `🔎 WORD SLEUTH: DAILY MISSION REPORT\n` +
                `--------------------------\n` +
@@ -817,8 +826,8 @@
                `🔥 Daily Streak: ${streakData.currentStreak} day${streakData.currentStreak !== 1 ? 's' : ''}\n` +
                `🏆 Best Streak: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}\n` +
                `🎁 Reward: ${reward}\n\n` +
-               `✅ Mastered: ${mastered}\n` +
-               `🔍 Needs More Practice: ${currentTrouble.join(", ") || "None!"}\n` +
+               `✅ Mastered: ${mastered || "None"}\n` +
+               `🔍 Still needs practice: ${needsPracticeList.join(", ") || "None — great work!"}\n` +
                `--------------------------`;
     }
 
@@ -887,6 +896,31 @@
 
     function showCopyBox() {
         document.getElementById("copy-fallback").style.display = "block";
+    }
+
+    function goToMenu() {
+        // Hide all screens
+        document.getElementById("reward-screen").style.display = "none";
+        document.getElementById("report-screen").style.display = "none";
+        document.getElementById("game-ui").style.display = "none";
+        document.getElementById("fitb-screen").style.display = "none";
+        // Reset share panel state for next use
+        document.getElementById("share-panel").style.display = "none";
+        document.getElementById("copy-fallback").style.display = "none";
+        const copyFallback = document.getElementById("copy-fallback");
+        if (copyFallback) copyFallback.style.display = "none";
+        // Reset reward button borders
+        document.querySelectorAll(".reward-btn").forEach(b => b.style.borderColor = "var(--gold)");
+        document.getElementById("custom-reward-input").value = "";
+        // Reset session state so next game is fresh
+        sessionWords = [];
+        warmUpSessionWords = null;
+        sessionNeedsPractice = [];
+        // Update streak display in case it changed
+        showStreakOnWelcome();
+        document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
+        document.getElementById("trouble-count").innerText = troubleWords.length;
+        document.getElementById("loading-screen").style.display = "inline-block";
     }
 
     function doCopy(btn) {
