@@ -11,8 +11,8 @@
         .stats-bar { display: flex; justify-content: space-around; font-weight: bold; color: var(--primary); margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 15px; font-size: 0.9em; }
         .round-indicator { background: linear-gradient(135deg, var(--primary), #a29bfe); color: white; padding: 8px 20px; border-radius: 50px; margin-bottom: 15px; display: inline-block; font-weight: bold; }
         .scrambled { font-size: 2.2em; font-weight: 900; letter-spacing: 8px; margin: 20px; text-transform: uppercase; color: var(--primary); min-height: 1.2em; }
-        .letter-slot { display: inline-block; transition: 0.3s; }
-        .used-letter { text-decoration: line-through; opacity: 0.2; transform: scale(0.8); color: #b2bec3; }
+        .letter-slot { display: inline-flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .used-letter { text-decoration: line-through; opacity: 0.25; background: #e0e0e0 !important; color: #aaa !important; border-color: #ccc !important; }
         .sentence { font-size: 1.3em; margin: 20px; font-style: italic; color: #555; background: #fdfdfd; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); }
         #phonetic-reveal-area { display: none; margin: 20px 0; padding: 20px; background: #f1f2f6; border-radius: 15px; }
 
@@ -125,9 +125,9 @@
     <div id="streak-display" class="streak-display"></div>
     <div id="sentence-display" class="sentence"></div>
 
-    <!-- Scrambled letters — single line, smaller font so they always fit -->
+    <!-- Scrambled letters — flex tiles, wrap on small screens -->
     <div id="scrambled-word"
-         style="font-size:1.5em;font-weight:900;letter-spacing:5px;margin:12px auto;text-transform:uppercase;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:98%;"></div>
+         style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px auto;max-width:98%;min-height:2em;"></div>
 
     <!-- Answer display — wide enough for 14 chars, fixed single-row height -->
     <div id="input-display"
@@ -320,23 +320,25 @@
     // ── Warm-Up: fill-in-the-blank with 3 word choices ────────────────────────
     let wuIndex = 0, wuScore = 0;
 
-    let warmUpSessionWords = null; // set by warm-up, consumed by startGame
+    let warmUpSessionWords = null;
 
     function startWarmUp() {
+        // Build sessionWords here — startGame will reuse the exact same set
         let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
         let available = allWords.filter(w => !selection.map(s=>s.word).includes(w.word) && !masteredWords.includes(w.word));
-        warmUpSessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
+        sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
+        warmUpSessionWords = sessionWords; // alias — same reference
 
         wuIndex = 0; wuScore = 0;
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "inline-block";
-        document.getElementById("fitb-total").innerText = warmUpSessionWords.length;
+        document.getElementById("fitb-total").innerText = sessionWords.length;
         showWarmUp();
     }
 
     function showWarmUp() {
-        if (wuIndex >= warmUpSessionWords.length) { endWarmUp(); return; }
-        const item = warmUpSessionWords[wuIndex];
+        if (wuIndex >= sessionWords.length) { endWarmUp(); return; }
+        const item = sessionWords[wuIndex];
 
         document.getElementById("fitb-current").innerText = wuIndex + 1;
         document.getElementById("fitb-score").innerText = wuScore;
@@ -390,7 +392,7 @@
     function endWarmUp() {
         document.getElementById("fitb-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
-        document.getElementById("status-text").innerText = `Warm-up done! ${wuScore}/${warmUpSessionWords.length} correct. Ready?`;
+        document.getElementById("status-text").innerText = `Warm-up done! ${wuScore}/${sessionWords.length} correct. Ready?`;
     }
 
     window.onload = async function() {
@@ -438,12 +440,16 @@
     // (FITB functions removed — replaced by spelling warm-up above)
 
     function startGame() {
-        // Always build a fresh set of session words for each new game
-        let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
-        let available = allWords.filter(w => !selection.map(s=>s.word).includes(w.word) && !masteredWords.includes(w.word));
-        sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
+        // Use words built by warm-up if available, otherwise build fresh
+        if (!sessionWords || sessionWords.length === 0) {
+            let selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0, 3);
+            let available = allWords.filter(w => !selection.map(s=>s.word).includes(w.word) && !masteredWords.includes(w.word));
+            sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
+        }
         currentRound = 1;
         streak = 0;
+        score = 0;
+        sessionResults.correct = [];
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "none";
         document.getElementById("reward-screen").style.display = "none";
@@ -454,8 +460,6 @@
 
     function setupRound() {
         currentIndex = 0;
-        score = 0;
-        sessionResults.correct = [];
         document.getElementById("report-screen").style.display = "none";
         document.getElementById("game-ui").style.display = "inline-block";
         document.getElementById("round-tag").innerText = currentRound === 1 ? "Round 1: Investigation 🔍" : "Round 2: Master Mode 🔥";
@@ -487,7 +491,9 @@
         const scrambleArea = document.getElementById("scrambled-word");
         if (currentRound === 1) {
             const letters = shuffle(obj.word.split(''));
-            scrambleArea.innerHTML = letters.map((l, i) => `<span class="letter-slot" id="slot-${i}">${l}</span>`).join('&thinsp;');
+            scrambleArea.innerHTML = letters.map((l, i) =>
+                `<span class="letter-slot" id="slot-${i}" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:42px;background:#f0eeff;border-radius:8px;font-size:1.4em;font-weight:900;color:var(--primary);border:2px solid #d0c8f8;">${l}</span>`
+            ).join('');
         } else {
             scrambleArea.innerHTML = "";
         }
@@ -716,44 +722,44 @@
         document.getElementById("report-screen").style.display = "inline-block";
         document.getElementById("streak-display").innerText = "";
         const sum = document.getElementById("session-summary");
-        const roundJustFinished = currentRound; // snapshot — don't let later changes affect display
+        const roundJustFinished = currentRound;
+        const scoreSnapshot = score; // snapshot before any reset
 
         if (roundJustFinished === 1) {
             sum.innerHTML = "Round 1 complete! 🎉<br><span style='font-size:0.8em;color:#888;'>Ready for Master Mode? The scrambled letters disappear!</span>";
             document.getElementById("round-action-btn").innerText = "▶ Start Round 2";
             document.getElementById("round-action-btn").onclick = function() {
                 currentRound = 2;
+                score = 0;
+                sessionResults.correct = [];
                 document.getElementById("report-screen").style.display = "none";
                 setupRound();
             };
         } else {
-            // Round 2 finished
-            const passed = score >= 4;
+            const passed = scoreSnapshot >= 4;
             if (passed) {
                 const streakData = recordDailyWin();
                 const streakLine = streakData && streakData.currentStreak > 1
                     ? `<br><span style="color:var(--warning);font-size:0.8em;">🔥 ${streakData.currentStreak}-day streak!</span>`
                     : `<br><span style="color:var(--success);font-size:0.8em;">✅ Mission complete — streak started!</span>`;
-                sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}${streakLine}`;
+                sum.innerHTML = `<strong>Final Mastery: ${scoreSnapshot}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}${streakLine}`;
                 document.getElementById("round-action-btn").innerText = "🎁 Share Report & Reward!";
                 document.getElementById("round-action-btn").onclick = function() {
                     document.getElementById("report-screen").style.display = "none";
                     document.getElementById("reward-screen").style.display = "inline-block";
                 };
             } else {
-                sum.innerHTML = `<strong>Final Mastery: ${score}/5</strong><br>
+                sum.innerHTML = `<strong>Final Mastery: ${scoreSnapshot}/5</strong><br>
                     <span style="color:var(--error);font-size:0.85em;">⚠️ Score 4 or more to keep your daily streak!</span>`;
                 document.getElementById("round-action-btn").innerText = "🔄 Retry Round 2";
                 document.getElementById("round-action-btn").onclick = function() {
+                    score = 0;
+                    sessionResults.correct = [];
                     document.getElementById("report-screen").style.display = "none";
-                    setupRound(); // currentRound is still 2, score already reset in setupRound
+                    setupRound();
                 };
             }
         }
-    }
-
-    function handleRoundTransition() {
-        // Kept for safety but logic now lives in showReport's inline onclick handlers
     }
 
     function showFeedback(text, color) {
