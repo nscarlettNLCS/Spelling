@@ -649,28 +649,33 @@
         if (guess === target) {
             if (currentRound === 2 && !usedHelpThisWord) {
                 score++;
-                if(!sessionResults.correct.includes(target)) sessionResults.correct.push(target);
+                if (!sessionResults.correct.includes(target)) sessionResults.correct.push(target);
+                // Word mastered perfectly — remove from needs-practice and trouble lists
+                sessionNeedsPractice = sessionNeedsPractice.filter(w => w !== target);
                 troubleWords = troubleWords.filter(w => w !== target);
-                if(!masteredWords.includes(target)) masteredWords.push(target);
+                if (!masteredWords.includes(target)) masteredWords.push(target);
             }
             streak = usedHelpThisWord ? 0 : streak + 1;
             handleSuccess();
         } else {
             needsTraining = true; usedHelpThisWord = true; streak = 0;
             wrongAttempts++;
-            // Fix 3: only add to troubleWords / penalise once per word per round 2 attempt
+            // Track wrong once per word regardless of round
             if (!countedWrongThisWord) {
                 countedWrongThisWord = true;
-                if(!troubleWords.includes(target)) troubleWords.push(target);
+                if (!troubleWords.includes(target)) troubleWords.push(target);
+                if (!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
                 masteredWords = masteredWords.filter(w => w !== target);
-                if(!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
             }
             const remaining = Math.max(0, 3 - wrongAttempts);
             document.getElementById("attempt-countdown").innerText = remaining;
+
+            // Bug 2 fix: after 3 wrong attempts auto-reveal and go straight to phonetic training
             if (wrongAttempts >= 3) {
-                const rb = document.getElementById("reveal-btn");
-                rb.disabled = false; rb.classList.add("active");
-                document.getElementById("attempt-text").style.display = "none";
+                safeSet('troubleWords', troubleWords);
+                safeSet('masteredWords', masteredWords);
+                autoRevealAndTrain();
+                return;
             }
             showFeedback("❌ Try again!", "var(--error)");
         }
@@ -678,18 +683,35 @@
         safeSet('masteredWords', masteredWords);
     }
 
-    function revealFullWord() {
-        needsTraining = true; usedHelpThisWord = true; streak = 0;
-        let target = sessionWords[currentIndex].word;
-        if(!troubleWords.includes(target)) troubleWords.push(target);
-        if(!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
-        safeSet('troubleWords', troubleWords);
-        // Show the answer in the display
-        kbValue = target;
+    function autoRevealAndTrain() {
+        const target = sessionWords[currentIndex].word;
+        setKbDisabled(true);
+        // Show the correct word in the display
         const displayText = document.getElementById("input-text");
         displayText.innerText = target;
         displayText.style.color = "#e17055";
-        showFeedback(`Word: ${target}`, "var(--warning)");
+        kbValue = target;
+        // Hide action buttons and attempt text
+        document.getElementById("attempt-text").style.display = "none";
+        document.getElementById("action-buttons").style.display = "none";
+        // Show a "see the word" feedback then go straight to syllable training
+        showFeedback(`The word is: ${target}`, "var(--warning)");
+        // Short pause so user can see the word, then show phonetic training
+        setTimeout(() => {
+            document.getElementById("feedback-area").style.display = "none";
+            setupPhoneticTraining();
+        }, 1800);
+    }
+
+    function revealFullWord() {
+        needsTraining = true; usedHelpThisWord = true; streak = 0;
+        let target = sessionWords[currentIndex].word;
+        if (!troubleWords.includes(target)) troubleWords.push(target);
+        if (!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
+        masteredWords = masteredWords.filter(w => w !== target);
+        safeSet('troubleWords', troubleWords);
+        safeSet('masteredWords', masteredWords);
+        autoRevealAndTrain();
     }
 
     function showFirstLetter() {
@@ -817,8 +839,8 @@
 
     function buildReportText(reward) {
         const mastered = sessionResults.correct.length > 0 ? sessionResults.correct.join(", ") : "None";
-        // Words that need practice = got wrong at any point this session (minus any they ultimately mastered)
-        const needsPracticeList = sessionNeedsPractice.filter(w => !sessionResults.correct.includes(w));
+        // sessionNeedsPractice already has perfectly-mastered words removed in checkWord
+        const needsPracticeList = [...new Set(sessionNeedsPractice)]; // deduplicate
         const streakData = loadDailyStreak();
         return `🔎 WORD SLEUTH: DAILY MISSION REPORT\n` +
                `--------------------------\n` +
@@ -826,8 +848,8 @@
                `🔥 Daily Streak: ${streakData.currentStreak} day${streakData.currentStreak !== 1 ? 's' : ''}\n` +
                `🏆 Best Streak: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}\n` +
                `🎁 Reward: ${reward}\n\n` +
-               `✅ Mastered: ${mastered || "None"}\n` +
-               `🔍 Still needs practice: ${needsPracticeList.join(", ") || "None — great work!"}\n` +
+               `✅ Mastered: ${mastered}\n` +
+               `🔍 Still needs practice: ${needsPracticeList.length > 0 ? needsPracticeList.join(", ") : "None — great work!"}\n` +
                `--------------------------`;
     }
 
