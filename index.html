@@ -117,6 +117,12 @@
     <!-- 3 word choice buttons -->
     <div id="fitb-choices" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;"></div>
     <div id="wu-feedback" style="font-size:1.2em;margin:8px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
+    <!-- Syllable training area (shown after correct answer) -->
+    <div id="wu-phonetic-area" style="display:none;margin:16px 0;padding:16px;background:#f1f2f6;border-radius:15px;">
+        <p style="margin:0 0 10px;font-weight:bold;">Click all sound blocks! 🔊</p>
+        <div id="wu-syllable-container"></div>
+        <div id="wu-grammar-box" class="grammar-rule-box"></div>
+    </div>
     <button class="action-btn btn-next" id="wu-next-btn" onclick="nextWarmUp()" style="display:none;width:90%;">Next →</button>
 </div>
 
@@ -364,6 +370,10 @@
         document.getElementById("fitb-score").innerText = wuScore;
         document.getElementById("wu-feedback").style.display = "none";
         document.getElementById("wu-next-btn").style.display = "none";
+        document.getElementById("wu-phonetic-area").style.display = "none";
+        document.getElementById("wu-syllable-container").innerHTML = "";
+        document.getElementById("wu-grammar-box").style.display = "none";
+        document.getElementById("wu-grammar-box").innerHTML = "";
 
         const blanked = item.sentence.replace(
             new RegExp(`\\b${item.word}\\b`, 'i'),
@@ -395,19 +405,58 @@
             wuScore++;
             document.getElementById("fitb-score").innerText = wuScore;
             fb.style.backgroundColor = "var(--success)";
-            fb.innerText = "✅ Correct!";
+            fb.innerText = "✅ Correct! Now click all the sound blocks below.";
+            // Show syllable training — Next → appears only after all blocks clicked
+            setupWarmUpPhoneticTraining();
         } else {
             btn.style.background = "var(--error)"; btn.style.color = "white"; btn.style.borderColor = "var(--error)";
             cont.querySelectorAll("button").forEach(b => {
                 if (b.innerText === correct) { b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)"; }
             });
             fb.style.backgroundColor = "var(--error)";
-            fb.innerText = `❌ The answer was: ${correct}`;
+            fb.innerText = `❌ The answer was: ${correct}. Now click all the sound blocks below.`;
+            // Show syllable training even on wrong — Next → appears after all blocks clicked
+            setupWarmUpPhoneticTraining();
         }
-        document.getElementById("wu-next-btn").style.display = "block";
     }
 
     function nextWarmUp() { wuIndex++; showWarmUp(); }
+
+    function setupWarmUpPhoneticTraining() {
+        const area = document.getElementById("wu-phonetic-area");
+        const cont = document.getElementById("wu-syllable-container");
+        const grammarBox = document.getElementById("wu-grammar-box");
+        area.style.display = "block";
+        cont.innerHTML = "";
+        grammarBox.style.display = "none";
+        grammarBox.innerHTML = "";
+
+        const currentWord = sessionWords[wuIndex];
+        const parts = currentWord.phonetic.split(/[•·\-\s/]+/).filter(p => p.trim());
+        let clicked = 0;
+
+        parts.forEach((p, i) => {
+            const btn = document.createElement("button");
+            const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
+            btn.className = `syllable-btn ${colorClass}`;
+            btn.innerText = p.toUpperCase();
+            btn.onclick = function() {
+                if (!this.classList.contains("revealed")) {
+                    this.classList.add("revealed");
+                    clicked++;
+                    if (clicked === parts.length) {
+                        if (currentWord.grammarRule) {
+                            grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
+                            grammarBox.style.display = "block";
+                        }
+                        // All blocks clicked — show Next button
+                        document.getElementById("wu-next-btn").style.display = "block";
+                    }
+                }
+            };
+            cont.appendChild(btn);
+        });
+    }
 
     function endWarmUp() {
         document.getElementById("fitb-screen").style.display = "none";
