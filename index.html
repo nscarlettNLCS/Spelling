@@ -540,7 +540,6 @@
             masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
             safeSet('masteredWords', masteredWords);
             document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
-            document.getElementById("trouble-count").innerText = troubleWords.length;
             document.getElementById("welcome-buttons").style.display = "block";
             showStreakOnWelcome();
         } catch(e) {
@@ -1152,7 +1151,6 @@
         document.getElementById("streak-warning").style.display = "none";
         showStreakOnWelcome();
         document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
-        document.getElementById("trouble-count").innerText = troubleWords.length;
         document.getElementById("loading-screen").style.display = "inline-block";
     }
 
