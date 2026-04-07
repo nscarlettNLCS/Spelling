@@ -504,8 +504,10 @@
             scrambleArea.innerHTML = letters.map((l, i) =>
                 `<span class="letter-slot" id="slot-${i}" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:42px;background:#f0eeff;border-radius:8px;font-size:1.4em;font-weight:900;color:var(--primary);border:2px solid #d0c8f8;">${l}</span>`
             ).join('');
+            applyKeyboardFilter(obj.word);
         } else {
             scrambleArea.innerHTML = "";
+            clearKeyboardFilter();
         }
         // no system keyboard to focus — custom keyboard is always visible
     }
@@ -581,11 +583,12 @@
                     e.preventDefault(); // stops mobile focus/scroll
                     if (kbDisabled) return;
                     if (isDelete) kbDelete(); else kbType(letter);
+                    const normalBg = isDelete ? "#e17055" : (btn.style.background === "#2d3436" ? "#2d3436" : "#e8e8f0");
                     btn.style.transform = "scale(0.92)";
                     btn.style.background = isDelete ? "#d63031" : "#c0c0d8";
                     setTimeout(() => {
                         btn.style.transform = "";
-                        btn.style.background = isDelete ? "#e17055" : "#e8e8f0";
+                        btn.style.background = normalBg;
                     }, 120);
                 });
                 rowEl.appendChild(btn);
@@ -628,6 +631,30 @@
         document.getElementById("custom-keyboard").style.opacity = disabled ? "0.4" : "1";
         document.getElementById("custom-keyboard").style.pointerEvents = disabled ? "none" : "auto";
         document.getElementById("input-cursor").style.display = disabled ? "none" : "inline-block";
+    }
+
+    // Dim keyboard keys that aren't needed for the current word (Round 1 only)
+    function applyKeyboardFilter(word) {
+        const needed = new Set(word.toUpperCase().split(''));
+        needed.add("'"); // apostrophe always available
+        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn => {
+            const key = btn.getAttribute("data-key");
+            if (key === "⌫") return; // always active
+            const isNeeded = needed.has(key);
+            btn.style.background = isNeeded ? "#e8e8f0" : "#2d3436";
+            btn.style.color = isNeeded ? "#2d3436" : "#555";
+            btn.style.opacity = isNeeded ? "1" : "0.55";
+        });
+    }
+
+    function clearKeyboardFilter() {
+        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn => {
+            const key = btn.getAttribute("data-key");
+            if (key === "⌫") return;
+            btn.style.background = "#e8e8f0";
+            btn.style.color = "#2d3436";
+            btn.style.opacity = "1";
+        });
     }
     // ──────────────────────────────────────────────────────────────────────────
 
