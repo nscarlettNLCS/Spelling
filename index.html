@@ -61,7 +61,20 @@
         .streak-card .sc-value { font-size: 2em; font-weight: 900; line-height: 1; }
         .streak-card.current .sc-value { color: var(--warning); }
         .streak-card.best .sc-value { color: var(--gold); }
+        .streak-card.mastered .sc-value { color: var(--success); }
+        .streak-card.trouble .sc-value { color: var(--error); }
+        .streak-card.clickable { cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; }
+        .streak-card.clickable:hover { border-color: var(--primary); transform: scale(1.03); }
         .streak-warning { background: #fff3f3; border: 2px solid var(--error); border-radius: 14px; padding: 12px 16px; margin: 10px 0; font-size: 0.95em; color: var(--error); font-weight: bold; display: none; }
+        /* Word list modal */
+        #word-modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
+        #word-modal-overlay.open { display:flex; }
+        #word-modal { background:white; border-radius:20px; padding:24px; max-width:420px; width:90%; max-height:80vh; overflow-y:auto; text-align:left; }
+        #word-modal h2 { margin:0 0 16px; font-size:1.2em; color:var(--dark); }
+        .word-pill { display:inline-block; padding:6px 14px; margin:4px; border-radius:20px; font-weight:700; font-size:0.95em; }
+        .word-pill.mastered { background:#e1faf4; color:#007a5e; }
+        .word-pill.trouble { background:#fdeaea; color:#a32d2d; }
+        #word-modal-close { margin-top:16px; width:100%; }
         @keyframes kbShake {
             0%   { transform: translateX(0); }
             20%  { transform: translateX(-5px); }
@@ -94,6 +107,19 @@
                 <div class="sc-label" style="margin-top:2px;">days</div>
             </div>
         </div>
+        <!-- Mastered & Trouble word counts — tappable -->
+        <div class="streak-panel" style="margin-top:0;">
+            <div class="streak-card mastered clickable" onclick="openWordList('mastered')">
+                <div class="sc-label">✅ Mastered</div>
+                <div class="sc-value" id="mastered-count-display">0</div>
+                <div class="sc-label" style="margin-top:2px;">tap to review</div>
+            </div>
+            <div class="streak-card trouble clickable" onclick="openWordList('trouble')">
+                <div class="sc-label">⚠️ To Work On</div>
+                <div class="sc-value" id="trouble-count-display">0</div>
+                <div class="sc-label" style="margin-top:2px;">tap to review</div>
+            </div>
+        </div>
 
         <!-- Warning shown if yesterday's mission was failed/missed -->
         <div class="streak-warning" id="streak-warning">
@@ -101,7 +127,6 @@
         </div>
 
         <button class="action-btn" style="background:var(--primary);color:white;width:80%;font-size:1.15em;" onclick="startMission()">🕵️ START MISSION</button>
-        <p style="font-size:0.85em;color:#888;margin-top:12px;">Tracking <span id="trouble-count">0</span> tricky words</p>
     </div>
 </div>
 
@@ -327,12 +352,47 @@
         document.getElementById("daily-streak-display").innerText = data.currentStreak;
         document.getElementById("best-streak-display").innerText = data.bestStreak;
 
+        // Populate mastered/trouble counts
+        document.getElementById("mastered-count-display").innerText = masteredWords.length;
+        document.getElementById("trouble-count-display").innerText = troubleWords.length;
+
         // Show warning only if streak > 0, player hasn't won today, and last win wasn't yesterday or today
         const streakBroken = data.currentStreak === 0 && data.lastWinDate !== null
                              && data.lastWinDate !== today && data.lastWinDate !== yesterday;
         if (streakBroken) {
             document.getElementById("streak-warning").style.display = "block";
         }
+    }
+
+    function openWordList(type) {
+        const isMastered = type === "mastered";
+        const list = isMastered ? masteredWords : troubleWords;
+        const title = isMastered ? `✅ Mastered Words (${list.length})` : `⚠️ Words to Work On (${list.length})`;
+        const pillClass = isMastered ? "mastered" : "trouble";
+
+        document.getElementById("word-modal-title").innerText = title;
+
+        const body = document.getElementById("word-modal-body");
+        if (list.length === 0) {
+            body.innerHTML = `<p style="color:#888;font-size:0.95em;">${isMastered ? "No words mastered yet — complete missions to build this list!" : "No trouble words recorded yet — keep it up!"}</p>`;
+        } else {
+            // Sort alphabetically
+            const sorted = [...list].sort();
+            body.innerHTML = sorted.map(w =>
+                `<span class="word-pill ${pillClass}">${w}</span>`
+            ).join('');
+        }
+
+        document.getElementById("word-modal-overlay").classList.add("open");
+    }
+
+    function closeWordList() {
+        document.getElementById("word-modal-overlay").classList.remove("open");
+    }
+
+    function closeWordListOnBg(e) {
+        // Close if clicked directly on the overlay (not the modal itself)
+        if (e.target === document.getElementById("word-modal-overlay")) closeWordList();
     }
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -1088,7 +1148,8 @@
         warmUpSessionWords = null;
         sessionNeedsPractice = [];
         currentRound = 1;
-        // Update streak display in case it changed
+        // Update streak + word counts
+        document.getElementById("streak-warning").style.display = "none";
         showStreakOnWelcome();
         document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
         document.getElementById("trouble-count").innerText = troubleWords.length;
@@ -1110,5 +1171,14 @@
     }
     // ──────────────────────────────────────────────────────────────────────────
 </script>
+<!-- Word list modal -->
+<div id="word-modal-overlay" onclick="closeWordListOnBg(event)">
+    <div id="word-modal">
+        <h2 id="word-modal-title"></h2>
+        <div id="word-modal-body"></div>
+        <button class="action-btn btn-secondary" id="word-modal-close" onclick="closeWordList()">Close</button>
+    </div>
+</div>
+
 </body>
 </html>
