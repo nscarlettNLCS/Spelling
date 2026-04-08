@@ -176,10 +176,10 @@
 
     <!-- Custom on-screen keyboard -->
     <div id="custom-keyboard-wrapper">
-    <div id="custom-keyboard" style="margin:8px auto 12px;max-width:420px;user-select:none;">
-        <div id="kb-row-1" style="display:flex;justify-content:center;gap:4px;margin-bottom:4px;"></div>
-        <div id="kb-row-2" style="display:flex;justify-content:center;gap:4px;margin-bottom:4px;"></div>
-        <div id="kb-row-3" style="display:flex;justify-content:center;gap:4px;"></div>
+    <div id="custom-keyboard" style="margin:8px auto 12px;max-width:460px;width:100%;user-select:none;">
+        <div id="kb-row-1" style="display:flex;justify-content:center;gap:3px;margin-bottom:4px;"></div>
+        <div id="kb-row-2" style="display:flex;justify-content:center;gap:3px;margin-bottom:4px;"></div>
+        <div id="kb-row-3" style="display:flex;justify-content:center;gap:3px;"></div>
     </div>
     </div>
 
@@ -552,18 +552,22 @@
             .filter(line => line.trim() !== "" && !line.startsWith('<'))
             .slice(1)
             .map(line => {
-                // Find up to 4 comma positions for columns A,B,C,D
+                // Find comma positions for columns A,B,C,D,E
                 const c1 = line.indexOf(',');
                 if (c1 === -1) return null;
                 const c2 = line.indexOf(',', c1 + 1);
                 const c3 = c2 > -1 ? line.indexOf(',', c2 + 1) : -1;
+                const c4 = c3 > -1 ? line.indexOf(',', c3 + 1) : -1; // boundary for column D
 
                 const word       = line.slice(0, c1).trim().toUpperCase();
                 const sentence   = c2 > -1 ? line.slice(c1 + 1, c2).trim() : line.slice(c1 + 1).trim();
                 const phonetic   = c2 > -1 && c3 > -1 ? line.slice(c2 + 1, c3).trim()
                                  : c2 > -1              ? line.slice(c2 + 1).trim()
                                  : word;
-                const grammarRule = c3 > -1 ? line.slice(c3 + 1).trim() : '';
+                // Grammar rule = column D only — stop at column E boundary (c4) if it exists
+                const grammarRule = c3 > -1
+                    ? (c4 > -1 ? line.slice(c3 + 1, c4).trim() : line.slice(c3 + 1).trim())
+                    : '';
 
                 return { word, sentence, phonetic, grammarRule };
             }).filter(item => item && item.word && item.word.length > 1);
@@ -677,8 +681,8 @@
                 btn.innerText = letter;
                 btn.setAttribute("data-key", letter);
                 btn.style.cssText = `
-                    flex:1;max-width:${isDelete ? 52 : 38}px;min-width:${isDelete ? 44 : 30}px;
-                    height:46px;border:none;border-radius:8px;font-size:1em;font-weight:700;
+                    flex:1;max-width:${isDelete ? 56 : 42}px;min-width:${isDelete ? 48 : 33}px;
+                    height:48px;border:none;border-radius:8px;font-size:1em;font-weight:700;
                     cursor:pointer;transition:background 0.15s;
                     background:${isDelete ? "#d63031" : "#e8e8f0"};
                     color:${isDelete ? "white" : "#2d3436"};
