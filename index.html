@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,9 +54,9 @@
         /* Warm-up screen */
         #fitb-screen .sentence { border-left-color: var(--hint); }
 
-        /* Daily streak panel on welcome screen */
-        .streak-panel { display: flex; justify-content: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
-        .streak-card { background: #f8f9fa; border-radius: 16px; padding: 14px 20px; min-width: 110px; }
+        /* Daily streak panel on welcome screen — 2×2 grid */
+        .streak-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; width: 100%; }
+        .streak-card { background: #f8f9fa; border-radius: 16px; padding: 16px 12px; text-align: center; }
         .streak-card .sc-label { font-size: 0.78em; color: #888; margin-bottom: 4px; }
         .streak-card .sc-value { font-size: 2em; font-weight: 900; line-height: 1; }
         .streak-card.current .sc-value { color: var(--warning); }
@@ -102,14 +100,25 @@
 </head>
 <body>
 
-<!-- NAME ENTRY SCREEN — shown only on first visit -->
+<!-- USERNAME SCREEN — shown only on first visit, generates anonymous username -->
 <div class="container" id="name-screen" style="display:none;">
     <h1>🔎 Word Sleuth</h1>
-    <p style="color:#888;margin-bottom:20px;">Enter your name to get started!</p>
-    <input class="name-input" id="name-input" type="text" placeholder="Your name..." maxlength="20"
-           autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+    <p style="color:#888;margin-bottom:18px;">You'll get an anonymous username — no personal info needed!</p>
+
+    <!-- Generated username display -->
+    <div id="generated-username-display"
+         style="font-size:1.4em;font-weight:900;color:var(--primary);background:#f0eeff;
+                border-radius:14px;padding:14px 20px;margin-bottom:14px;letter-spacing:1px;"></div>
+
+    <button class="action-btn btn-secondary" onclick="generateUsername()"
+            style="width:80%;margin-bottom:16px;font-size:1em;">
+        🎲 Generate another
+    </button>
     <br>
-    <button class="action-btn btn-check" style="width:80%;font-size:1.1em;margin-top:8px;" onclick="saveName()">Let's Go! 🚀</button>
+    <button class="action-btn btn-check" id="use-name-btn"
+            style="width:80%;font-size:1.1em;" onclick="saveName()">
+        Use this name 🚀
+    </button>
 </div>
 
 <!-- LOADING / WELCOME SCREEN -->
@@ -119,7 +128,7 @@
     <p id="status-text">Fetching latest files from HQ...</p>
     <div id="welcome-buttons" style="display:none;">
 
-        <!-- Daily streak panel -->
+        <!-- Stats grid: 2×2 — streak, best streak, mastered, to work on -->
         <div class="streak-panel">
             <div class="streak-card current">
                 <div class="sc-label">🔥 Current Streak</div>
@@ -131,9 +140,6 @@
                 <div class="sc-value" id="best-streak-display">0</div>
                 <div class="sc-label" style="margin-top:2px;">days</div>
             </div>
-        </div>
-        <!-- Mastered & Trouble word counts — tappable -->
-        <div class="streak-panel" style="margin-top:0;">
             <div class="streak-card mastered clickable" onclick="openWordList('mastered')">
                 <div class="sc-label">✅ Mastered</div>
                 <div class="sc-value" id="mastered-count-display">0</div>
@@ -1217,10 +1223,40 @@
      Replace APPS_SCRIPT_URL below with your deployed Web App URL from Step 3.
      ═══════════════════════════════════════════════════════════════════════════ -->
 <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIaJhk-bayTocNqWzNB1Xqz4rgCeieQQPsqsba609-NvmZavcmVTHREn5MM9tfYQr/exec";
+    const APPS_SCRIPT_URL = "REPLACE_WITH_YOUR_APPS_SCRIPT_WEB_APP_URL";
 
-    // ── Name handling ──────────────────────────────────────────────────────────
+    // ── Anonymous username generator ───────────────────────────────────────────
     let playerName = "";
+    let pendingUsername = "";
+
+    const ADJECTIVES = [
+        "Brave","Calm","Clever","Cool","Crazy","Daring","Dizzy","Eager",
+        "Fancy","Fast","Fluffy","Funny","Gentle","Goofy","Happy","Jolly",
+        "Kind","Lazy","Lucky","Mighty","Muddy","Noisy","Odd","Peppy",
+        "Proud","Quick","Quiet","Rare","Shiny","Silly","Sleepy","Sly",
+        "Smart","Sneaky","Snowy","Speedy","Spiky","Spooky","Swift","Tiny",
+        "Tricky","Vivid","Wacky","Wild","Witty","Wobbly","Zany","Zesty"
+    ];
+
+    const ANIMALS = [
+        "Badger","Bear","Beaver","Buffalo","Bunny","Camel","Capybara","Cheetah",
+        "Chipmunk","Cobra","Coyote","Crane","Dingo","Dolphin","Donkey","Dragon",
+        "Eagle","Falcon","Ferret","Flamingo","Fox","Frog","Gecko","Giraffe",
+        "Goat","Gorilla","Hamster","Hedgehog","Hippo","Hyena","Iguana","Jaguar",
+        "Kangaroo","Koala","Lemur","Leopard","Lion","Lizard","Llama","Lynx",
+        "Meerkat","Mongoose","Monkey","Moose","Narwhal","Otter","Owl","Panda",
+        "Panther","Parrot","Penguin","Porcupine","Puma","Rabbit","Raccoon",
+        "Rhino","Salamander","Shark","Sloth","Snake","Tiger","Toucan",
+        "Turtle","Walrus","Weasel","Wolf","Wombat","Zebra"
+    ];
+
+    function generateUsername() {
+        const adj    = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+        const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+        const num    = String(Math.floor(Math.random() * 90) + 10); // 10–99
+        pendingUsername = adj + animal + num;
+        document.getElementById("generated-username-display").innerText = pendingUsername;
+    }
 
     function initNameScreen() {
         const stored = localStorage.getItem("playerName");
@@ -1228,24 +1264,21 @@
             playerName = stored.trim();
             document.getElementById("name-screen").style.display = "none";
             document.getElementById("loading-screen").style.display = "inline-block";
-            document.getElementById("welcome-player-name").innerText = `Playing as: ${playerName}`;
+            document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
         } else {
             document.getElementById("name-screen").style.display = "inline-block";
             document.getElementById("loading-screen").style.display = "none";
-            document.getElementById("name-input").addEventListener("keydown", e => {
-                if (e.key === "Enter") saveName();
-            });
+            generateUsername(); // show one straight away
         }
     }
 
     function saveName() {
-        const val = document.getElementById("name-input").value.trim();
-        if (!val) { alert("Please enter your name!"); return; }
-        playerName = val;
+        if (!pendingUsername) { generateUsername(); return; }
+        playerName = pendingUsername;
         localStorage.setItem("playerName", playerName);
         document.getElementById("name-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
-        document.getElementById("welcome-player-name").innerText = `Playing as: ${playerName}`;
+        document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
     }
 
     // ── Push score to Google Sheet via Apps Script ─────────────────────────────
