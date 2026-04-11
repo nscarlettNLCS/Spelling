@@ -83,14 +83,10 @@
             80%  { transform: translateX(4px); }
             100% { transform: translateX(0); }
         }
-        /* Mode selector */
-        .mode-toggle { display:flex; gap:10px; margin:16px auto; width:85%; }
-        .mode-btn { flex:1; padding:14px 8px; border-radius:14px; border:2px solid #dfe6e9; background:white; font-size:0.95em; font-weight:700; cursor:pointer; transition:all 0.2s; color:#888; }
-        .mode-btn.selected { border-color:var(--primary); background:#f0eeff; color:var(--primary); }
-        .mode-btn.selected.adv { border-color:#e17055; background:#fff3ef; color:#e17055; }
-        .mode-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.78em; font-weight:700; margin-left:6px; vertical-align:middle; }
-        .mode-badge.std { background:#f0eeff; color:var(--primary); }
-        .mode-badge.adv { background:#fff3ef; color:#e17055; }
+        /* Name entry */
+        #name-screen { text-align:center; }
+        .name-input { font-size:1.3em; padding:14px; border-radius:14px; border:3px solid #dfe6e9; width:80%; text-align:center; outline:none; margin-bottom:12px; }
+        .name-input:focus { border-color:var(--primary); }
         /* Leaderboard */
         .lb-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; margin-bottom:8px; background:#f8f9fa; }
         .lb-rank { font-size:1.4em; width:36px; text-align:center; flex-shrink:0; }
@@ -115,25 +111,13 @@
                 border-radius:14px;padding:14px 20px;margin-bottom:14px;letter-spacing:1px;"></div>
 
     <button class="action-btn btn-secondary" onclick="generateUsername()"
-            style="width:80%;margin-bottom:20px;font-size:1em;">
+            style="width:80%;margin-bottom:16px;font-size:1em;">
         🎲 Generate another
     </button>
-
-    <!-- Mode selector -->
-    <p style="font-weight:700;color:var(--dark);margin-bottom:8px;">Choose your level:</p>
-    <div class="mode-toggle">
-        <button class="mode-btn selected" id="mode-btn-std" onclick="selectMode('standard')">
-            📚 Standard<br><span style="font-size:0.8em;font-weight:400;">Regular words</span>
-        </button>
-        <button class="mode-btn" id="mode-btn-adv" onclick="selectMode('advanced')">
-            🚀 Advanced<br><span style="font-size:0.8em;font-weight:400;">Harder words</span>
-        </button>
-    </div>
-
     <br>
     <button class="action-btn btn-check" id="use-name-btn"
-            style="width:80%;font-size:1.1em;margin-top:8px;" onclick="saveName()">
-        Let's Go! 🚀
+            style="width:80%;font-size:1.1em;" onclick="saveName()">
+        Use this name 🚀
     </button>
 </div>
 
@@ -176,8 +160,6 @@
         <button class="action-btn" style="background:var(--primary);color:white;width:80%;font-size:1.15em;" onclick="startMission()">🕵️ START MISSION</button>
         <br>
         <button class="action-btn btn-secondary" style="width:80%;margin-top:8px;font-size:1em;" onclick="showLeaderboard()">🏆 Leaderboard</button>
-        <br>
-        <button class="action-btn" id="mode-switch-btn" style="width:80%;margin-top:8px;font-size:0.9em;" onclick="switchMode()"></button>
         <p id="welcome-player-name" style="font-size:0.85em;color:#aaa;margin-top:10px;"></p>
     </div>
 </div>
@@ -334,14 +316,8 @@
 </div>
 
 <script>
-    const CSV_URL          = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
-    const CSV_URL_ADVANCED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv&sheet=Advanced';
-
-    // Mode — 'standard' or 'advanced'; stored in localStorage
-    let isAdvanced = localStorage.getItem("gameMode") === "advanced";
-
-    // Mode-specific storage keys so progress doesn't mix between levels
-    function modeKey(base) { return isAdvanced ? base + "_adv" : base; }
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
+    // IMPROVEMENT 4: Parent emails removed
 
     function safeGet(key, fallback) {
         try { return JSON.parse(localStorage.getItem(key)) || fallback; }
@@ -362,8 +338,8 @@
     }
 
     let allWords = [], sessionWords = [], currentIndex = 0, currentRound = 1, score = 0;
-    let troubleWords = safeGet(modeKey('troubleWords'), []);
-    let masteredWords = safeGet(modeKey('masteredWords'), []);
+    let troubleWords = safeGet('troubleWords', []);
+    let masteredWords = safeGet('masteredWords', []);
     let sessionResults = { correct: [], needsPractice: [] };
     let needsTraining = false, usedHelpThisWord = false;
     let wrongAttempts = 0, streak = 0;
@@ -596,8 +572,7 @@
 
     window.onload = async function() {
         try {
-            const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
-            const response = await fetch(url);
+            const response = await fetch(CSV_URL);
             const data = await response.text();
             if (data.includes("<!DOCTYPE") || data.includes("<html")) {
                 document.getElementById("status-text").innerText = "⚠️ Error: CSV link issue.";
@@ -605,10 +580,9 @@
             }
             allWords = parseCSV(data);
             masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
-            safeSet(modeKey('masteredWords'), masteredWords);
+            safeSet('masteredWords', masteredWords);
             document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
             document.getElementById("welcome-buttons").style.display = "block";
-            updateModeSwitchBtn();
             showStreakOnWelcome();
         } catch(e) {
             document.getElementById("status-text").innerHTML = 'Connection error. <button class="action-btn btn-hint" onclick="location.reload()" style="font-size:0.9em;padding:8px 16px;">Retry</button>';
@@ -950,15 +924,15 @@
 
             // Bug 2 fix: after 3 wrong attempts auto-reveal and go straight to phonetic training
             if (wrongAttempts >= 3) {
-                safeSet(modeKey('troubleWords'), troubleWords);
-                safeSet(modeKey('masteredWords'), masteredWords);
+                safeSet('troubleWords', troubleWords);
+                safeSet('masteredWords', masteredWords);
                 autoRevealAndTrain();
                 return;
             }
             showFeedback("❌ Try again!", "var(--error)");
         }
-        safeSet(modeKey('troubleWords'), troubleWords);
-        safeSet(modeKey('masteredWords'), masteredWords);
+        safeSet('troubleWords', troubleWords);
+        safeSet('masteredWords', masteredWords);
     }
 
     function autoRevealAndTrain() {
@@ -987,8 +961,8 @@
         if (!troubleWords.includes(target)) troubleWords.push(target);
         if (!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
         masteredWords = masteredWords.filter(w => w !== target);
-        safeSet(modeKey('troubleWords'), troubleWords);
-        safeSet(modeKey('masteredWords'), masteredWords);
+        safeSet('troubleWords', troubleWords);
+        safeSet('masteredWords', masteredWords);
         autoRevealAndTrain();
     }
 
@@ -1221,9 +1195,6 @@
         warmUpSessionWords = null;
         sessionNeedsPractice = [];
         currentRound = 1;
-        // Reload mode-specific word lists in case mode changed
-        troubleWords = safeGet(modeKey('troubleWords'), []);
-        masteredWords = safeGet(modeKey('masteredWords'), []);
         // Update streak + word counts
         document.getElementById("streak-warning").style.display = "none";
         showStreakOnWelcome();
@@ -1253,54 +1224,6 @@
      ═══════════════════════════════════════════════════════════════════════════ -->
 <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIaJhk-bayTocNqWzNB1Xqz4rgCeieQQPsqsba609-NvmZavcmVTHREn5MM9tfYQr/exec";
-
-    // ── Mode helpers ───────────────────────────────────────────────────────────
-    function selectMode(mode) {
-        isAdvanced = mode === "advanced";
-        document.getElementById("mode-btn-std").className = "mode-btn" + (isAdvanced ? "" : " selected");
-        document.getElementById("mode-btn-adv").className = "mode-btn" + (isAdvanced ? " selected adv" : "");
-    }
-
-    function updateModeSwitchBtn() {
-        const btn = document.getElementById("mode-switch-btn");
-        if (!btn) return;
-        if (isAdvanced) {
-            btn.innerText = "Switch to 📚 Standard";
-            btn.style.background = "#fff3ef";
-            btn.style.color = "#e17055";
-            btn.style.border = "2px solid #e17055";
-        } else {
-            btn.innerText = "Switch to 🚀 Advanced";
-            btn.style.background = "#f0eeff";
-            btn.style.color = "var(--primary)";
-            btn.style.border = "2px solid var(--primary)";
-        }
-    }
-
-    async function switchMode() {
-        isAdvanced = !isAdvanced;
-        localStorage.setItem("gameMode", isAdvanced ? "advanced" : "standard");
-        // Reload word lists and progress for the new mode
-        troubleWords = safeGet(modeKey('troubleWords'), []);
-        masteredWords = safeGet(modeKey('masteredWords'), []);
-        // Refetch the appropriate CSV
-        document.getElementById("status-text").innerText = "Loading words...";
-        document.getElementById("welcome-buttons").style.display = "none";
-        try {
-            const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
-            const response = await fetch(url);
-            const data = await response.text();
-            allWords = parseCSV(data);
-            masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
-            safeSet(modeKey('masteredWords'), masteredWords);
-            document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
-        } catch(e) {
-            document.getElementById("status-text").innerText = "Error loading words. Retry.";
-        }
-        document.getElementById("welcome-buttons").style.display = "block";
-        updateModeSwitchBtn();
-        showStreakOnWelcome();
-    }
 
     // ── Anonymous username generator ───────────────────────────────────────────
     let playerName = "";
@@ -1337,8 +1260,6 @@
 
     function initNameScreen() {
         const stored = localStorage.getItem("playerName");
-        // Restore saved mode
-        isAdvanced = localStorage.getItem("gameMode") === "advanced";
         if (stored && stored.trim()) {
             playerName = stored.trim();
             document.getElementById("name-screen").style.display = "none";
@@ -1347,9 +1268,7 @@
         } else {
             document.getElementById("name-screen").style.display = "inline-block";
             document.getElementById("loading-screen").style.display = "none";
-            // Pre-select correct mode button
-            selectMode(isAdvanced ? "advanced" : "standard");
-            generateUsername();
+            generateUsername(); // show one straight away
         }
     }
 
@@ -1357,10 +1276,6 @@
         if (!pendingUsername) { generateUsername(); return; }
         playerName = pendingUsername;
         localStorage.setItem("playerName", playerName);
-        localStorage.setItem("gameMode", isAdvanced ? "advanced" : "standard");
-        // Reload with correct mode keys
-        troubleWords = safeGet(modeKey('troubleWords'), []);
-        masteredWords = safeGet(modeKey('masteredWords'), []);
         document.getElementById("name-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
         document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
@@ -1368,16 +1283,12 @@
 
     // ── Push score to Google Sheet via Apps Script ─────────────────────────────
     async function pushLeaderboardScore(masteredCount) {
-        if (!playerName) return;
+        if (!playerName || APPS_SCRIPT_URL.startsWith("REPLACE")) return;
         try {
             await fetch(APPS_SCRIPT_URL, {
                 method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({
-                    name: playerName,
-                    mastered: masteredCount,
-                    mode: isAdvanced ? "advanced" : "standard"
-                })
+                headers: { "Content-Type": "text/plain" }, // Apps Script requires text/plain for no-CORS
+                body: JSON.stringify({ name: playerName, mastered: masteredCount })
             });
         } catch(e) {
             console.warn("Leaderboard write failed:", e);
@@ -1390,6 +1301,11 @@
         document.getElementById("leaderboard-screen").style.display = "inline-block";
         const list = document.getElementById("lb-list");
         list.innerHTML = "<p style='color:#aaa;'>Loading...</p>";
+
+        if (APPS_SCRIPT_URL.startsWith("REPLACE")) {
+            list.innerHTML = "<p style='color:var(--error);'>Apps Script URL not set yet — see setup instructions.</p>";
+            return;
+        }
 
         try {
             const res  = await fetch(APPS_SCRIPT_URL + "?action=get");
@@ -1405,15 +1321,12 @@
             const classes = ["gold","silver","bronze"];
 
             list.innerHTML = rows.map((r, i) => {
-                const isMe      = r.name.toLowerCase() === playerName.toLowerCase();
+                const isMe     = r.name.toLowerCase() === playerName.toLowerCase();
                 const rankLabel = i < 3 ? medals[i] : `#${i + 1}`;
                 const rowClass  = isMe ? "lb-row me" : (i < 3 ? `lb-row ${classes[i]}` : "lb-row");
-                const modeBadge = r.mode === "advanced"
-                    ? `<span class="mode-badge adv">🚀 Adv</span>`
-                    : `<span class="mode-badge std">📚 Std</span>`;
                 return `<div class="${rowClass}">
                     <span class="lb-rank">${rankLabel}</span>
-                    <span class="lb-name">${r.name}${isMe ? " (you)" : ""} ${modeBadge}</span>
+                    <span class="lb-name">${r.name}${isMe ? " (you)" : ""}</span>
                     <span class="lb-score">${r.mastered} ⭐</span>
                 </div>`;
             }).join('');
