@@ -548,31 +548,34 @@
         cont.querySelectorAll("button").forEach(b => { b.onpointerdown = null; b.style.cursor = "default"; });
         const fb = document.getElementById("wu-feedback");
         fb.style.display = "block";
+
         if (chosen === correct) {
+            // Correct — interactive syllable training, Next appears after all blocks clicked
             btn.style.background = "var(--success)"; btn.style.color = "white"; btn.style.borderColor = "var(--success)";
             wuScore++;
             document.getElementById("fitb-score").innerText = wuScore;
             fb.style.backgroundColor = "var(--success)";
-            fb.innerText = "✅ Correct! Now click all the sound blocks below.";
-            // Show syllable training — Next → appears only after all blocks clicked
-            setupWarmUpPhoneticTraining();
+            fb.innerText = "✅ Correct! Click all the sound blocks to continue.";
+            setupWarmUpPhoneticTraining(false); // interactive
         } else {
+            // Wrong — highlight correct answer, then immediately show phonetic + grammar rule as text
             btn.style.background = "var(--error)"; btn.style.color = "white"; btn.style.borderColor = "var(--error)";
             cont.querySelectorAll("button").forEach(b => {
-                if (b.innerText === correct) { b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)"; }
+                if (b.innerText === correct) {
+                    b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)";
+                }
             });
             fb.style.backgroundColor = "var(--error)";
-            fb.innerText = `❌ The answer was: ${correct}. Now click all the sound blocks below.`;
-            // Show syllable training even on wrong — Next → appears after all blocks clicked
-            setupWarmUpPhoneticTraining();
+            fb.innerText = `❌ The answer was: ${correct}`;
+            setupWarmUpPhoneticTraining(true); // static — show immediately, no clicking
         }
     }
 
     function nextWarmUp() { wuIndex++; showWarmUp(); }
 
-    function setupWarmUpPhoneticTraining() {
-        const area = document.getElementById("wu-phonetic-area");
-        const cont = document.getElementById("wu-syllable-container");
+    function setupWarmUpPhoneticTraining(showImmediate) {
+        const area       = document.getElementById("wu-phonetic-area");
+        const cont       = document.getElementById("wu-syllable-container");
         const grammarBox = document.getElementById("wu-grammar-box");
         area.style.display = "block";
         cont.innerHTML = "";
@@ -581,29 +584,46 @@
 
         const currentWord = sessionWords[wuIndex];
         const parts = currentWord.phonetic.split(/[•·\-\s/]+/).filter(p => p.trim());
-        let clicked = 0;
 
-        parts.forEach((p, i) => {
-            const btn = document.createElement("button");
-            const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
-            btn.className = `syllable-btn ${colorClass}`;
-            btn.innerText = p.toUpperCase();
-            btn.onclick = function() {
-                if (!this.classList.contains("revealed")) {
-                    this.classList.add("revealed");
-                    clicked++;
-                    if (clicked === parts.length) {
-                        if (currentWord.grammarRule) {
-                            grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
-                            grammarBox.style.display = "block";
+        if (showImmediate) {
+            // Wrong answer — reveal all syllables and grammar rule straight away, show Next immediately
+            parts.forEach((p, i) => {
+                const btn = document.createElement("button");
+                const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
+                btn.className = `syllable-btn ${colorClass} revealed`;
+                btn.innerText = p.toUpperCase();
+                btn.style.cursor = "default";
+                cont.appendChild(btn);
+            });
+            if (currentWord.grammarRule) {
+                grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
+                grammarBox.style.display = "block";
+            }
+            document.getElementById("wu-next-btn").style.display = "block";
+        } else {
+            // Correct answer — interactive: click each block to reveal, Next unlocks at end
+            let clicked = 0;
+            parts.forEach((p, i) => {
+                const btn = document.createElement("button");
+                const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
+                btn.className = `syllable-btn ${colorClass}`;
+                btn.innerText = p.toUpperCase();
+                btn.onclick = function() {
+                    if (!this.classList.contains("revealed")) {
+                        this.classList.add("revealed");
+                        clicked++;
+                        if (clicked === parts.length) {
+                            if (currentWord.grammarRule) {
+                                grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
+                                grammarBox.style.display = "block";
+                            }
+                            document.getElementById("wu-next-btn").style.display = "block";
                         }
-                        // All blocks clicked — show Next button
-                        document.getElementById("wu-next-btn").style.display = "block";
                     }
-                }
-            };
-            cont.appendChild(btn);
-        });
+                };
+                cont.appendChild(btn);
+            });
+        }
     }
 
     function endWarmUp() {
