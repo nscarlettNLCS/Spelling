@@ -335,7 +335,7 @@
 
 <script>
     const CSV_URL          = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
-    const CSV_URL_ADVANCED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv&sheet=Advanced';
+    const CSV_URL_ADVANCED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?gid=305824789&single=true&output=csv';
 
     // Mode — 'standard' or 'advanced'; stored in localStorage
     let isAdvanced = localStorage.getItem("gameMode") === "advanced";
@@ -597,6 +597,11 @@
     window.onload = async function() {
         try {
             const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
+            if (url.includes("ADVANCED_SHEET_GID")) {
+                document.getElementById("status-text").innerHTML =
+                    "⚠️ Advanced sheet URL not set yet.<br><small>Open the file and replace <strong>ADVANCED_SHEET_GID</strong> with your sheet's gid number.</small>";
+                return;
+            }
             const response = await fetch(url);
             const data = await response.text();
             if (data.includes("<!DOCTYPE") || data.includes("<html")) {
@@ -1288,6 +1293,15 @@
         document.getElementById("welcome-buttons").style.display = "none";
         try {
             const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
+            if (url.includes("ADVANCED_SHEET_GID")) {
+                document.getElementById("status-text").innerHTML =
+                    "⚠️ Advanced sheet URL not configured yet. Replace ADVANCED_SHEET_GID in the file.";
+                document.getElementById("welcome-buttons").style.display = "block";
+                isAdvanced = false;
+                localStorage.setItem("gameMode", "standard");
+                updateModeSwitchBtn();
+                return;
+            }
             const response = await fetch(url);
             const data = await response.text();
             allWords = parseCSV(data);
