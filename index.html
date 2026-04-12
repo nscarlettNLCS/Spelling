@@ -199,8 +199,8 @@
     </div>
     <!-- Sentence with the blank -->
     <div id="fitb-sentence" class="sentence" style="border-left-color:var(--hint);font-size:1.2em;"></div>
-    <!-- 3 word choice buttons -->
-    <div id="fitb-choices" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;"></div>
+    <!-- 3 word choice buttons — always one row -->
+    <div id="fitb-choices" style="display:flex;flex-wrap:nowrap;justify-content:center;gap:8px;margin:16px 0;"></div>
     <div id="wu-feedback" style="font-size:1.2em;margin:8px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
     <!-- Syllable training area (shown after correct answer) -->
     <div id="wu-phonetic-area" style="display:none;margin:16px 0;padding:16px;background:#f1f2f6;border-radius:15px;">
@@ -501,10 +501,32 @@
         document.getElementById("wu-grammar-box").style.display = "none";
         document.getElementById("wu-grammar-box").innerHTML = "";
 
-        const blanked = item.sentence.replace(
-            new RegExp(`\\b${item.word}\\b`, 'i'),
-            `<span style="display:inline-block;min-width:90px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`
-        );
+        // Build sentence with styled blank.
+        // Advanced sheet sentences may already contain ____ as a placeholder.
+        // Standard sheet sentences contain the actual word to be found and replaced.
+        const BLANK_SPAN = `<span style="display:inline-block;min-width:80px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`;
+        let blanked;
+
+        if (item.sentence.includes('____')) {
+            // Pre-blanked sentence (Advanced format) — just style the existing blank
+            blanked = item.sentence.replace('____', BLANK_SPAN);
+        } else {
+            // Try exact word match (Standard format)
+            const exactRegex = new RegExp(`\\b${item.word}\\b`, 'i');
+            if (exactRegex.test(item.sentence)) {
+                blanked = item.sentence.replace(exactRegex, BLANK_SPAN);
+            } else {
+                // Stem match fallback — try first chars of word
+                const stem = item.word.length >= 5 ? item.word.slice(0, item.word.length - 3) : item.word;
+                const stemRegex = new RegExp(`\\b${stem}\\w*`, 'i');
+                if (stemRegex.test(item.sentence)) {
+                    blanked = item.sentence.replace(stemRegex, BLANK_SPAN);
+                } else {
+                    // Last resort — append blank at end
+                    blanked = item.sentence.replace(/[.!?]?\s*$/, ` ${BLANK_SPAN}.`);
+                }
+            }
+        }
         document.getElementById("fitb-sentence").innerHTML = blanked;
 
         const pool = allWords.filter(w => w.word !== item.word);
@@ -515,7 +537,7 @@
         cont.innerHTML = "";
         choices.forEach(c => {
             const btn = document.createElement("button");
-            btn.style.cssText = "padding:14px 22px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:1.1em;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--dark);min-width:100px;";
+            btn.style.cssText = "flex:1;min-width:0;padding:12px 4px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:0.88em;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--dark);text-align:center;word-break:break-word;line-height:1.2;";
             btn.innerText = c.word;
             btn.onpointerdown = () => checkWarmUp(btn, c.word, item.word, cont);
             cont.appendChild(btn);
