@@ -663,29 +663,45 @@
     };
 
     function parseCSV(text) {
+        // Proper quoted-field CSV parser — handles commas inside quoted cells
+        function parseLine(line) {
+            const fields = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        // Escaped quote inside quoted field
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (ch === ',' && !inQuotes) {
+                    fields.push(current.trim());
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            fields.push(current.trim()); // last field
+            return fields;
+        }
+
         return text.split('\n')
             .filter(line => line.trim() !== "" && !line.startsWith('<'))
-            .slice(1)
+            .slice(1) // skip header row
             .map(line => {
-                // Find comma positions for columns A,B,C,D,E
-                const c1 = line.indexOf(',');
-                if (c1 === -1) return null;
-                const c2 = line.indexOf(',', c1 + 1);
-                const c3 = c2 > -1 ? line.indexOf(',', c2 + 1) : -1;
-                const c4 = c3 > -1 ? line.indexOf(',', c3 + 1) : -1; // boundary for column D
-
-                const word       = line.slice(0, c1).trim().toUpperCase();
-                const sentence   = c2 > -1 ? line.slice(c1 + 1, c2).trim() : line.slice(c1 + 1).trim();
-                const phonetic   = c2 > -1 && c3 > -1 ? line.slice(c2 + 1, c3).trim()
-                                 : c2 > -1              ? line.slice(c2 + 1).trim()
-                                 : word;
-                // Grammar rule = column D only — stop at column E boundary (c4) if it exists
-                const grammarRule = c3 > -1
-                    ? (c4 > -1 ? line.slice(c3 + 1, c4).trim() : line.slice(c3 + 1).trim())
-                    : '';
-
+                const f = parseLine(line);
+                // f[0]=word, f[1]=sentence, f[2]=phonetic, f[3]=grammarRule
+                const word        = (f[0] || '').toUpperCase().trim();
+                const sentence    = (f[1] || '').trim();
+                const phonetic    = (f[2] || f[0] || '').trim();
+                const grammarRule = (f[3] || '').trim();
                 return { word, sentence, phonetic, grammarRule };
-            }).filter(item => item && item.word && item.word.length > 1);
+            })
+            .filter(item => item.word && item.word.length > 1);
     }
 
     // (FITB functions removed — replaced by Round 1 warm-up above)
