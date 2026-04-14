@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,9 +54,9 @@
         /* Warm-up screen */
         #fitb-screen .sentence { border-left-color: var(--hint); }
 
-        /* Daily streak panel on welcome screen */
-        .streak-panel { display: flex; justify-content: center; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
-        .streak-card { background: #f8f9fa; border-radius: 16px; padding: 14px 20px; min-width: 110px; }
+        /* Daily streak panel on welcome screen — 2×2 grid */
+        .streak-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; width: 100%; }
+        .streak-card { background: #f8f9fa; border-radius: 16px; padding: 16px 12px; text-align: center; }
         .streak-card .sc-label { font-size: 0.78em; color: #888; margin-bottom: 4px; }
         .streak-card .sc-value { font-size: 2em; font-weight: 900; line-height: 1; }
         .streak-card.current .sc-value { color: var(--warning); }
@@ -85,10 +83,14 @@
             80%  { transform: translateX(4px); }
             100% { transform: translateX(0); }
         }
-        /* Name entry */
-        #name-screen { text-align:center; }
-        .name-input { font-size:1.3em; padding:14px; border-radius:14px; border:3px solid #dfe6e9; width:80%; text-align:center; outline:none; margin-bottom:12px; }
-        .name-input:focus { border-color:var(--primary); }
+        /* Mode selector */
+        .mode-toggle { display:flex; gap:10px; margin:16px auto; width:85%; }
+        .mode-btn { flex:1; padding:14px 8px; border-radius:14px; border:2px solid #dfe6e9; background:white; font-size:0.95em; font-weight:700; cursor:pointer; transition:all 0.2s; color:#888; }
+        .mode-btn.selected { border-color:var(--primary); background:#f0eeff; color:var(--primary); }
+        .mode-btn.selected.adv { border-color:#e17055; background:#fff3ef; color:#e17055; }
+        .mode-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.78em; font-weight:700; margin-left:6px; vertical-align:middle; }
+        .mode-badge.std { background:#f0eeff; color:var(--primary); }
+        .mode-badge.adv { background:#fff3ef; color:#e17055; }
         /* Leaderboard */
         .lb-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; margin-bottom:8px; background:#f8f9fa; }
         .lb-rank { font-size:1.4em; width:36px; text-align:center; flex-shrink:0; }
@@ -102,14 +104,37 @@
 </head>
 <body>
 
-<!-- NAME ENTRY SCREEN — shown only on first visit -->
+<!-- USERNAME SCREEN — shown only on first visit, generates anonymous username -->
 <div class="container" id="name-screen" style="display:none;">
     <h1>🔎 Word Sleuth</h1>
-    <p style="color:#888;margin-bottom:20px;">Enter your name to get started!</p>
-    <input class="name-input" id="name-input" type="text" placeholder="Your name..." maxlength="20"
-           autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
+    <p style="color:#888;margin-bottom:18px;">You'll get an anonymous username — no personal info needed!</p>
+
+    <!-- Generated username display -->
+    <div id="generated-username-display"
+         style="font-size:1.4em;font-weight:900;color:var(--primary);background:#f0eeff;
+                border-radius:14px;padding:14px 20px;margin-bottom:14px;letter-spacing:1px;"></div>
+
+    <button class="action-btn btn-secondary" onclick="generateUsername()"
+            style="width:80%;margin-bottom:20px;font-size:1em;">
+        🎲 Generate another
+    </button>
+
+    <!-- Mode selector -->
+    <p style="font-weight:700;color:var(--dark);margin-bottom:8px;">Choose your level:</p>
+    <div class="mode-toggle">
+        <button class="mode-btn selected" id="mode-btn-std" onclick="selectMode('standard')">
+            📚 Standard<br><span style="font-size:0.8em;font-weight:400;">Regular words</span>
+        </button>
+        <button class="mode-btn" id="mode-btn-adv" onclick="selectMode('advanced')">
+            🚀 Advanced<br><span style="font-size:0.8em;font-weight:400;">Harder words</span>
+        </button>
+    </div>
+
     <br>
-    <button class="action-btn btn-check" style="width:80%;font-size:1.1em;margin-top:8px;" onclick="saveName()">Let's Go! 🚀</button>
+    <button class="action-btn btn-check" id="use-name-btn"
+            style="width:80%;font-size:1.1em;margin-top:8px;" onclick="saveName()">
+        Let's Go! 🚀
+    </button>
 </div>
 
 <!-- LOADING / WELCOME SCREEN -->
@@ -119,7 +144,7 @@
     <p id="status-text">Fetching latest files from HQ...</p>
     <div id="welcome-buttons" style="display:none;">
 
-        <!-- Daily streak panel -->
+        <!-- Stats grid: 2×2 — streak, best streak, mastered, to work on -->
         <div class="streak-panel">
             <div class="streak-card current">
                 <div class="sc-label">🔥 Current Streak</div>
@@ -131,9 +156,6 @@
                 <div class="sc-value" id="best-streak-display">0</div>
                 <div class="sc-label" style="margin-top:2px;">days</div>
             </div>
-        </div>
-        <!-- Mastered & Trouble word counts — tappable -->
-        <div class="streak-panel" style="margin-top:0;">
             <div class="streak-card mastered clickable" onclick="openWordList('mastered')">
                 <div class="sc-label">✅ Mastered</div>
                 <div class="sc-value" id="mastered-count-display">0</div>
@@ -154,6 +176,8 @@
         <button class="action-btn" style="background:var(--primary);color:white;width:80%;font-size:1.15em;" onclick="startMission()">🕵️ START MISSION</button>
         <br>
         <button class="action-btn btn-secondary" style="width:80%;margin-top:8px;font-size:1em;" onclick="showLeaderboard()">🏆 Leaderboard</button>
+        <br>
+        <button class="action-btn" id="mode-switch-btn" style="width:80%;margin-top:8px;font-size:0.9em;" onclick="switchMode()"></button>
         <p id="welcome-player-name" style="font-size:0.85em;color:#aaa;margin-top:10px;"></p>
     </div>
 </div>
@@ -175,8 +199,8 @@
     </div>
     <!-- Sentence with the blank -->
     <div id="fitb-sentence" class="sentence" style="border-left-color:var(--hint);font-size:1.2em;"></div>
-    <!-- 3 word choice buttons -->
-    <div id="fitb-choices" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;"></div>
+    <!-- 3 word choice buttons — always one row -->
+    <div id="fitb-choices" style="display:flex;flex-wrap:nowrap;justify-content:center;gap:8px;margin:16px 0;"></div>
     <div id="wu-feedback" style="font-size:1.2em;margin:8px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
     <!-- Syllable training area (shown after correct answer) -->
     <div id="wu-phonetic-area" style="display:none;margin:16px 0;padding:16px;background:#f1f2f6;border-radius:15px;">
@@ -310,8 +334,14 @@
 </div>
 
 <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
-    // IMPROVEMENT 4: Parent emails removed
+    const CSV_URL          = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
+    const CSV_URL_ADVANCED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?gid=305824789&single=true&output=csv';
+
+    // Mode — 'standard' or 'advanced'; stored in localStorage
+    let isAdvanced = localStorage.getItem("gameMode") === "advanced";
+
+    // Mode-specific storage keys so progress doesn't mix between levels
+    function modeKey(base) { return isAdvanced ? base + "_adv" : base; }
 
     function safeGet(key, fallback) {
         try { return JSON.parse(localStorage.getItem(key)) || fallback; }
@@ -332,8 +362,8 @@
     }
 
     let allWords = [], sessionWords = [], currentIndex = 0, currentRound = 1, score = 0;
-    let troubleWords = safeGet('troubleWords', []);
-    let masteredWords = safeGet('masteredWords', []);
+    let troubleWords = safeGet(modeKey('troubleWords'), []);
+    let masteredWords = safeGet(modeKey('masteredWords'), []);
     let sessionResults = { correct: [], needsPractice: [] };
     let needsTraining = false, usedHelpThisWord = false;
     let wrongAttempts = 0, streak = 0;
@@ -471,10 +501,32 @@
         document.getElementById("wu-grammar-box").style.display = "none";
         document.getElementById("wu-grammar-box").innerHTML = "";
 
-        const blanked = item.sentence.replace(
-            new RegExp(`\\b${item.word}\\b`, 'i'),
-            `<span style="display:inline-block;min-width:90px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`
-        );
+        // Build sentence with styled blank.
+        // Advanced sheet sentences may already contain ____ as a placeholder.
+        // Standard sheet sentences contain the actual word to be found and replaced.
+        const BLANK_SPAN = `<span style="display:inline-block;min-width:80px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`;
+        let blanked;
+
+        if (item.sentence.includes('____')) {
+            // Pre-blanked sentence (Advanced format) — just style the existing blank
+            blanked = item.sentence.replace('____', BLANK_SPAN);
+        } else {
+            // Try exact word match (Standard format)
+            const exactRegex = new RegExp(`\\b${item.word}\\b`, 'i');
+            if (exactRegex.test(item.sentence)) {
+                blanked = item.sentence.replace(exactRegex, BLANK_SPAN);
+            } else {
+                // Stem match fallback — try first chars of word
+                const stem = item.word.length >= 5 ? item.word.slice(0, item.word.length - 3) : item.word;
+                const stemRegex = new RegExp(`\\b${stem}\\w*`, 'i');
+                if (stemRegex.test(item.sentence)) {
+                    blanked = item.sentence.replace(stemRegex, BLANK_SPAN);
+                } else {
+                    // Last resort — append blank at end
+                    blanked = item.sentence.replace(/[.!?]?\s*$/, ` ${BLANK_SPAN}.`);
+                }
+            }
+        }
         document.getElementById("fitb-sentence").innerHTML = blanked;
 
         const pool = allWords.filter(w => w.word !== item.word);
@@ -485,7 +537,7 @@
         cont.innerHTML = "";
         choices.forEach(c => {
             const btn = document.createElement("button");
-            btn.style.cssText = "padding:14px 22px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:1.1em;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--dark);min-width:100px;";
+            btn.style.cssText = "flex:1;min-width:0;padding:12px 4px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:0.88em;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--dark);text-align:center;word-break:break-word;line-height:1.2;";
             btn.innerText = c.word;
             btn.onpointerdown = () => checkWarmUp(btn, c.word, item.word, cont);
             cont.appendChild(btn);
@@ -496,31 +548,34 @@
         cont.querySelectorAll("button").forEach(b => { b.onpointerdown = null; b.style.cursor = "default"; });
         const fb = document.getElementById("wu-feedback");
         fb.style.display = "block";
+
         if (chosen === correct) {
+            // Correct — interactive syllable training, Next appears after all blocks clicked
             btn.style.background = "var(--success)"; btn.style.color = "white"; btn.style.borderColor = "var(--success)";
             wuScore++;
             document.getElementById("fitb-score").innerText = wuScore;
             fb.style.backgroundColor = "var(--success)";
-            fb.innerText = "✅ Correct! Now click all the sound blocks below.";
-            // Show syllable training — Next → appears only after all blocks clicked
-            setupWarmUpPhoneticTraining();
+            fb.innerText = "✅ Correct! Click all the sound blocks to continue.";
+            setupWarmUpPhoneticTraining(false); // interactive
         } else {
+            // Wrong — highlight correct answer, then immediately show phonetic + grammar rule as text
             btn.style.background = "var(--error)"; btn.style.color = "white"; btn.style.borderColor = "var(--error)";
             cont.querySelectorAll("button").forEach(b => {
-                if (b.innerText === correct) { b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)"; }
+                if (b.innerText === correct) {
+                    b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)";
+                }
             });
             fb.style.backgroundColor = "var(--error)";
-            fb.innerText = `❌ The answer was: ${correct}. Now click all the sound blocks below.`;
-            // Show syllable training even on wrong — Next → appears after all blocks clicked
-            setupWarmUpPhoneticTraining();
+            fb.innerText = `❌ The answer was: ${correct}`;
+            setupWarmUpPhoneticTraining(true); // static — show immediately, no clicking
         }
     }
 
     function nextWarmUp() { wuIndex++; showWarmUp(); }
 
-    function setupWarmUpPhoneticTraining() {
-        const area = document.getElementById("wu-phonetic-area");
-        const cont = document.getElementById("wu-syllable-container");
+    function setupWarmUpPhoneticTraining(showImmediate) {
+        const area       = document.getElementById("wu-phonetic-area");
+        const cont       = document.getElementById("wu-syllable-container");
         const grammarBox = document.getElementById("wu-grammar-box");
         area.style.display = "block";
         cont.innerHTML = "";
@@ -529,29 +584,46 @@
 
         const currentWord = sessionWords[wuIndex];
         const parts = currentWord.phonetic.split(/[•·\-\s/]+/).filter(p => p.trim());
-        let clicked = 0;
 
-        parts.forEach((p, i) => {
-            const btn = document.createElement("button");
-            const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
-            btn.className = `syllable-btn ${colorClass}`;
-            btn.innerText = p.toUpperCase();
-            btn.onclick = function() {
-                if (!this.classList.contains("revealed")) {
-                    this.classList.add("revealed");
-                    clicked++;
-                    if (clicked === parts.length) {
-                        if (currentWord.grammarRule) {
-                            grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
-                            grammarBox.style.display = "block";
+        if (showImmediate) {
+            // Wrong answer — reveal all syllables and grammar rule straight away, show Next immediately
+            parts.forEach((p, i) => {
+                const btn = document.createElement("button");
+                const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
+                btn.className = `syllable-btn ${colorClass} revealed`;
+                btn.innerText = p.toUpperCase();
+                btn.style.cursor = "default";
+                cont.appendChild(btn);
+            });
+            if (currentWord.grammarRule) {
+                grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
+                grammarBox.style.display = "block";
+            }
+            document.getElementById("wu-next-btn").style.display = "block";
+        } else {
+            // Correct answer — interactive: click each block to reveal, Next unlocks at end
+            let clicked = 0;
+            parts.forEach((p, i) => {
+                const btn = document.createElement("button");
+                const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
+                btn.className = `syllable-btn ${colorClass}`;
+                btn.innerText = p.toUpperCase();
+                btn.onclick = function() {
+                    if (!this.classList.contains("revealed")) {
+                        this.classList.add("revealed");
+                        clicked++;
+                        if (clicked === parts.length) {
+                            if (currentWord.grammarRule) {
+                                grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
+                                grammarBox.style.display = "block";
+                            }
+                            document.getElementById("wu-next-btn").style.display = "block";
                         }
-                        // All blocks clicked — show Next button
-                        document.getElementById("wu-next-btn").style.display = "block";
                     }
-                }
-            };
-            cont.appendChild(btn);
-        });
+                };
+                cont.appendChild(btn);
+            });
+        }
     }
 
     function endWarmUp() {
@@ -566,7 +638,13 @@
 
     window.onload = async function() {
         try {
-            const response = await fetch(CSV_URL);
+            const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
+            if (url.includes("ADVANCED_SHEET_GID")) {
+                document.getElementById("status-text").innerHTML =
+                    "⚠️ Advanced sheet URL not set yet.<br><small>Open the file and replace <strong>ADVANCED_SHEET_GID</strong> with your sheet's gid number.</small>";
+                return;
+            }
+            const response = await fetch(url);
             const data = await response.text();
             if (data.includes("<!DOCTYPE") || data.includes("<html")) {
                 document.getElementById("status-text").innerText = "⚠️ Error: CSV link issue.";
@@ -574,9 +652,10 @@
             }
             allWords = parseCSV(data);
             masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
-            safeSet('masteredWords', masteredWords);
+            safeSet(modeKey('masteredWords'), masteredWords);
             document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
             document.getElementById("welcome-buttons").style.display = "block";
+            updateModeSwitchBtn();
             showStreakOnWelcome();
         } catch(e) {
             document.getElementById("status-text").innerHTML = 'Connection error. <button class="action-btn btn-hint" onclick="location.reload()" style="font-size:0.9em;padding:8px 16px;">Retry</button>';
@@ -584,29 +663,45 @@
     };
 
     function parseCSV(text) {
+        // Proper quoted-field CSV parser — handles commas inside quoted cells
+        function parseLine(line) {
+            const fields = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const ch = line[i];
+                if (ch === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        // Escaped quote inside quoted field
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (ch === ',' && !inQuotes) {
+                    fields.push(current.trim());
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            fields.push(current.trim()); // last field
+            return fields;
+        }
+
         return text.split('\n')
             .filter(line => line.trim() !== "" && !line.startsWith('<'))
-            .slice(1)
+            .slice(1) // skip header row
             .map(line => {
-                // Find comma positions for columns A,B,C,D,E
-                const c1 = line.indexOf(',');
-                if (c1 === -1) return null;
-                const c2 = line.indexOf(',', c1 + 1);
-                const c3 = c2 > -1 ? line.indexOf(',', c2 + 1) : -1;
-                const c4 = c3 > -1 ? line.indexOf(',', c3 + 1) : -1; // boundary for column D
-
-                const word       = line.slice(0, c1).trim().toUpperCase();
-                const sentence   = c2 > -1 ? line.slice(c1 + 1, c2).trim() : line.slice(c1 + 1).trim();
-                const phonetic   = c2 > -1 && c3 > -1 ? line.slice(c2 + 1, c3).trim()
-                                 : c2 > -1              ? line.slice(c2 + 1).trim()
-                                 : word;
-                // Grammar rule = column D only — stop at column E boundary (c4) if it exists
-                const grammarRule = c3 > -1
-                    ? (c4 > -1 ? line.slice(c3 + 1, c4).trim() : line.slice(c3 + 1).trim())
-                    : '';
-
+                const f = parseLine(line);
+                // f[0]=word, f[1]=sentence, f[2]=phonetic, f[3]=grammarRule
+                const word        = (f[0] || '').toUpperCase().trim();
+                const sentence    = (f[1] || '').trim();
+                const phonetic    = (f[2] || f[0] || '').trim();
+                const grammarRule = (f[3] || '').trim();
                 return { word, sentence, phonetic, grammarRule };
-            }).filter(item => item && item.word && item.word.length > 1);
+            })
+            .filter(item => item.word && item.word.length > 1);
     }
 
     // (FITB functions removed — replaced by Round 1 warm-up above)
@@ -918,15 +1013,15 @@
 
             // Bug 2 fix: after 3 wrong attempts auto-reveal and go straight to phonetic training
             if (wrongAttempts >= 3) {
-                safeSet('troubleWords', troubleWords);
-                safeSet('masteredWords', masteredWords);
+                safeSet(modeKey('troubleWords'), troubleWords);
+                safeSet(modeKey('masteredWords'), masteredWords);
                 autoRevealAndTrain();
                 return;
             }
             showFeedback("❌ Try again!", "var(--error)");
         }
-        safeSet('troubleWords', troubleWords);
-        safeSet('masteredWords', masteredWords);
+        safeSet(modeKey('troubleWords'), troubleWords);
+        safeSet(modeKey('masteredWords'), masteredWords);
     }
 
     function autoRevealAndTrain() {
@@ -955,8 +1050,8 @@
         if (!troubleWords.includes(target)) troubleWords.push(target);
         if (!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
         masteredWords = masteredWords.filter(w => w !== target);
-        safeSet('troubleWords', troubleWords);
-        safeSet('masteredWords', masteredWords);
+        safeSet(modeKey('troubleWords'), troubleWords);
+        safeSet(modeKey('masteredWords'), masteredWords);
         autoRevealAndTrain();
     }
 
@@ -1189,6 +1284,9 @@
         warmUpSessionWords = null;
         sessionNeedsPractice = [];
         currentRound = 1;
+        // Reload mode-specific word lists in case mode changed
+        troubleWords = safeGet(modeKey('troubleWords'), []);
+        masteredWords = safeGet(modeKey('masteredWords'), []);
         // Update streak + word counts
         document.getElementById("streak-warning").style.display = "none";
         showStreakOnWelcome();
@@ -1219,43 +1317,139 @@
 <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIaJhk-bayTocNqWzNB1Xqz4rgCeieQQPsqsba609-NvmZavcmVTHREn5MM9tfYQr/exec";
 
-    // ── Name handling ──────────────────────────────────────────────────────────
+    // ── Mode helpers ───────────────────────────────────────────────────────────
+    function selectMode(mode) {
+        isAdvanced = mode === "advanced";
+        document.getElementById("mode-btn-std").className = "mode-btn" + (isAdvanced ? "" : " selected");
+        document.getElementById("mode-btn-adv").className = "mode-btn" + (isAdvanced ? " selected adv" : "");
+    }
+
+    function updateModeSwitchBtn() {
+        const btn = document.getElementById("mode-switch-btn");
+        if (!btn) return;
+        if (isAdvanced) {
+            btn.innerText = "Switch to 📚 Standard";
+            btn.style.background = "#fff3ef";
+            btn.style.color = "#e17055";
+            btn.style.border = "2px solid #e17055";
+        } else {
+            btn.innerText = "Switch to 🚀 Advanced";
+            btn.style.background = "#f0eeff";
+            btn.style.color = "var(--primary)";
+            btn.style.border = "2px solid var(--primary)";
+        }
+    }
+
+    async function switchMode() {
+        isAdvanced = !isAdvanced;
+        localStorage.setItem("gameMode", isAdvanced ? "advanced" : "standard");
+        // Reload word lists and progress for the new mode
+        troubleWords = safeGet(modeKey('troubleWords'), []);
+        masteredWords = safeGet(modeKey('masteredWords'), []);
+        // Refetch the appropriate CSV
+        document.getElementById("status-text").innerText = "Loading words...";
+        document.getElementById("welcome-buttons").style.display = "none";
+        try {
+            const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
+            if (url.includes("ADVANCED_SHEET_GID")) {
+                document.getElementById("status-text").innerHTML =
+                    "⚠️ Advanced sheet URL not configured yet. Replace ADVANCED_SHEET_GID in the file.";
+                document.getElementById("welcome-buttons").style.display = "block";
+                isAdvanced = false;
+                localStorage.setItem("gameMode", "standard");
+                updateModeSwitchBtn();
+                return;
+            }
+            const response = await fetch(url);
+            const data = await response.text();
+            allWords = parseCSV(data);
+            masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
+            safeSet(modeKey('masteredWords'), masteredWords);
+            document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
+        } catch(e) {
+            document.getElementById("status-text").innerText = "Error loading words. Retry.";
+        }
+        document.getElementById("welcome-buttons").style.display = "block";
+        updateModeSwitchBtn();
+        showStreakOnWelcome();
+    }
+
+    // ── Anonymous username generator ───────────────────────────────────────────
     let playerName = "";
+    let pendingUsername = "";
+
+    const ADJECTIVES = [
+        "Brave","Calm","Clever","Cool","Crazy","Daring","Dizzy","Eager",
+        "Fancy","Fast","Fluffy","Funny","Gentle","Goofy","Happy","Jolly",
+        "Kind","Lazy","Lucky","Mighty","Muddy","Noisy","Odd","Peppy",
+        "Proud","Quick","Quiet","Rare","Shiny","Silly","Sleepy","Sly",
+        "Smart","Sneaky","Snowy","Speedy","Spiky","Spooky","Swift","Tiny",
+        "Tricky","Vivid","Wacky","Wild","Witty","Wobbly","Zany","Zesty"
+    ];
+
+    const ANIMALS = [
+        "Badger","Bear","Beaver","Buffalo","Bunny","Camel","Capybara","Cheetah",
+        "Chipmunk","Cobra","Coyote","Crane","Dingo","Dolphin","Donkey","Dragon",
+        "Eagle","Falcon","Ferret","Flamingo","Fox","Frog","Gecko","Giraffe",
+        "Goat","Gorilla","Hamster","Hedgehog","Hippo","Hyena","Iguana","Jaguar",
+        "Kangaroo","Koala","Lemur","Leopard","Lion","Lizard","Llama","Lynx",
+        "Meerkat","Mongoose","Monkey","Moose","Narwhal","Otter","Owl","Panda",
+        "Panther","Parrot","Penguin","Porcupine","Puma","Rabbit","Raccoon",
+        "Rhino","Salamander","Shark","Sloth","Snake","Tiger","Toucan",
+        "Turtle","Walrus","Weasel","Wolf","Wombat","Zebra"
+    ];
+
+    function generateUsername() {
+        const adj    = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+        const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+        const num    = String(Math.floor(Math.random() * 90) + 10); // 10–99
+        pendingUsername = adj + animal + num;
+        document.getElementById("generated-username-display").innerText = pendingUsername;
+    }
 
     function initNameScreen() {
         const stored = localStorage.getItem("playerName");
+        // Restore saved mode
+        isAdvanced = localStorage.getItem("gameMode") === "advanced";
         if (stored && stored.trim()) {
             playerName = stored.trim();
             document.getElementById("name-screen").style.display = "none";
             document.getElementById("loading-screen").style.display = "inline-block";
-            document.getElementById("welcome-player-name").innerText = `Playing as: ${playerName}`;
+            document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
         } else {
             document.getElementById("name-screen").style.display = "inline-block";
             document.getElementById("loading-screen").style.display = "none";
-            document.getElementById("name-input").addEventListener("keydown", e => {
-                if (e.key === "Enter") saveName();
-            });
+            // Pre-select correct mode button
+            selectMode(isAdvanced ? "advanced" : "standard");
+            generateUsername();
         }
     }
 
     function saveName() {
-        const val = document.getElementById("name-input").value.trim();
-        if (!val) { alert("Please enter your name!"); return; }
-        playerName = val;
+        if (!pendingUsername) { generateUsername(); return; }
+        playerName = pendingUsername;
         localStorage.setItem("playerName", playerName);
+        localStorage.setItem("gameMode", isAdvanced ? "advanced" : "standard");
+        // Reload with correct mode keys
+        troubleWords = safeGet(modeKey('troubleWords'), []);
+        masteredWords = safeGet(modeKey('masteredWords'), []);
         document.getElementById("name-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
-        document.getElementById("welcome-player-name").innerText = `Playing as: ${playerName}`;
+        document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
     }
 
     // ── Push score to Google Sheet via Apps Script ─────────────────────────────
     async function pushLeaderboardScore(masteredCount) {
-        if (!playerName || APPS_SCRIPT_URL.startsWith("REPLACE")) return;
+        if (!playerName) return;
         try {
             await fetch(APPS_SCRIPT_URL, {
                 method: "POST",
-                headers: { "Content-Type": "text/plain" }, // Apps Script requires text/plain for no-CORS
-                body: JSON.stringify({ name: playerName, mastered: masteredCount })
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({
+                    name: playerName,
+                    mastered: masteredCount,
+                    mode: isAdvanced ? "advanced" : "standard"
+                })
             });
         } catch(e) {
             console.warn("Leaderboard write failed:", e);
@@ -1268,11 +1462,6 @@
         document.getElementById("leaderboard-screen").style.display = "inline-block";
         const list = document.getElementById("lb-list");
         list.innerHTML = "<p style='color:#aaa;'>Loading...</p>";
-
-        if (APPS_SCRIPT_URL.startsWith("REPLACE")) {
-            list.innerHTML = "<p style='color:var(--error);'>Apps Script URL not set yet — see setup instructions.</p>";
-            return;
-        }
 
         try {
             const res  = await fetch(APPS_SCRIPT_URL + "?action=get");
@@ -1288,12 +1477,15 @@
             const classes = ["gold","silver","bronze"];
 
             list.innerHTML = rows.map((r, i) => {
-                const isMe     = r.name.toLowerCase() === playerName.toLowerCase();
+                const isMe      = r.name.toLowerCase() === playerName.toLowerCase();
                 const rankLabel = i < 3 ? medals[i] : `#${i + 1}`;
                 const rowClass  = isMe ? "lb-row me" : (i < 3 ? `lb-row ${classes[i]}` : "lb-row");
+                const modeBadge = r.mode === "advanced"
+                    ? `<span class="mode-badge adv">🚀 Adv</span>`
+                    : `<span class="mode-badge std">📚 Std</span>`;
                 return `<div class="${rowClass}">
                     <span class="lb-rank">${rankLabel}</span>
-                    <span class="lb-name">${r.name}${isMe ? " (you)" : ""}</span>
+                    <span class="lb-name">${r.name}${isMe ? " (you)" : ""} ${modeBadge}</span>
                     <span class="lb-score">${r.mastered} ⭐</span>
                 </div>`;
             }).join('');
