@@ -15,13 +15,7 @@
         .used-letter { text-decoration: line-through; opacity: 0.25; background: #e0e0e0 !important; color: #aaa !important; border-color: #ccc !important; }
         .sentence { font-size: 1.3em; margin: 20px; font-style: italic; color: #555; background: #fdfdfd; padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary); }
         #phonetic-reveal-area { display: none; margin: 20px 0; padding: 20px; background: #f1f2f6; border-radius: 15px; }
-
-        /* IMPROVEMENT 2: Colourful syllable buttons */
-        .syllable-btn {
-            border: none; padding: 15px 25px; margin: 5px; border-radius: 12px;
-            cursor: pointer; font-size: 1.3em; font-weight: 800;
-            color: transparent; transition: all 0.3s; background: #dfe6e9;
-        }
+        .syllable-btn { border: none; padding: 15px 25px; margin: 5px; border-radius: 12px; cursor: pointer; font-size: 1.3em; font-weight: 800; color: transparent; transition: all 0.3s; background: #dfe6e9; }
         .syllable-btn.revealed { color: white; transform: translateY(-3px) scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .syl-color-0.revealed { background: #6c5ce7; }
         .syl-color-1.revealed { background: #00b894; }
@@ -30,7 +24,6 @@
         .syl-color-4.revealed { background: #0984e3; }
         .syl-color-5.revealed { background: #fdcb6e; color: #2d3436 !important; }
         .grammar-rule-box { display: none; margin-top: 14px; background: #fff9db; border-left: 5px solid var(--gold); border-radius: 10px; padding: 12px 16px; font-size: 0.95em; color: #5d4037; text-align: left; line-height: 1.6; }
-
         input { font-size: 1.5em; padding: 15px; border-radius: 15px; border: 3px solid #dfe6e9; width: 85%; text-align: center; margin-bottom: 10px; outline: none; }
         button.action-btn { font-size: 1.1em; padding: 14px 24px; margin: 5px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
         .btn-check { background: var(--success); color: white; }
@@ -40,21 +33,16 @@
         .btn-next { background: var(--primary); color: white; display: none; width: 100%; font-size: 1.3em; }
         .btn-secondary { background: #b2bec3; color: white; }
         #game-ui, #report-screen, #reward-screen, #fitb-screen { display: none; }
-
-        /* IMPROVEMENT 1: Reward screen styles */
         .reward-btn { border: 3px solid var(--gold); background: #fff9db; padding: 18px; margin: 12px auto; border-radius: 18px; cursor: pointer; font-weight: 800; width: 90%; font-size: 1.2em; display: block; transition: transform 0.15s; }
         .reward-btn:hover { transform: scale(1.02); }
         .custom-reward-area { margin-top: 16px; border-top: 2px dashed #f1c40f; padding-top: 16px; }
         .custom-reward-input { font-size: 1.1em; padding: 12px; border-radius: 12px; border: 3px solid #dfe6e9; width: 80%; text-align: center; margin-bottom: 10px; outline: none; }
         .custom-reward-input:focus { border-color: var(--gold); }
-
         .streak-display { font-size: 1.1em; font-weight: bold; color: var(--warning); min-height: 1.4em; margin: 5px 0; }
         .copy-box { width: 90%; height: 110px; font-size: 12px; border-radius: 10px; border: 2px solid #dfe6e9; padding: 10px; margin-top: 10px; resize: none; }
-
-        /* Warm-up screen */
         #fitb-screen .sentence { border-left-color: var(--hint); }
 
-        /* Daily streak panel on welcome screen — 2×2 grid */
+        /* 2x2 stats grid */
         .streak-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; width: 100%; }
         .streak-card { background: #f8f9fa; border-radius: 16px; padding: 16px 12px; text-align: center; }
         .streak-card .sc-label { font-size: 0.78em; color: #888; margin-bottom: 4px; }
@@ -66,6 +54,7 @@
         .streak-card.clickable { cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; }
         .streak-card.clickable:hover { border-color: var(--primary); transform: scale(1.03); }
         .streak-warning { background: #fff3f3; border: 2px solid var(--error); border-radius: 14px; padding: 12px 16px; margin: 10px 0; font-size: 0.95em; color: var(--error); font-weight: bold; display: none; }
+
         /* Word list modal */
         #word-modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
         #word-modal-overlay.open { display:flex; }
@@ -75,23 +64,11 @@
         .word-pill.mastered { background:#e1faf4; color:#007a5e; }
         .word-pill.trouble { background:#fdeaea; color:#a32d2d; }
         #word-modal-close { margin-top:16px; width:100%; }
-        @keyframes kbShake {
-            0%   { transform: translateX(0); }
-            20%  { transform: translateX(-5px); }
-            40%  { transform: translateX(5px); }
-            60%  { transform: translateX(-4px); }
-            80%  { transform: translateX(4px); }
-            100% { transform: translateX(0); }
-        }
-        /* Mode selector */
-        .mode-toggle { display:flex; gap:10px; margin:16px auto; width:85%; }
-        .mode-btn { flex:1; padding:14px 8px; border-radius:14px; border:2px solid #dfe6e9; background:white; font-size:0.95em; font-weight:700; cursor:pointer; transition:all 0.2s; color:#888; }
-        .mode-btn.selected { border-color:var(--primary); background:#f0eeff; color:var(--primary); }
-        .mode-btn.selected.adv { border-color:#e17055; background:#fff3ef; color:#e17055; }
-        .mode-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.78em; font-weight:700; margin-left:6px; vertical-align:middle; }
-        .mode-badge.std { background:#f0eeff; color:var(--primary); }
-        .mode-badge.adv { background:#fff3ef; color:#e17055; }
-        /* Leaderboard */
+
+        @keyframes kbShake { 0%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} 100%{transform:translateX(0)} }
+        #name-screen { text-align:center; }
+        .name-input { font-size:1.3em; padding:14px; border-radius:14px; border:3px solid #dfe6e9; width:80%; text-align:center; outline:none; margin-bottom:12px; }
+        .name-input:focus { border-color:var(--primary); }
         .lb-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; margin-bottom:8px; background:#f8f9fa; }
         .lb-rank { font-size:1.4em; width:36px; text-align:center; flex-shrink:0; }
         .lb-name { flex:1; font-weight:700; font-size:1em; color:var(--dark); }
@@ -100,41 +77,21 @@
         .lb-row.gold { background:#fff9db; }
         .lb-row.silver { background:#f4f4f4; }
         .lb-row.bronze { background:#fff2ec; }
+
+        /* This Week badge */
+        .tw-badge { background:#e1faf4; color:#007a5e; font-size:0.7em; padding:2px 8px; border-radius:10px; margin-left:6px; vertical-align:middle; font-weight:700; }
     </style>
 </head>
 <body>
 
-<!-- USERNAME SCREEN — shown only on first visit, generates anonymous username -->
+<!-- NAME ENTRY SCREEN -->
 <div class="container" id="name-screen" style="display:none;">
     <h1>🔎 Word Sleuth</h1>
-    <p style="color:#888;margin-bottom:18px;">You'll get an anonymous username — no personal info needed!</p>
-
-    <!-- Generated username display -->
-    <div id="generated-username-display"
-         style="font-size:1.4em;font-weight:900;color:var(--primary);background:#f0eeff;
-                border-radius:14px;padding:14px 20px;margin-bottom:14px;letter-spacing:1px;"></div>
-
-    <button class="action-btn btn-secondary" onclick="generateUsername()"
-            style="width:80%;margin-bottom:20px;font-size:1em;">
-        🎲 Generate another
-    </button>
-
-    <!-- Mode selector -->
-    <p style="font-weight:700;color:var(--dark);margin-bottom:8px;">Choose your level:</p>
-    <div class="mode-toggle">
-        <button class="mode-btn selected" id="mode-btn-std" onclick="selectMode('standard')">
-            📚 Standard<br><span style="font-size:0.8em;font-weight:400;">Regular words</span>
-        </button>
-        <button class="mode-btn" id="mode-btn-adv" onclick="selectMode('advanced')">
-            🚀 Advanced<br><span style="font-size:0.8em;font-weight:400;">Harder words</span>
-        </button>
-    </div>
-
+    <p style="color:#888;margin-bottom:20px;">Enter your name to get started!</p>
+    <input class="name-input" id="name-input" type="text" placeholder="Your name..." maxlength="20"
+           autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false">
     <br>
-    <button class="action-btn btn-check" id="use-name-btn"
-            style="width:80%;font-size:1.1em;margin-top:8px;" onclick="saveName()">
-        Let's Go! 🚀
-    </button>
+    <button class="action-btn btn-check" style="width:80%;font-size:1.1em;margin-top:8px;" onclick="saveName()">Let's Go! 🚀</button>
 </div>
 
 <!-- LOADING / WELCOME SCREEN -->
@@ -144,7 +101,7 @@
     <p id="status-text">Fetching latest files from HQ...</p>
     <div id="welcome-buttons" style="display:none;">
 
-        <!-- Stats grid: 2×2 — streak, best streak, mastered, to work on -->
+        <!-- 2x2 stats grid -->
         <div class="streak-panel">
             <div class="streak-card current">
                 <div class="sc-label">🔥 Current Streak</div>
@@ -168,7 +125,6 @@
             </div>
         </div>
 
-        <!-- Warning shown if yesterday's mission was failed/missed -->
         <div class="streak-warning" id="streak-warning">
             ⚠️ Complete today's mission to start a new winning streak!
         </div>
@@ -176,13 +132,11 @@
         <button class="action-btn" style="background:var(--primary);color:white;width:80%;font-size:1.15em;" onclick="startMission(false)">🕵️ START MISSION</button>
         <br>
         <button class="action-btn" id="this-week-btn"
-                style="background:#00b894;color:white;width:80%;margin-top:8px;font-size:1.05em;" onclick="startMission(true)">
+                style="background:#00b894;color:white;width:80%;margin-top:8px;font-size:1.05em;display:none;" onclick="startMission(true)">
             📅 This Week's Words
         </button>
         <br>
         <button class="action-btn btn-secondary" style="width:80%;margin-top:8px;font-size:1em;" onclick="showLeaderboard()">🏆 Leaderboard</button>
-        <br>
-        <button class="action-btn" id="mode-switch-btn" style="width:80%;margin-top:8px;font-size:0.9em;" onclick="switchMode()"></button>
         <p id="welcome-player-name" style="font-size:0.85em;color:#aaa;margin-top:10px;"></p>
     </div>
 </div>
@@ -195,19 +149,16 @@
     <button class="action-btn btn-secondary" style="width:100%;margin-top:16px;" onclick="hideLeaderboard()">← Back</button>
 </div>
 
-<!-- Round 1: fill-in-the-blank with 3 word choices -->
+<!-- ROUND 1: fill-in-the-blank -->
 <div class="container" id="fitb-screen">
     <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--hint),#fd79a8);border-radius:14px;padding:10px 16px;margin-bottom:10px;color:white;font-weight:bold;">
-        <span class="round-label-span">Round 1</span>
+        <span id="fitb-round-label">Round 1</span>
         <span style="font-size:0.9em;opacity:0.92;">Word <span id="fitb-current">1</span>/<span id="fitb-total">5</span></span>
         <span style="font-size:0.9em;opacity:0.92;">⭐ <span id="fitb-score">0</span></span>
     </div>
-    <!-- Sentence with the blank -->
     <div id="fitb-sentence" class="sentence" style="border-left-color:var(--hint);font-size:1.2em;"></div>
-    <!-- 3 word choice buttons — always one row -->
     <div id="fitb-choices" style="display:flex;flex-wrap:nowrap;justify-content:center;gap:8px;margin:16px 0;"></div>
     <div id="wu-feedback" style="font-size:1.2em;margin:8px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
-    <!-- Syllable training area (shown after correct answer) -->
     <div id="wu-phonetic-area" style="display:none;margin:16px 0;padding:16px;background:#f1f2f6;border-radius:15px;">
         <p style="margin:0 0 10px;font-weight:bold;">Click all sound blocks! 🔊</p>
         <div id="wu-syllable-container"></div>
@@ -218,28 +169,22 @@
 
 <!-- GAME UI -->
 <div class="container" id="game-ui">
-    <!-- Single compact header row: Round label + Case + Score -->
     <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--primary),#a29bfe);border-radius:14px;padding:10px 16px;margin-bottom:10px;color:white;font-weight:bold;">
         <span id="round-tag" style="font-size:1em;">Round 2</span>
-        <span style="font-size:0.9em;opacity:0.92;">Case <span id="current-count">1</span>/5</span>
+        <span style="font-size:0.9em;opacity:0.92;">Case <span id="current-count">1</span>/<span id="case-total">5</span></span>
         <span style="font-size:0.9em;opacity:0.92;">🔥 <span id="score-display">0</span></span>
     </div>
     <div id="streak-display" class="streak-display"></div>
-    <!-- Sentence immediately under header -->
     <div id="sentence-display" class="sentence" style="margin-top:0;"></div>
 
-    <!-- Scrambled letters — flex tiles, wrap on small screens -->
-    <div id="scrambled-word"
-         style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px auto;max-width:98%;min-height:2em;"></div>
+    <div id="scrambled-word" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px auto;max-width:98%;min-height:2em;"></div>
 
-    <!-- Answer display — wide enough for 14 chars, fixed single-row height -->
     <div id="input-display"
          style="font-size:1.4em;padding:0 12px;border-radius:15px;border:3px solid #dfe6e9;width:95%;text-align:center;margin:0 auto 12px;height:56px;line-height:56px;overflow:hidden;box-sizing:border-box;background:white;color:#2d3436;letter-spacing:3px;font-weight:800;display:flex;align-items:center;justify-content:center;white-space:nowrap;">
         <span id="input-text" style="color:#b2bec3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100% - 10px);">Solve the word...</span><span id="input-cursor" style="display:inline-block;width:2px;height:0.75em;background:#6c5ce7;vertical-align:middle;margin-left:3px;flex-shrink:0;animation:blink 1s infinite;"></span>
     </div>
     <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}</style>
 
-    <!-- Custom on-screen keyboard -->
     <div id="custom-keyboard-wrapper">
     <div id="custom-keyboard" style="margin:8px auto 12px;max-width:460px;width:100%;user-select:none;">
         <div id="kb-row-1" style="display:flex;justify-content:center;gap:3px;margin-bottom:4px;"></div>
@@ -248,18 +193,13 @@
     </div>
     </div>
 
-    <!-- Buttons: Reveal (left) | Hint (centre) | Check (right) — equal width, one row -->
-    <!-- Check requires two taps to prevent accidental submission -->
     <div id="action-buttons" style="display:flex;justify-content:center;gap:6px;margin-top:16px;width:95%;margin-left:auto;margin-right:auto;">
-        <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled
-                style="flex:1;font-size:1em;padding:12px 6px;">Reveal</button>
-        <button class="action-btn btn-hint"   id="hint-btn"   onclick="showFirstLetter()"
-                style="flex:1;font-size:1em;padding:12px 6px;">Hint</button>
-        <button class="action-btn btn-check"  id="check-btn"  onclick="handleCheckTap()"
-                style="flex:1;font-size:1em;padding:12px 6px;background:#ffb347;color:#7a4a00;">Check</button>
+        <button class="action-btn btn-reveal" id="reveal-btn" onclick="revealFullWord()" disabled style="flex:1;font-size:1em;padding:12px 6px;">Reveal</button>
+        <button class="action-btn btn-hint"   id="hint-btn"   onclick="showFirstLetter()" style="flex:1;font-size:1em;padding:12px 6px;">Hint</button>
+        <button class="action-btn btn-check"  id="check-btn"  onclick="handleCheckTap()" style="flex:1;font-size:1em;padding:12px 6px;background:#ffb347;color:#7a4a00;">Check</button>
     </div>
-    <div id="attempt-text" style="font-size: 0.85em; margin-top:5px; color: var(--warning);">Reveal unlocks after <span id="attempt-countdown">3</span> wrong tries</div>
-    <div id="feedback-area" style="font-size: 1.3em; margin: 10px; font-weight: bold; border-radius: 10px; padding: 10px; display:none; color: white;"></div>
+    <div id="attempt-text" style="font-size:0.85em;margin-top:5px;color:var(--warning);">Reveal unlocks after <span id="attempt-countdown">3</span> wrong tries</div>
+    <div id="feedback-area" style="font-size:1.3em;margin:10px;font-weight:bold;border-radius:10px;padding:10px;display:none;color:white;"></div>
     <div id="phonetic-reveal-area">
         <p><strong>Training:</strong> Click all sound blocks!</p>
         <div id="syllable-container"></div>
@@ -271,143 +211,82 @@
 <!-- REPORT SCREEN -->
 <div class="container" id="report-screen">
     <h1 id="report-header">Mission Status</h1>
-    <div id="session-summary" style="font-size:1.5em; margin: 25px 0; line-height: 1.6;"></div>
-    <button class="action-btn btn-check" id="round-action-btn" style="width:100%" onclick="handleRoundTransition()"></button>
+    <div id="session-summary" style="font-size:1.5em;margin:25px 0;line-height:1.6;"></div>
+    <button class="action-btn btn-check" id="round-action-btn" style="width:100%"></button>
 </div>
 
-<!-- Reward screen -->
+<!-- REWARD SCREEN -->
 <div class="container" id="reward-screen">
     <h1>Mission Complete! 🌟</h1>
     <p style="color:#888;font-size:0.95em;margin-top:-10px;margin-bottom:18px;">Pick your reward, then share the report with a parent.</p>
-
     <button class="reward-btn" onclick="selectReward('15 min Screen Time', this)">📱 15 min Screen Time</button>
     <button class="reward-btn" onclick="selectReward('Ice-Cream', this)">🍦 Ice-Cream</button>
     <button class="reward-btn" onclick="selectReward('Money', this)">💰 Money</button>
-
     <div class="custom-reward-area">
         <p style="font-size:0.9em;color:#888;margin-bottom:8px;">Or type your own reward:</p>
         <input type="text" class="custom-reward-input" id="custom-reward-input" placeholder="e.g. Extra playtime..." maxlength="50">
         <br>
         <button class="action-btn btn-secondary" onclick="selectCustomReward()" style="margin-top:8px;">Set Reward</button>
     </div>
-
-    <!-- Share panel — shown after reward is selected -->
     <div id="share-panel" style="display:none;margin-top:20px;border-top:2px solid #f0f4f8;padding-top:20px;">
         <p style="font-weight:800;font-size:1.05em;margin-bottom:14px;">Now share your report! 👇</p>
-
-        <button class="action-btn btn-check" id="native-share-btn"
-                onclick="doNativeShare()"
-                style="width:90%;font-size:1.15em;margin-bottom:10px;display:none;">
-            📤 Share via... (WhatsApp, KakaoTalk, Email…)
-        </button>
-
+        <button class="action-btn btn-check" id="native-share-btn" onclick="doNativeShare()" style="width:90%;font-size:1.15em;margin-bottom:10px;display:none;">📤 Share via... (WhatsApp, KakaoTalk, Email…)</button>
         <div id="deeplink-btns" style="display:none;">
-            <button class="action-btn" onclick="shareViaWhatsApp()"
-                    style="background:#25D366;color:white;width:90%;margin-bottom:8px;font-size:1em;">
-                💬 WhatsApp
-            </button>
-            <button class="action-btn" onclick="shareViaKakao()"
-                    style="background:#FAE100;color:#3A1D1D;width:90%;margin-bottom:8px;font-size:1em;">
-                💛 KakaoTalk
-            </button>
-            <button class="action-btn" onclick="shareViaSMS()"
-                    style="background:#34C759;color:white;width:90%;margin-bottom:8px;font-size:1em;">
-                💬 SMS / Messages
-            </button>
-            <button class="action-btn" onclick="shareViaEmail()"
-                    style="background:#0984e3;color:white;width:90%;margin-bottom:8px;font-size:1em;">
-                ✉️ Email
-            </button>
+            <button class="action-btn" onclick="shareViaWhatsApp()" style="background:#25D366;color:white;width:90%;margin-bottom:8px;font-size:1em;">💬 WhatsApp</button>
+            <button class="action-btn" onclick="shareViaKakao()"    style="background:#FAE100;color:#3A1D1D;width:90%;margin-bottom:8px;font-size:1em;">💛 KakaoTalk</button>
+            <button class="action-btn" onclick="shareViaSMS()"      style="background:#34C759;color:white;width:90%;margin-bottom:8px;font-size:1em;">💬 SMS / Messages</button>
+            <button class="action-btn" onclick="shareViaEmail()"    style="background:#0984e3;color:white;width:90%;margin-bottom:8px;font-size:1em;">✉️ Email</button>
         </div>
-
-        <button class="action-btn btn-secondary" onclick="showCopyBox()"
-                style="width:90%;margin-top:4px;font-size:0.95em;">
-            📋 Copy Report Text
-        </button>
+        <button class="action-btn btn-secondary" onclick="showCopyBox()" style="width:90%;margin-top:4px;font-size:0.95em;">📋 Copy Report Text</button>
         <div id="copy-fallback" style="display:none;margin-top:12px;">
             <textarea class="copy-box" id="copy-text-area" readonly></textarea>
             <button class="action-btn btn-check" style="margin-top:8px;" onclick="doCopy(this)">Copy</button>
         </div>
     </div>
-
-    <!-- Back to menu -->
     <div style="margin-top:24px;border-top:2px solid #f0f4f8;padding-top:16px;">
-        <button class="action-btn btn-secondary" onclick="goToMenu()" style="width:90%;font-size:1em;">
-            🏠 Back to Main Menu
-        </button>
+        <button class="action-btn btn-secondary" onclick="goToMenu()" style="width:90%;font-size:1em;">🏠 Back to Main Menu</button>
     </div>
 </div>
 
 <script>
-    const CSV_URL          = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
-    const CSV_URL_ADVANCED = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?gid=305824789&single=true&output=csv';
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVe2EQ9TBMhPUakjQ9Vju7HzMm77G2GstwkDpBVyOYabyBsLSvxjyTF4W_nfItlcZbpMqOYQ59e0Ss/pub?output=csv';
 
-    // Mode — 'standard' or 'advanced'; stored in localStorage
-    let isAdvanced = localStorage.getItem("gameMode") === "advanced";
-
-    // Mode-specific storage keys so progress doesn't mix between levels
-    function modeKey(base) { return isAdvanced ? base + "_adv" : base; }
-
-    function safeGet(key, fallback) {
-        try { return JSON.parse(localStorage.getItem(key)) || fallback; }
-        catch(e) { return fallback; }
-    }
-    function safeSet(key, val) {
-        try { localStorage.setItem(key, JSON.stringify(val)); }
-        catch(e) {}
-    }
+    function safeGet(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch(e) { return fallback; } }
+    function safeSet(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
 
     function shuffle(arr) {
         const a = [...arr];
-        for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
-        }
+        for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
         return a;
     }
 
     let allWords = [], sessionWords = [], currentIndex = 0, currentRound = 1, score = 0;
-    let troubleWords = safeGet(modeKey('troubleWords'), []);
-    let masteredWords = safeGet(modeKey('masteredWords'), []);
+    let troubleWords  = safeGet('troubleWords', []);
+    let masteredWords = safeGet('masteredWords', []);
     let sessionResults = { correct: [], needsPractice: [] };
     let needsTraining = false, usedHelpThisWord = false;
-    let wrongAttempts = 0, streak = 0;
-    let countedWrongThisWord = false;
-    let sessionNeedsPractice = []; // words got wrong in ANY round this session
+    let wrongAttempts = 0, streak = 0, countedWrongThisWord = false;
+    let sessionNeedsPractice = [];
+    let thisWeekMode = false; // true when testing "single use" tagged words only
 
-    // ── Daily streak helpers ───────────────────────────────────────────────────
-    // Stored as { currentStreak, bestStreak, lastWinDate, wonToday }
-    // lastWinDate is "YYYY-MM-DD". wonToday is true once a mission is passed today.
-    function todayStr() {
-        return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-    }
+    // ── Daily streak ───────────────────────────────────────────────────────────
+    function todayStr() { return new Date().toISOString().slice(0,10); }
 
     function loadDailyStreak() {
-        const data = safeGet('dailyStreak', { currentStreak: 0, bestStreak: 0, lastWinDate: null, wonToday: false });
+        const data = safeGet('dailyStreak', { currentStreak:0, bestStreak:0, lastWinDate:null, wonToday:false });
         const today = todayStr();
-        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-
-        // If last win was today already, streak is intact
-        if (data.lastWinDate === today) {
-            data.wonToday = true;
-            return data;
-        }
+        const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+        if (data.lastWinDate === today) { data.wonToday = true; return data; }
         data.wonToday = false;
-        // If last win was yesterday, streak is still alive — player just hasn't played yet today
-        if (data.lastWinDate === yesterday) {
-            return data;  // streak preserved, warning NOT shown
-        }
-        // Last win was 2+ days ago — streak broken (unless they've never played)
-        if (data.lastWinDate !== null && data.lastWinDate !== yesterday) {
-            data.currentStreak = 0;
-        }
+        if (data.lastWinDate === yesterday) return data;
+        if (data.lastWinDate !== null) data.currentStreak = 0;
         return data;
     }
 
     function recordDailyWin() {
         const data = loadDailyStreak();
         const today = todayStr();
-        if (data.lastWinDate === today) return; // already recorded a win today, don't double-count
+        if (data.lastWinDate === today) return data;
         data.currentStreak += 1;
         data.bestStreak = Math.max(data.bestStreak, data.currentStreak);
         data.lastWinDate = today;
@@ -419,95 +298,53 @@
     function showStreakOnWelcome() {
         const data = loadDailyStreak();
         const today = todayStr();
-        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
         document.getElementById("daily-streak-display").innerText = data.currentStreak;
-        document.getElementById("best-streak-display").innerText = data.bestStreak;
-
-        // Populate mastered/trouble counts
+        document.getElementById("best-streak-display").innerText  = data.bestStreak;
         document.getElementById("mastered-count-display").innerText = masteredWords.length;
-        document.getElementById("trouble-count-display").innerText = troubleWords.length;
-
-        // Show warning only if streak > 0, player hasn't won today, and last win wasn't yesterday or today
-        const streakBroken = data.currentStreak === 0 && data.lastWinDate !== null
-                             && data.lastWinDate !== today && data.lastWinDate !== yesterday;
-        if (streakBroken) {
-            document.getElementById("streak-warning").style.display = "block";
-        }
+        document.getElementById("trouble-count-display").innerText  = troubleWords.length;
+        const broken = data.currentStreak===0 && data.lastWinDate!==null && data.lastWinDate!==today && data.lastWinDate!==yesterday;
+        if (broken) document.getElementById("streak-warning").style.display = "block";
     }
 
     function openWordList(type) {
         const isMastered = type === "mastered";
         const list = isMastered ? masteredWords : troubleWords;
-        const title = isMastered ? `✅ Mastered Words (${list.length})` : `⚠️ Words to Work On (${list.length})`;
-        const pillClass = isMastered ? "mastered" : "trouble";
-
-        document.getElementById("word-modal-title").innerText = title;
-
+        document.getElementById("word-modal-title").innerText = isMastered ? `✅ Mastered Words (${list.length})` : `⚠️ Words to Work On (${list.length})`;
         const body = document.getElementById("word-modal-body");
-        if (list.length === 0) {
-            body.innerHTML = `<p style="color:#888;font-size:0.95em;">${isMastered ? "No words mastered yet — complete missions to build this list!" : "No trouble words recorded yet — keep it up!"}</p>`;
+        if (!list.length) {
+            body.innerHTML = `<p style="color:#888;font-size:0.95em;">${isMastered ? "No words mastered yet!" : "No trouble words yet — keep it up!"}</p>`;
         } else {
-            // Sort alphabetically
-            const sorted = [...list].sort();
-            body.innerHTML = sorted.map(w =>
-                `<span class="word-pill ${pillClass}">${w}</span>`
-            ).join('');
+            body.innerHTML = [...list].sort().map(w => `<span class="word-pill ${isMastered?'mastered':'trouble'}">${w}</span>`).join('');
         }
-
         document.getElementById("word-modal-overlay").classList.add("open");
     }
+    function closeWordList() { document.getElementById("word-modal-overlay").classList.remove("open"); }
+    function closeWordListOnBg(e) { if (e.target===document.getElementById("word-modal-overlay")) closeWordList(); }
 
-    function closeWordList() {
-        document.getElementById("word-modal-overlay").classList.remove("open");
-    }
+    // ── Warm-up / Round 1 ─────────────────────────────────────────────────────
+    let wuIndex = 0, wuScore = 0, warmUpSessionWords = null;
 
-    function closeWordListOnBg(e) {
-        // Close if clicked directly on the overlay (not the modal itself)
-        if (e.target === document.getElementById("word-modal-overlay")) closeWordList();
-    }
-    // ──────────────────────────────────────────────────────────────────────────
+    function startMission(thisWeek) {
+        thisWeekMode = !!thisWeek;
 
-    // ── Warm-Up: fill-in-the-blank with 3 word choices (Round 1) ─────────────
-    let wuIndex = 0, wuScore = 0;
-    let warmUpSessionWords = null;
-
-    let thisWeekMode = false; // true when testing only single-use tagged words
-
-    function startMission(thisWeek = false) {
-        thisWeekMode = thisWeek;
-
-        // Pick the word pool
-        let pool;
-        if (thisWeek) {
-            pool = allWords.filter(w => w.tag === 'single use');
-            if (pool.length === 0) {
-                alert("No words tagged as 'single use' found in the list. Please add the tag to column E in your Google Sheet.");
-                return;
-            }
+        if (thisWeekMode) {
+            // Use ALL words tagged "single use" — test on every one
+            const pool = allWords.filter(w => w.tag === 'single use');
+            if (!pool.length) { alert("No words tagged 'single use' found in column E of your sheet."); return; }
+            sessionWords = shuffle(pool);
         } else {
-            pool = allWords;
+            // Regular mission — up to 5 words, trouble words prioritised
+            const selection = shuffle(allWords.filter(w => troubleWords.includes(w.word))).slice(0,3);
+            const available = allWords.filter(w => !selection.map(s=>s.word).includes(w.word) && !masteredWords.includes(w.word));
+            sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5-selection.length)]);
         }
 
-        // Build session — prioritise trouble words, fill with fresh ones
-        let selection = shuffle(pool.filter(w => troubleWords.includes(w.word))).slice(0, 3);
-        let available = pool.filter(w => !selection.map(s => s.word).includes(w.word) && !masteredWords.includes(w.word));
-        // If this-week pool is small, don't exclude mastered — just use all of them
-        if (thisWeek && available.length < (5 - selection.length)) {
-            available = pool.filter(w => !selection.map(s => s.word).includes(w.word));
-        }
-        sessionWords = shuffle([...selection, ...shuffle(available).slice(0, 5 - selection.length)]);
-
-        if (sessionWords.length === 0) {
-            alert("Not enough words available. Check your word list.");
-            return;
-        }
+        if (!sessionWords.length) { alert("Not enough words available."); return; }
 
         warmUpSessionWords = sessionWords;
-        currentRound = 1;
-        streak = 0;
-        score = 0;
-        sessionResults.correct = [];
-        sessionNeedsPractice = [];
+        currentRound = 1; streak = 0; score = 0;
+        sessionResults.correct = []; sessionNeedsPractice = [];
         startWarmUp();
     }
 
@@ -516,10 +353,9 @@
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("fitb-screen").style.display = "inline-block";
         document.getElementById("fitb-total").innerText = sessionWords.length;
-        // Show This Week badge if applicable
-        const r1label = document.querySelector("#fitb-screen .round-label-span");
-        if (r1label) r1label.innerHTML = thisWeekMode
-            ? 'Round 1 <span style="background:#e1faf4;color:#007a5e;font-size:0.7em;padding:2px 8px;border-radius:10px;margin-left:6px;">📅 This Week</span>'
+        // Show This Week badge in Round 1 header
+        document.getElementById("fitb-round-label").innerHTML = thisWeekMode
+            ? 'Round 1 <span class="tw-badge">📅 This Week</span>'
             : 'Round 1';
         showWarmUp();
     }
@@ -527,9 +363,8 @@
     function showWarmUp() {
         if (wuIndex >= sessionWords.length) { endWarmUp(); return; }
         const item = sessionWords[wuIndex];
-
         document.getElementById("fitb-current").innerText = wuIndex + 1;
-        document.getElementById("fitb-score").innerText = wuScore;
+        document.getElementById("fitb-score").innerText   = wuScore;
         document.getElementById("wu-feedback").style.display = "none";
         document.getElementById("wu-next-btn").style.display = "none";
         document.getElementById("wu-phonetic-area").style.display = "none";
@@ -537,43 +372,25 @@
         document.getElementById("wu-grammar-box").style.display = "none";
         document.getElementById("wu-grammar-box").innerHTML = "";
 
-        // Build sentence with styled blank.
-        // Advanced sheet sentences may already contain ____ as a placeholder.
-        // Standard sheet sentences contain the actual word to be found and replaced.
-        const BLANK_SPAN = `<span style="display:inline-block;min-width:80px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`;
+        // Build the blanked sentence
+        const BLANK = `<span style="display:inline-block;min-width:80px;border-bottom:3px solid var(--primary);font-weight:900;font-style:normal;color:var(--primary);">______</span>`;
         let blanked;
-
         if (item.sentence.includes('____')) {
-            // Pre-blanked sentence (Advanced format) — just style the existing blank
-            blanked = item.sentence.replace('____', BLANK_SPAN);
+            blanked = item.sentence.replace('____', BLANK);
         } else {
-            // Try exact word match (Standard format)
-            const exactRegex = new RegExp(`\\b${item.word}\\b`, 'i');
-            if (exactRegex.test(item.sentence)) {
-                blanked = item.sentence.replace(exactRegex, BLANK_SPAN);
-            } else {
-                // Stem match fallback — try first chars of word
-                const stem = item.word.length >= 5 ? item.word.slice(0, item.word.length - 3) : item.word;
-                const stemRegex = new RegExp(`\\b${stem}\\w*`, 'i');
-                if (stemRegex.test(item.sentence)) {
-                    blanked = item.sentence.replace(stemRegex, BLANK_SPAN);
-                } else {
-                    // Last resort — append blank at end
-                    blanked = item.sentence.replace(/[.!?]?\s*$/, ` ${BLANK_SPAN}.`);
-                }
-            }
+            const r = item.sentence.replace(new RegExp(`\\b${item.word}\\b`,'i'), BLANK);
+            blanked = (r !== item.sentence) ? r : item.sentence + ' ' + BLANK;
         }
         document.getElementById("fitb-sentence").innerHTML = blanked;
 
-        const pool = allWords.filter(w => w.word !== item.word);
-        const distractors = shuffle(pool).slice(0, 2);
+        // 3 choices — correct word + 2 distractors from allWords
+        const distractors = shuffle(allWords.filter(w => w.word !== item.word)).slice(0,2);
         const choices = shuffle([item, ...distractors]);
-
         const cont = document.getElementById("fitb-choices");
         cont.innerHTML = "";
         choices.forEach(c => {
             const btn = document.createElement("button");
-            btn.style.cssText = "flex:1;min-width:0;padding:12px 4px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:0.88em;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--dark);text-align:center;word-break:break-word;line-height:1.2;";
+            btn.style.cssText = "flex:1;min-width:0;padding:12px 4px;border-radius:12px;border:2px solid #dfe6e9;background:white;font-size:0.9em;font-weight:700;cursor:pointer;color:var(--dark);word-break:break-word;line-height:1.2;";
             btn.innerText = c.word;
             btn.onpointerdown = () => checkWarmUp(btn, c.word, item.word, cont);
             cont.appendChild(btn);
@@ -581,216 +398,148 @@
     }
 
     function checkWarmUp(btn, chosen, correct, cont) {
-        cont.querySelectorAll("button").forEach(b => { b.onpointerdown = null; b.style.cursor = "default"; });
+        cont.querySelectorAll("button").forEach(b => { b.onpointerdown=null; b.style.cursor="default"; });
         const fb = document.getElementById("wu-feedback");
         fb.style.display = "block";
-
         if (chosen === correct) {
-            // Correct — interactive syllable training, Next appears after all blocks clicked
-            btn.style.background = "var(--success)"; btn.style.color = "white"; btn.style.borderColor = "var(--success)";
-            wuScore++;
-            document.getElementById("fitb-score").innerText = wuScore;
-            fb.style.backgroundColor = "var(--success)";
-            fb.innerText = "✅ Correct! Click all the sound blocks to continue.";
-            setupWarmUpPhoneticTraining(false); // interactive
+            btn.style.background="var(--success)"; btn.style.color="white"; btn.style.borderColor="var(--success)";
+            wuScore++; document.getElementById("fitb-score").innerText = wuScore;
+            fb.style.backgroundColor="var(--success)"; fb.innerText="✅ Correct! Click all the sound blocks below.";
+            setupWarmUpPhonetic(false);
         } else {
-            // Wrong — highlight correct answer, then immediately show phonetic + grammar rule as text
-            btn.style.background = "var(--error)"; btn.style.color = "white"; btn.style.borderColor = "var(--error)";
-            cont.querySelectorAll("button").forEach(b => {
-                if (b.innerText === correct) {
-                    b.style.background = "var(--success)"; b.style.color = "white"; b.style.borderColor = "var(--success)";
-                }
-            });
-            fb.style.backgroundColor = "var(--error)";
-            fb.innerText = `❌ The answer was: ${correct}`;
-            setupWarmUpPhoneticTraining(true); // static — show immediately, no clicking
+            btn.style.background="var(--error)"; btn.style.color="white"; btn.style.borderColor="var(--error)";
+            cont.querySelectorAll("button").forEach(b => { if(b.innerText===correct){b.style.background="var(--success)";b.style.color="white";b.style.borderColor="var(--success)";} });
+            fb.style.backgroundColor="var(--error)"; fb.innerText=`❌ The answer was: ${correct}.`;
+            setupWarmUpPhonetic(true); // show all revealed immediately on wrong
         }
+    }
+
+    function setupWarmUpPhonetic(showImmediate) {
+        const area=document.getElementById("wu-phonetic-area"), cont=document.getElementById("wu-syllable-container"), grammarBox=document.getElementById("wu-grammar-box");
+        area.style.display="block"; cont.innerHTML=""; grammarBox.style.display="none"; grammarBox.innerHTML="";
+        const word = sessionWords[wuIndex];
+        const parts = word.phonetic.split(/[•·\-\s/]+/).filter(p=>p.trim());
+        let clicked = 0;
+        parts.forEach((p,i) => {
+            const btn = document.createElement("button");
+            btn.className = `syllable-btn ${SYLLABLE_COLORS[i%SYLLABLE_COLORS.length]}`;
+            btn.innerText = p.toUpperCase();
+            if (showImmediate) {
+                btn.classList.add("revealed"); btn.style.cursor="default";
+            } else {
+                btn.onclick = function() {
+                    if (!this.classList.contains("revealed")) {
+                        this.classList.add("revealed"); clicked++;
+                        if (clicked===parts.length) revealGrammarAndNext(word, grammarBox);
+                    }
+                };
+            }
+            cont.appendChild(btn);
+        });
+        if (showImmediate) revealGrammarAndNext(word, grammarBox);
+    }
+
+    function revealGrammarAndNext(word, grammarBox) {
+        if (word.grammarRule) { grammarBox.innerHTML=`<strong>📚 Grammar tip:</strong> ${word.grammarRule}`; grammarBox.style.display="block"; }
+        document.getElementById("wu-next-btn").style.display = "block";
     }
 
     function nextWarmUp() { wuIndex++; showWarmUp(); }
 
-    function setupWarmUpPhoneticTraining(showImmediate) {
-        const area       = document.getElementById("wu-phonetic-area");
-        const cont       = document.getElementById("wu-syllable-container");
-        const grammarBox = document.getElementById("wu-grammar-box");
-        area.style.display = "block";
-        cont.innerHTML = "";
-        grammarBox.style.display = "none";
-        grammarBox.innerHTML = "";
-
-        const currentWord = sessionWords[wuIndex];
-        const parts = currentWord.phonetic.split(/[•·\-\s/]+/).filter(p => p.trim());
-
-        if (showImmediate) {
-            // Wrong answer — reveal all syllables and grammar rule straight away, show Next immediately
-            parts.forEach((p, i) => {
-                const btn = document.createElement("button");
-                const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
-                btn.className = `syllable-btn ${colorClass} revealed`;
-                btn.innerText = p.toUpperCase();
-                btn.style.cursor = "default";
-                cont.appendChild(btn);
-            });
-            if (currentWord.grammarRule) {
-                grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
-                grammarBox.style.display = "block";
-            }
-            document.getElementById("wu-next-btn").style.display = "block";
-        } else {
-            // Correct answer — interactive: click each block to reveal, Next unlocks at end
-            let clicked = 0;
-            parts.forEach((p, i) => {
-                const btn = document.createElement("button");
-                const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
-                btn.className = `syllable-btn ${colorClass}`;
-                btn.innerText = p.toUpperCase();
-                btn.onclick = function() {
-                    if (!this.classList.contains("revealed")) {
-                        this.classList.add("revealed");
-                        clicked++;
-                        if (clicked === parts.length) {
-                            if (currentWord.grammarRule) {
-                                grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
-                                grammarBox.style.display = "block";
-                            }
-                            document.getElementById("wu-next-btn").style.display = "block";
-                        }
-                    }
-                };
-                cont.appendChild(btn);
-            });
-        }
-    }
-
     function endWarmUp() {
         document.getElementById("fitb-screen").style.display = "none";
-        // Go straight into Round 2 (old Round 1 — scrambled letters)
-        currentRound = 2;
-        score = 0;
-        sessionResults.correct = [];
+        currentRound = 2; score = 0; sessionResults.correct = [];
         document.getElementById("game-ui").style.display = "inline-block";
         setupRound();
     }
 
+    // ── CSV load ───────────────────────────────────────────────────────────────
     window.onload = async function() {
         try {
-            const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
-            if (url.includes("ADVANCED_SHEET_GID")) {
-                document.getElementById("status-text").innerHTML =
-                    "⚠️ Advanced sheet URL not set yet.<br><small>Open the file and replace <strong>ADVANCED_SHEET_GID</strong> with your sheet's gid number.</small>";
-                return;
-            }
-            const response = await fetch(url);
+            const response = await fetch(CSV_URL);
             const data = await response.text();
-            if (data.includes("<!DOCTYPE") || data.includes("<html")) {
-                document.getElementById("status-text").innerText = "⚠️ Error: CSV link issue.";
-                return;
-            }
+            if (data.includes("<!DOCTYPE") || data.includes("<html")) { document.getElementById("status-text").innerText="⚠️ CSV link issue."; return; }
             allWords = parseCSV(data);
-            masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
-            safeSet(modeKey('masteredWords'), masteredWords);
-            document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
-            document.getElementById("welcome-buttons").style.display = "block";
-            // Show/hide This Week button and count
-            const thisWeekWords = allWords.filter(w => w.tag === 'single use');
+            masteredWords = masteredWords.filter(w => allWords.some(i=>i.word===w));
+            safeSet('masteredWords', masteredWords);
+            document.getElementById("status-text").innerText=`Files ready. ${allWords.length} words loaded.`;
+            document.getElementById("welcome-buttons").style.display="block";
+            // Show This Week button only if tagged words exist
+            const twWords = allWords.filter(w=>w.tag==='single use');
             const twBtn = document.getElementById("this-week-btn");
-            if (thisWeekWords.length === 0) {
-                twBtn.style.display = "none";
-            } else {
-                twBtn.style.display = "inline-block";
-                twBtn.innerHTML = `📅 This Week's Words <span style="background:rgba(255,255,255,0.3);border-radius:10px;padding:1px 8px;font-size:0.85em;">${thisWeekWords.length}</span>`;
+            if (twWords.length > 0) {
+                twBtn.style.display="inline-block";
+                twBtn.innerHTML=`📅 This Week's Words <span style="background:rgba(255,255,255,0.3);border-radius:10px;padding:1px 8px;font-size:0.85em;">${twWords.length}</span>`;
             }
-            updateModeSwitchBtn();
             showStreakOnWelcome();
         } catch(e) {
-            document.getElementById("status-text").innerHTML = 'Connection error. <button class="action-btn btn-hint" onclick="location.reload()" style="font-size:0.9em;padding:8px 16px;">Retry</button>';
+            document.getElementById("status-text").innerHTML='Connection error. <button class="action-btn btn-hint" onclick="location.reload()" style="font-size:0.9em;padding:8px 16px;">Retry</button>';
         }
     };
 
+    // Proper quoted-field CSV parser — handles commas inside cells
     function parseCSV(text) {
-        // Proper quoted-field CSV parser — handles commas inside quoted cells
         function parseLine(line) {
-            const fields = [];
-            let current = '';
-            let inQuotes = false;
-            for (let i = 0; i < line.length; i++) {
-                const ch = line[i];
-                if (ch === '"') {
-                    if (inQuotes && line[i + 1] === '"') {
-                        // Escaped quote inside quoted field
-                        current += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (ch === ',' && !inQuotes) {
-                    fields.push(current.trim());
-                    current = '';
-                } else {
-                    current += ch;
-                }
+            const fields=[]; let cur='', inQ=false;
+            for (let i=0;i<line.length;i++) {
+                const ch=line[i];
+                if (ch==='"') { if(inQ&&line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
+                else if (ch===','&&!inQ) { fields.push(cur.trim()); cur=''; }
+                else cur+=ch;
             }
-            fields.push(current.trim()); // last field
-            return fields;
+            fields.push(cur.trim()); return fields;
         }
-
         return text.split('\n')
-            .filter(line => line.trim() !== "" && !line.startsWith('<'))
-            .slice(1) // skip header row
+            .filter(l=>l.trim()&&!l.startsWith('<'))
+            .slice(1)
             .map(line => {
                 const f = parseLine(line);
-                // f[0]=word, f[1]=sentence, f[2]=phonetic, f[3]=grammarRule, f[4]=tag
-                const word        = (f[0] || '').toUpperCase().trim();
-                const sentence    = (f[1] || '').trim();
-                const phonetic    = (f[2] || f[0] || '').trim();
-                const grammarRule = (f[3] || '').trim();
-                const tag         = (f[4] || '').toLowerCase().trim(); // e.g. "single use"
+                const word        = (f[0]||'').toUpperCase().trim();
+                const sentence    = (f[1]||'').trim();
+                const phonetic    = (f[2]||f[0]||'').trim();
+                const grammarRule = (f[3]||'').trim();
+                const tag         = (f[4]||'').toLowerCase().trim(); // "single use" or blank
                 return { word, sentence, phonetic, grammarRule, tag };
             })
-            .filter(item => item.word && item.word.length > 1);
+            .filter(item=>item.word&&item.word.length>1);
     }
 
-    // (FITB functions removed — replaced by Round 1 warm-up above)
-
+    // ── Game rounds ────────────────────────────────────────────────────────────
     function setupRound() {
         currentIndex = 0;
-        document.getElementById("report-screen").style.display = "none";
-        document.getElementById("game-ui").style.display = "inline-block";
-        const roundLabel = currentRound === 2 ? "Round 2" : "Round 3";
-        const weekBadge = thisWeekMode
-            ? ' <span style="background:#e1faf4;color:#007a5e;font-size:0.65em;padding:2px 8px;border-radius:10px;vertical-align:middle;">📅 This Week</span>'
-            : '';
-        document.getElementById("round-tag").innerHTML = roundLabel + weekBadge;
+        document.getElementById("report-screen").style.display="none";
+        document.getElementById("game-ui").style.display="inline-block";
+        const label = currentRound===2 ? "Round 2" : "Round 3";
+        const badge = thisWeekMode ? ' <span class="tw-badge">📅 This Week</span>' : '';
+        document.getElementById("round-tag").innerHTML = label + badge;
+        document.getElementById("case-total").innerText = sessionWords.length;
         showWord();
     }
 
     function showWord() {
         if (currentIndex >= sessionWords.length) { showReport(); return; }
-        let obj = sessionWords[currentIndex];
-        needsTraining = false; usedHelpThisWord = false; wrongAttempts = 0; countedWrongThisWord = false;
+        const obj = sessionWords[currentIndex];
+        needsTraining=false; usedHelpThisWord=false; wrongAttempts=0; countedWrongThisWord=false;
         resetCheckBtn();
-        document.getElementById("score-display").innerText = score;
-        document.getElementById("current-count").innerText = currentIndex + 1;
+        document.getElementById("score-display").innerText   = score;
+        document.getElementById("current-count").innerText   = currentIndex+1;
         document.getElementById("sentence-display").innerText = obj.sentence;
-        document.getElementById("user-input") && (document.getElementById("user-input").value = "");
-        kbReset();
-        setKbDisabled(false);
-        document.getElementById("feedback-area").style.display = "none";
+        kbReset(); setKbDisabled(false);
+        document.getElementById("feedback-area").style.display     = "none";
         document.getElementById("phonetic-reveal-area").style.display = "none";
-        document.getElementById("grammar-rule-box").style.display = "none";
-        document.getElementById("action-buttons").style.display = "block";
-        document.getElementById("check-btn").style.display = "inline-block";
-        document.getElementById("hint-btn").style.display = "inline-block";
-        document.getElementById("reveal-btn").style.display = "inline-block";
-        document.getElementById("next-btn").style.display = "none";
-        const revealBtn = document.getElementById("reveal-btn");
-        revealBtn.disabled = true; revealBtn.classList.remove("active");
+        document.getElementById("grammar-rule-box").style.display  = "none";
+        document.getElementById("action-buttons").style.display    = "block";
+        document.getElementById("check-btn").style.display         = "inline-block";
+        document.getElementById("hint-btn").style.display          = "inline-block";
+        document.getElementById("reveal-btn").style.display        = "inline-block";
+        document.getElementById("next-btn").style.display          = "none";
+        const rb = document.getElementById("reveal-btn");
+        rb.disabled=true; rb.classList.remove("active");
         document.getElementById("attempt-text").style.display = "block";
         document.getElementById("attempt-countdown").innerText = 3;
         const scrambleArea = document.getElementById("scrambled-word");
-        if (currentRound === 2) {
-            const letters = shuffle(obj.word.split(''));
-            scrambleArea.innerHTML = letters.map((l, i) =>
+        if (currentRound===2) {
+            scrambleArea.innerHTML = shuffle(obj.word.split('')).map((l,i)=>
                 `<span class="letter-slot" id="slot-${i}" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:42px;background:#f0eeff;border-radius:8px;font-size:1.4em;font-weight:900;color:var(--primary);border:2px solid #d0c8f8;">${l}</span>`
             ).join('');
             applyKeyboardFilter(obj.word);
@@ -798,87 +547,47 @@
             scrambleArea.innerHTML = "";
             clearKeyboardFilter();
         }
-        // no system keyboard to focus — custom keyboard is always visible
     }
 
     window.addEventListener("load", () => {
         buildKeyboard();
-        // Physical keyboard: Enter requires two presses to submit
         document.addEventListener("keydown", e => {
             if (kbDisabled) return;
-            if (e.key === "Enter") { handleCheckTap(); return; }
-            if (e.key === "Backspace") { kbDelete(); return; }
+            if (e.key==="Enter")     { handleCheckTap(); return; }
+            if (e.key==="Backspace") { kbDelete(); return; }
             if (/^[a-zA-Z']$/.test(e.key)) kbType(e.key.toUpperCase());
         });
     });
 
-    // Check button: orange "Check" → green "-- Go --" on first tap → resets to orange if word changes
-    let checkPrimed = false;
-
+    // Check button — orange → green → submit on 2nd tap; resets on typing
+    let checkPrimed=false, checkPrimeTimer=null;
     function handleCheckTap() {
         if (kbDisabled) return;
-        const btn = document.getElementById("check-btn");
-        if (!checkPrimed) {
-            // First tap — prime green
-            checkPrimed = true;
-            btn.innerText = "-- Go --";
-            btn.style.background = "var(--success)";
-            btn.style.color = "white";
-        } else {
-            // Second tap — submit
-            checkWord();
-        }
+        const btn=document.getElementById("check-btn");
+        if (!checkPrimed) { checkPrimed=true; btn.innerText="-- Go --"; btn.style.background="var(--success)"; btn.style.color="white"; }
+        else checkWord();
     }
-
     function resetCheckBtn() {
-        checkPrimed = false;
-        clearTimeout(checkPrimeTimer);
-        const btn = document.getElementById("check-btn");
-        if (btn) {
-            btn.innerText = "Check";
-            btn.style.background = "#ffb347";
-            btn.style.color = "#7a4a00";
-        }
+        checkPrimed=false; clearTimeout(checkPrimeTimer);
+        const btn=document.getElementById("check-btn");
+        if (btn) { btn.innerText="Check"; btn.style.background="#ffb347"; btn.style.color="#7a4a00"; }
     }
-
-    let checkPrimeTimer = null; // kept for compatibility, unused
 
     // ── Custom keyboard ────────────────────────────────────────────────────────
-    let kbValue = "";
-    let kbDisabled = false;
-    const KB_ROWS = [
-        ["Q","W","E","R","T","Y","U","I","O","P"],
-        ["A","S","D","F","G","H","J","K","L"],
-        ["Z","X","C","V","B","N","M","'","⌫"]
-    ];
+    let kbValue="", kbDisabled=false;
+    const KB_ROWS=[["Q","W","E","R","T","Y","U","I","O","P"],["A","S","D","F","G","H","J","K","L"],["Z","X","C","V","B","N","M","'","⌫"]];
 
     function buildKeyboard() {
-        const rowIds = ["kb-row-1","kb-row-2","kb-row-3"];
-        KB_ROWS.forEach((row, ri) => {
-            const rowEl = document.getElementById(rowIds[ri]);
-            row.forEach(letter => {
-                const btn = document.createElement("button");
-                const isDelete = letter === "⌫";
-                btn.innerText = letter;
-                btn.setAttribute("data-key", letter);
-                btn.style.cssText = `
-                    flex:1;max-width:${isDelete ? 56 : 42}px;min-width:${isDelete ? 48 : 33}px;
-                    height:48px;border:none;border-radius:8px;font-size:1em;font-weight:700;
-                    cursor:pointer;transition:background 0.15s;
-                    background:${isDelete ? "#d63031" : "#e8e8f0"};
-                    color:${isDelete ? "white" : "#2d3436"};
-                `;
+        ["kb-row-1","kb-row-2","kb-row-3"].forEach((id,ri) => {
+            const rowEl=document.getElementById(id);
+            KB_ROWS[ri].forEach(letter => {
+                const btn=document.createElement("button"), isDel=letter==="⌫";
+                btn.innerText=letter; btn.setAttribute("data-key",letter);
+                btn.style.cssText=`flex:1;max-width:${isDel?56:42}px;min-width:${isDel?48:33}px;height:48px;border:none;border-radius:8px;font-size:1em;font-weight:700;cursor:pointer;transition:background 0.15s;background:${isDel?"#d63031":"#e8e8f0"};color:${isDel?"white":"#2d3436"};`;
                 btn.addEventListener("pointerdown", e => {
-                    e.preventDefault();
-                    if (kbDisabled) return;
-                    if (isDelete) {
-                        // Delete key: brief dark-red flash
-                        btn.style.background = "#a93226";
-                        setTimeout(() => { btn.style.background = "#d63031"; }, 150);
-                        kbDelete();
-                    } else {
-                        kbType(letter); // updateScrambleStrike inside kbType handles colour
-                    }
+                    e.preventDefault(); if (kbDisabled) return;
+                    if (isDel) { btn.style.background="#a93226"; setTimeout(()=>{btn.style.background="#d63031";},150); kbDelete(); }
+                    else kbType(letter);
                 });
                 rowEl.appendChild(btn);
             });
@@ -886,281 +595,155 @@
     }
 
     function kbType(letter) {
-        if (currentRound === 2) {
-            const target = sessionWords[currentIndex] ? sessionWords[currentIndex].word.toUpperCase() : "";
-            const needed = {};
-            target.split('').forEach(l => { needed[l] = (needed[l] || 0) + 1; });
-            const typedCount = {};
-            kbValue.toUpperCase().split('').forEach(l => { typedCount[l] = (typedCount[l] || 0) + 1; });
-
-            const wordCount = needed[letter] || 0;
-            const usedCount = typedCount[letter] || 0;
-
-            if (wordCount === 0 || usedCount >= wordCount) {
-                // Not in word, or already used all occurrences — reject
-                const btn = document.querySelector(`#custom-keyboard button[data-key="${CSS.escape(letter)}"]`);
+        if (currentRound===2) {
+            const target=sessionWords[currentIndex]?sessionWords[currentIndex].word.toUpperCase():"";
+            const needed={}, typedCount={};
+            target.split('').forEach(l=>{needed[l]=(needed[l]||0)+1;});
+            kbValue.toUpperCase().split('').forEach(l=>{typedCount[l]=(typedCount[l]||0)+1;});
+            if ((needed[letter]||0)===0 || (typedCount[letter]||0)>=(needed[letter]||0)) {
+                const btn=document.querySelector(`#custom-keyboard button[data-key="${CSS.escape(letter)}"]`);
                 if (btn) {
-                    const prevBg = btn.style.background;
-                    const prevColor = btn.style.color;
-                    btn.style.background = "#d63031";
-                    btn.style.color = "white";
-                    btn.style.animation = "kbShake 0.35s ease";
-                    setTimeout(() => {
-                        btn.style.animation = "";
-                        btn.style.background = prevBg;
-                        btn.style.color = prevColor;
-                    }, 1000);
+                    const pb=btn.style.background, pc=btn.style.color;
+                    btn.style.background="#d63031"; btn.style.color="white"; btn.style.animation="kbShake 0.35s ease";
+                    setTimeout(()=>{btn.style.animation=""; btn.style.background=pb; btn.style.color=pc;},1000);
                 }
-                return; // don't add to kbValue
+                return;
             }
         }
-
-        kbValue += letter;
-        renderDisplay();
-        updateScrambleStrike();
-        resetCheckBtn();
+        kbValue+=letter; renderDisplay(); updateScrambleStrike(); resetCheckBtn();
     }
-
-    function kbDelete() {
-        kbValue = kbValue.slice(0, -1);
-        renderDisplay();
-        updateScrambleStrike();
-        resetCheckBtn(); // word changed — reset back to orange Check
-    }
-
-    function kbReset() {
-        kbValue = "";
-        renderDisplay();
-        if (currentRound === 2) updateScrambleStrike();
-    }
-
+    function kbDelete() { kbValue=kbValue.slice(0,-1); renderDisplay(); updateScrambleStrike(); resetCheckBtn(); }
+    function kbReset()  { kbValue=""; renderDisplay(); if(currentRound===2) updateScrambleStrike(); }
     function renderDisplay() {
-        const display = document.getElementById("input-text");
-        if (kbValue) {
-            display.innerText = kbValue;
-            display.style.color = "#2d3436";
-        } else {
-            display.innerText = "Solve the word...";
-            display.style.color = "#b2bec3";
-        }
+        const d=document.getElementById("input-text");
+        if (kbValue) { d.innerText=kbValue; d.style.color="#2d3436"; }
+        else         { d.innerText="Solve the word..."; d.style.color="#b2bec3"; }
     }
-
     function setKbDisabled(disabled) {
-        kbDisabled = disabled;
-        document.getElementById("custom-keyboard").style.opacity = disabled ? "0.4" : "1";
-        document.getElementById("custom-keyboard").style.pointerEvents = disabled ? "none" : "auto";
-        document.getElementById("input-cursor").style.display = disabled ? "none" : "inline-block";
+        kbDisabled=disabled;
+        document.getElementById("custom-keyboard").style.opacity      = disabled?"0.4":"1";
+        document.getElementById("custom-keyboard").style.pointerEvents = disabled?"none":"auto";
+        document.getElementById("input-cursor").style.display          = disabled?"none":"inline-block";
     }
-
-    // Dim keyboard keys that aren't needed for the current word (Round 1 only)
     function applyKeyboardFilter(word) {
-        // Count how many times each letter appears in the word
-        const needed = {};
-        word.toUpperCase().split('').forEach(l => { needed[l] = (needed[l] || 0) + 1; });
-
-        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn => {
-            const key = btn.getAttribute("data-key");
-            if (key === "⌫") return; // always active
-            const isNeeded = needed[key] > 0;
-            btn.style.background = isNeeded ? "#e8e8f0" : "#2d3436";
-            btn.style.color     = isNeeded ? "#2d3436" : "#555";
-            btn.style.opacity   = isNeeded ? "1"       : "0.55";
+        const needed={};
+        word.toUpperCase().split('').forEach(l=>{needed[l]=(needed[l]||0)+1;});
+        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn=>{
+            const k=btn.getAttribute("data-key"); if(k==="⌫")return;
+            const n=needed[k]>0;
+            btn.style.background=n?"#e8e8f0":"#2d3436"; btn.style.color=n?"#2d3436":"#555"; btn.style.opacity=n?"1":"0.55";
         });
     }
-
     function clearKeyboardFilter() {
-        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn => {
-            const key = btn.getAttribute("data-key");
-            if (key === "⌫") return;
-            btn.style.background = "#e8e8f0";
-            btn.style.color = "#2d3436";
-            btn.style.opacity = "1";
+        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn=>{
+            if(btn.getAttribute("data-key")==="⌫")return;
+            btn.style.background="#e8e8f0"; btn.style.color="#2d3436"; btn.style.opacity="1";
         });
     }
-    // ──────────────────────────────────────────────────────────────────────────
 
     function updateScrambleStrike() {
-        if (currentRound !== 2) return;
-
-        const target = sessionWords[currentIndex].word.toUpperCase();
-        const typed  = kbValue.toUpperCase().split('');
-
-        // Count how many times each letter is needed in the target word
-        const needed = {};
-        target.split('').forEach(l => { needed[l] = (needed[l] || 0) + 1; });
-
-        // Count how many times each letter has been typed so far
-        const typedCount = {};
-        typed.forEach(l => { typedCount[l] = (typedCount[l] || 0) + 1; });
-
-        // Update scramble tile strikethrough (unchanged behaviour)
-        const slots = document.querySelectorAll(".letter-slot");
-        slots.forEach(s => s.classList.remove("used-letter"));
-        let tempTyped = [...typed];
-        slots.forEach(slot => {
-            const idx = tempTyped.indexOf(slot.innerText);
-            if (idx > -1) { slot.classList.add("used-letter"); tempTyped.splice(idx, 1); }
-        });
-
-        // Colour each relevant keyboard key
-        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn => {
-            const key = btn.getAttribute("data-key");
-            if (key === "⌫") return;
-
-            const wordCount  = needed[key]     || 0; // how many times needed
-            const usedCount  = typedCount[key] || 0; // how many times typed
-
-            if (wordCount === 0) {
-                // Not in word — keep dark (set by applyKeyboardFilter, don't overwrite)
-                return;
-            }
-
-            if (usedCount === 0) {
-                // Needed but not yet typed — normal light state
-                btn.style.background = "#e8e8f0";
-                btn.style.color      = "#2d3436";
-                btn.style.opacity    = "1";
-            } else if (usedCount < wordCount) {
-                // Partially used — more of this letter still needed → soft orange
-                btn.style.background = "#ffb347";
-                btn.style.color      = "#7a4a00";
-                btn.style.opacity    = "1";
-            } else {
-                // All uses exhausted → green
-                btn.style.background = "#00b894";
-                btn.style.color      = "white";
-                btn.style.opacity    = "1";
-            }
+        if (currentRound!==2) return;
+        const target=sessionWords[currentIndex].word.toUpperCase(), typed=kbValue.toUpperCase().split('');
+        const needed={}, typedCount={};
+        target.split('').forEach(l=>{needed[l]=(needed[l]||0)+1;});
+        typed.forEach(l=>{typedCount[l]=(typedCount[l]||0)+1;});
+        const slots=document.querySelectorAll(".letter-slot");
+        slots.forEach(s=>s.classList.remove("used-letter"));
+        let tmp=[...typed];
+        slots.forEach(slot=>{const idx=tmp.indexOf(slot.innerText);if(idx>-1){slot.classList.add("used-letter");tmp.splice(idx,1);}});
+        document.querySelectorAll("#custom-keyboard button[data-key]").forEach(btn=>{
+            const k=btn.getAttribute("data-key"); if(k==="⌫")return;
+            const wc=needed[k]||0, uc=typedCount[k]||0;
+            if (wc===0) return;
+            if (uc===0)      { btn.style.background="#e8e8f0"; btn.style.color="#2d3436"; btn.style.opacity="1"; }
+            else if(uc<wc)   { btn.style.background="#ffb347"; btn.style.color="#7a4a00"; btn.style.opacity="1"; }
+            else             { btn.style.background="#00b894"; btn.style.color="white";   btn.style.opacity="1"; }
         });
     }
 
+    // ── Game logic ─────────────────────────────────────────────────────────────
     function checkWord() {
-        let guess = kbValue.toUpperCase().trim();
-        let target = sessionWords[currentIndex].word;
-        if (guess === target) {
-            if (currentRound === 3 && !usedHelpThisWord) {
+        const guess=kbValue.toUpperCase().trim(), target=sessionWords[currentIndex].word;
+        if (guess===target) {
+            if (currentRound===3 && !usedHelpThisWord) {
                 score++;
                 if (!sessionResults.correct.includes(target)) sessionResults.correct.push(target);
-                // Word mastered perfectly — remove from needs-practice and trouble lists
-                sessionNeedsPractice = sessionNeedsPractice.filter(w => w !== target);
-                troubleWords = troubleWords.filter(w => w !== target);
+                sessionNeedsPractice = sessionNeedsPractice.filter(w=>w!==target);
+                troubleWords  = troubleWords.filter(w=>w!==target);
                 if (!masteredWords.includes(target)) masteredWords.push(target);
             }
-            streak = usedHelpThisWord ? 0 : streak + 1;
+            streak = usedHelpThisWord ? 0 : streak+1;
             handleSuccess();
         } else {
-            needsTraining = true; usedHelpThisWord = true; streak = 0;
-            wrongAttempts++;
-            // Track wrong once per word regardless of round
+            needsTraining=true; usedHelpThisWord=true; streak=0; wrongAttempts++;
             if (!countedWrongThisWord) {
-                countedWrongThisWord = true;
-                if (!troubleWords.includes(target)) troubleWords.push(target);
-                if (!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
-                masteredWords = masteredWords.filter(w => w !== target);
+                countedWrongThisWord=true;
+                if(!troubleWords.includes(target)) troubleWords.push(target);
+                if(!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
+                masteredWords=masteredWords.filter(w=>w!==target);
             }
-            const remaining = Math.max(0, 3 - wrongAttempts);
-            document.getElementById("attempt-countdown").innerText = remaining;
-
-            // Bug 2 fix: after 3 wrong attempts auto-reveal and go straight to phonetic training
-            if (wrongAttempts >= 3) {
-                safeSet(modeKey('troubleWords'), troubleWords);
-                safeSet(modeKey('masteredWords'), masteredWords);
-                autoRevealAndTrain();
-                return;
-            }
-            showFeedback("❌ Try again!", "var(--error)");
+            document.getElementById("attempt-countdown").innerText = Math.max(0,3-wrongAttempts);
+            if (wrongAttempts>=3) { safeSet('troubleWords',troubleWords); safeSet('masteredWords',masteredWords); autoRevealAndTrain(); return; }
+            showFeedback("❌ Try again!","var(--error)");
         }
-        safeSet(modeKey('troubleWords'), troubleWords);
-        safeSet(modeKey('masteredWords'), masteredWords);
+        safeSet('troubleWords',troubleWords); safeSet('masteredWords',masteredWords);
     }
 
     function autoRevealAndTrain() {
-        const target = sessionWords[currentIndex].word;
+        const target=sessionWords[currentIndex].word;
         setKbDisabled(true);
-        // Show the correct word in the display
-        const displayText = document.getElementById("input-text");
-        displayText.innerText = target;
-        displayText.style.color = "#e17055";
-        kbValue = target;
-        // Hide action buttons and attempt text
-        document.getElementById("attempt-text").style.display = "none";
-        document.getElementById("action-buttons").style.display = "none";
-        // Show a "see the word" feedback then go straight to syllable training
-        showFeedback(`The word is: ${target}`, "var(--warning)");
-        // Short pause so user can see the word, then show phonetic training
-        setTimeout(() => {
-            document.getElementById("feedback-area").style.display = "none";
-            setupPhoneticTraining();
-        }, 1800);
+        const d=document.getElementById("input-text"); d.innerText=target; d.style.color="#e17055"; kbValue=target;
+        document.getElementById("attempt-text").style.display="none";
+        document.getElementById("action-buttons").style.display="none";
+        showFeedback(`The word is: ${target}`,"var(--warning)");
+        setTimeout(()=>{document.getElementById("feedback-area").style.display="none"; setupPhoneticTraining();},1800);
     }
 
     function revealFullWord() {
-        needsTraining = true; usedHelpThisWord = true; streak = 0;
-        let target = sessionWords[currentIndex].word;
-        if (!troubleWords.includes(target)) troubleWords.push(target);
-        if (!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
-        masteredWords = masteredWords.filter(w => w !== target);
-        safeSet(modeKey('troubleWords'), troubleWords);
-        safeSet(modeKey('masteredWords'), masteredWords);
+        needsTraining=true; usedHelpThisWord=true; streak=0;
+        const target=sessionWords[currentIndex].word;
+        if(!troubleWords.includes(target)) troubleWords.push(target);
+        if(!sessionNeedsPractice.includes(target)) sessionNeedsPractice.push(target);
+        masteredWords=masteredWords.filter(w=>w!==target);
+        safeSet('troubleWords',troubleWords); safeSet('masteredWords',masteredWords);
         autoRevealAndTrain();
     }
 
     function showFirstLetter() {
-        needsTraining = true; usedHelpThisWord = true;
-        showFeedback(`Starts with: ${sessionWords[currentIndex].word[0]}`, "var(--hint)");
+        needsTraining=true; usedHelpThisWord=true;
+        showFeedback(`Starts with: ${sessionWords[currentIndex].word[0]}`,"var(--hint)");
     }
 
     function handleSuccess() {
         setKbDisabled(true);
-        document.getElementById("attempt-text").style.display = "none";
-        document.getElementById("check-btn").style.display = "none";
-        document.getElementById("hint-btn").style.display = "none";
-        document.getElementById("reveal-btn").style.display = "none";
-        const streakEl = document.getElementById("streak-display");
-        streakEl.innerText = streak >= 3 ? `🔥 ${streak} in a row!` : streak === 2 ? `✨ 2 correct in a row!` : "";
-        if (!usedHelpThisWord) {
-            showFeedback("💎 PERFECT!", "var(--success)");
-            document.getElementById("next-btn").style.display = "block";
-        } else {
-            showFeedback("✅ Correct!", "#636e72");
-            setupPhoneticTraining();
-        }
+        document.getElementById("attempt-text").style.display="none";
+        document.getElementById("check-btn").style.display="none";
+        document.getElementById("hint-btn").style.display="none";
+        document.getElementById("reveal-btn").style.display="none";
+        const s=document.getElementById("streak-display");
+        s.innerText=streak>=3?`🔥 ${streak} in a row!`:streak===2?"✨ 2 correct in a row!":"";
+        if (!usedHelpThisWord) { showFeedback("💎 PERFECT!","var(--success)"); document.getElementById("next-btn").style.display="block"; }
+        else { showFeedback("✅ Correct!","#636e72"); setupPhoneticTraining(); }
     }
 
-    // Colourful syllable buttons — column C (phonetic) only
-    const SYLLABLE_COLORS = ['syl-color-0','syl-color-1','syl-color-2','syl-color-3','syl-color-4','syl-color-5'];
+    const SYLLABLE_COLORS=['syl-color-0','syl-color-1','syl-color-2','syl-color-3','syl-color-4','syl-color-5'];
 
     function setupPhoneticTraining() {
-        const area = document.getElementById("phonetic-reveal-area");
-        const cont = document.getElementById("syllable-container");
-        const grammarBox = document.getElementById("grammar-rule-box");
-        area.style.display = "block";
-        cont.innerHTML = "";
-        grammarBox.style.display = "none";
-        grammarBox.innerHTML = "";
-
-        const currentWord = sessionWords[currentIndex];
-
-        // Split ONLY column C (phonetic) into syllable buttons
-        const parts = currentWord.phonetic.split(/[•·\-\s/]+/).filter(p => p.trim());
-        let clicked = 0;
-
-        parts.forEach((p, i) => {
-            const btn = document.createElement("button");
-            const colorClass = SYLLABLE_COLORS[i % SYLLABLE_COLORS.length];
-            btn.className = `syllable-btn ${colorClass}`;
-            btn.innerText = p.toUpperCase();
-            btn.onclick = function() {
-                if (!this.classList.contains("revealed")) {
-                    this.classList.add("revealed");
-                    clicked++;
-                    if (clicked === parts.length) {
-                        // Show grammar rule (column D) once all syllables revealed
-                        if (currentWord.grammarRule) {
-                            grammarBox.innerHTML = `<strong>📚 Grammar tip:</strong> ${currentWord.grammarRule}`;
-                            grammarBox.style.display = "block";
-                        }
-                        document.getElementById("next-btn").style.display = "block";
+        const area=document.getElementById("phonetic-reveal-area"), cont=document.getElementById("syllable-container"), gb=document.getElementById("grammar-rule-box");
+        area.style.display="block"; cont.innerHTML=""; gb.style.display="none"; gb.innerHTML="";
+        const word=sessionWords[currentIndex];
+        const parts=word.phonetic.split(/[•·\-\s/]+/).filter(p=>p.trim());
+        let clicked=0;
+        parts.forEach((p,i)=>{
+            const btn=document.createElement("button");
+            btn.className=`syllable-btn ${SYLLABLE_COLORS[i%SYLLABLE_COLORS.length]}`;
+            btn.innerText=p.toUpperCase();
+            btn.onclick=function(){
+                if(!this.classList.contains("revealed")){
+                    this.classList.add("revealed"); clicked++;
+                    if(clicked===parts.length){
+                        if(word.grammarRule){gb.innerHTML=`<strong>📚 Grammar tip:</strong> ${word.grammarRule}`;gb.style.display="block";}
+                        document.getElementById("next-btn").style.display="block";
                     }
                 }
             };
@@ -1170,389 +753,149 @@
 
     function nextWord() {
         currentIndex++;
-        safeSet('session_backup', { round: currentRound, index: currentIndex, words: sessionWords, score });
+        safeSet('session_backup',{round:currentRound,index:currentIndex,words:sessionWords,score});
         showWord();
     }
 
     function showReport() {
-        safeSet('session_backup', null);
-        document.getElementById("game-ui").style.display = "none";
-        document.getElementById("report-screen").style.display = "inline-block";
-        document.getElementById("streak-display").innerText = "";
-        const sum = document.getElementById("session-summary");
-        const roundJustFinished = currentRound;
-        const scoreSnapshot = score;
+        safeSet('session_backup',null);
+        document.getElementById("game-ui").style.display="none";
+        document.getElementById("report-screen").style.display="inline-block";
+        document.getElementById("streak-display").innerText="";
+        const sum=document.getElementById("session-summary");
+        const rJF=currentRound, snap=score;
+        const total=sessionWords.length;
+        const passThreshold = thisWeekMode ? Math.ceil(total*0.8) : 4;
 
-        if (roundJustFinished === 2) {
-            // End of Round 2 (scrambled) → go to Round 3
-            sum.innerHTML = "Round 2 complete! 🎉<br><span style='font-size:0.8em;color:#888;'>Ready for the final round? No scrambled letters this time!</span>";
-            document.getElementById("round-action-btn").innerText = "▶ Start Round 3";
-            document.getElementById("round-action-btn").onclick = function() {
-                currentRound = 3;
-                score = 0;
-                sessionResults.correct = [];
-                document.getElementById("report-screen").style.display = "none";
-                setupRound();
+        if (rJF===2) {
+            sum.innerHTML="Round 2 complete! 🎉<br><span style='font-size:0.8em;color:#888;'>Ready for the final round? No scrambled letters!</span>";
+            document.getElementById("round-action-btn").innerText="▶ Start Round 3";
+            document.getElementById("round-action-btn").onclick=function(){
+                currentRound=3; score=0; sessionResults.correct=[];
+                document.getElementById("report-screen").style.display="none"; setupRound();
             };
         } else {
-            // End of Round 3 — final scoring
-            const passed = scoreSnapshot >= 4;
+            const passed=snap>=passThreshold;
             if (passed) {
-                const streakData = recordDailyWin();
-                // Push updated mastered count to Firebase leaderboard
-                if (window.pushLeaderboardScore) window.pushLeaderboardScore(masteredWords.length);
-                const streakLine = streakData && streakData.currentStreak > 1
-                    ? `<br><span style="color:var(--warning);font-size:0.8em;">🔥 ${streakData.currentStreak}-day streak!</span>`
-                    : `<br><span style="color:var(--success);font-size:0.8em;">✅ Mission complete — streak started!</span>`;
-                sum.innerHTML = `<strong>Final Mastery: ${scoreSnapshot}/5</strong><br>Words Mastered Today: ${sessionResults.correct.length}${streakLine}`;
-                document.getElementById("round-action-btn").innerText = "🎁 Share Report & Reward!";
-                document.getElementById("round-action-btn").onclick = function() {
-                    document.getElementById("report-screen").style.display = "none";
-                    document.getElementById("reward-screen").style.display = "inline-block";
-                };
+                const sd=recordDailyWin();
+                if(window.pushLeaderboardScore) window.pushLeaderboardScore(masteredWords.length);
+                const sl=sd&&sd.currentStreak>1?`<br><span style="color:var(--warning);font-size:0.8em;">🔥 ${sd.currentStreak}-day streak!</span>`:`<br><span style="color:var(--success);font-size:0.8em;">✅ Mission complete!</span>`;
+                sum.innerHTML=`<strong>Final Mastery: ${snap}/${total}</strong><br>Words Mastered Today: ${sessionResults.correct.length}${sl}`;
+                document.getElementById("round-action-btn").innerText="🎁 Share Report & Reward!";
+                document.getElementById("round-action-btn").onclick=function(){ document.getElementById("report-screen").style.display="none"; document.getElementById("reward-screen").style.display="inline-block"; };
             } else {
-                sum.innerHTML = `<strong>Final Mastery: ${scoreSnapshot}/5</strong><br>
-                    <span style="color:var(--error);font-size:0.85em;">⚠️ Score 4 or more to keep your daily streak!</span>`;
-                document.getElementById("round-action-btn").innerText = "🔄 Retry Round 3";
-                document.getElementById("round-action-btn").onclick = function() {
-                    score = 0;
-                    sessionResults.correct = [];
-                    document.getElementById("report-screen").style.display = "none";
-                    setupRound();
-                };
+                sum.innerHTML=`<strong>Final Mastery: ${snap}/${total}</strong><br><span style="color:var(--error);font-size:0.85em;">⚠️ Score ${passThreshold} or more to keep your streak!</span>`;
+                document.getElementById("round-action-btn").innerText="🔄 Retry Round 3";
+                document.getElementById("round-action-btn").onclick=function(){ score=0; sessionResults.correct=[]; document.getElementById("report-screen").style.display="none"; setupRound(); };
             }
         }
     }
 
-    function showFeedback(text, color) {
-        const fb = document.getElementById("feedback-area");
-        fb.innerText = text; fb.style.backgroundColor = color; fb.style.display = "block";
-    }
+    function showFeedback(text,color) { const f=document.getElementById("feedback-area"); f.innerText=text; f.style.backgroundColor=color; f.style.display="block"; }
 
-    // ── Reward & Share ─────────────────────────────────────────────────────────
-    let currentReportText = "";
-
+    // ── Share & Reward ─────────────────────────────────────────────────────────
+    let currentReportText="";
     function buildReportText(reward) {
-        const mastered = sessionResults.correct.length > 0 ? sessionResults.correct.join(", ") : "None";
-        // sessionNeedsPractice already has perfectly-mastered words removed in checkWord
-        const needsPracticeList = [...new Set(sessionNeedsPractice)]; // deduplicate
-        const streakData = loadDailyStreak();
-        return `🔎 WORD SLEUTH: DAILY MISSION REPORT\n` +
-               `--------------------------\n` +
-               `🎯 Final Score: ${score}/5\n` +
-               `🔥 Daily Streak: ${streakData.currentStreak} day${streakData.currentStreak !== 1 ? 's' : ''}\n` +
-               `🏆 Best Streak: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}\n` +
-               `🎁 Reward: ${reward}\n\n` +
-               `✅ Mastered: ${mastered}\n` +
-               `🔍 Still needs practice: ${needsPracticeList.length > 0 ? needsPracticeList.join(", ") : "None — great work!"}\n` +
-               `--------------------------`;
+        const mastered=sessionResults.correct.length>0?sessionResults.correct.join(", "):"None";
+        const needs=[...new Set(sessionNeedsPractice)];
+        const sd=loadDailyStreak();
+        const modeLabel = thisWeekMode ? " (This Week's Words)" : "";
+        return `🔎 WORD SLEUTH: DAILY MISSION REPORT${modeLabel}\n--------------------------\n🎯 Final Score: ${score}/${sessionWords.length}\n🔥 Daily Streak: ${sd.currentStreak} day${sd.currentStreak!==1?'s':''}\n🏆 Best Streak: ${sd.bestStreak} day${sd.bestStreak!==1?'s':''}\n🎁 Reward: ${reward}\n\n✅ Mastered: ${mastered}\n🔍 Still needs practice: ${needs.length>0?needs.join(", "):"None — great work!"}\n--------------------------`;
     }
-
-    function selectReward(reward, btn) {
-        // Highlight selected reward button
-        document.querySelectorAll(".reward-btn").forEach(b => b.style.borderColor = "var(--gold)");
-        if (btn) btn.style.borderColor = "var(--success)";
-        openSharePanel(reward);
-    }
-
-    function selectCustomReward() {
-        const val = document.getElementById("custom-reward-input").value.trim();
-        if (!val) { alert("Please type a reward first!"); return; }
-        openSharePanel(val);
-    }
-
+    function selectReward(reward,btn) { document.querySelectorAll(".reward-btn").forEach(b=>b.style.borderColor="var(--gold)"); if(btn)btn.style.borderColor="var(--success)"; openSharePanel(reward); }
+    function selectCustomReward() { const v=document.getElementById("custom-reward-input").value.trim(); if(!v){alert("Please type a reward first!");return;} openSharePanel(v); }
     function openSharePanel(reward) {
-        currentReportText = buildReportText(reward);
-        document.getElementById("copy-text-area").value = currentReportText;
-        document.getElementById("share-panel").style.display = "block";
-        document.getElementById("copy-fallback").style.display = "none";
-
-        // Show native share button if supported (Android + iOS)
-        if (navigator.share) {
-            document.getElementById("native-share-btn").style.display = "block";
-            document.getElementById("deeplink-btns").style.display = "none";
-        } else {
-            // Desktop: show individual deep-link buttons
-            document.getElementById("native-share-btn").style.display = "none";
-            document.getElementById("deeplink-btns").style.display = "block";
-        }
-
-        // Scroll share panel into view
-        document.getElementById("share-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+        currentReportText=buildReportText(reward);
+        document.getElementById("copy-text-area").value=currentReportText;
+        document.getElementById("share-panel").style.display="block";
+        document.getElementById("copy-fallback").style.display="none";
+        if(navigator.share){document.getElementById("native-share-btn").style.display="block";document.getElementById("deeplink-btns").style.display="none";}
+        else{document.getElementById("native-share-btn").style.display="none";document.getElementById("deeplink-btns").style.display="block";}
+        document.getElementById("share-panel").scrollIntoView({behavior:"smooth",block:"start"});
     }
-
-    function doNativeShare() {
-        navigator.share({ title: 'Word Sleuth: Daily Mission', text: currentReportText })
-            .then(() => setTimeout(() => location.reload(), 1500))
-            .catch(err => {
-                // User cancelled or share failed — fall back to deep links
-                document.getElementById("deeplink-btns").style.display = "block";
-            });
-    }
-
-    function shareViaWhatsApp() {
-        window.open("https://wa.me/?text=" + encodeURIComponent(currentReportText), "_blank");
-    }
-
-    function shareViaKakao() {
-        // KakaoTalk deep link — opens app if installed, else falls back gracefully
-        window.open("kakaolink://send?text=" + encodeURIComponent(currentReportText), "_blank");
-        // Brief delay then show copy box in case KakaoTalk isn't installed
-        setTimeout(() => document.getElementById("copy-fallback").style.display = "block", 1200);
-    }
-
-    function shareViaSMS() {
-        const sep = /iphone|ipad|ipod/i.test(navigator.userAgent) ? "&" : "?";
-        window.open("sms:" + sep + "body=" + encodeURIComponent(currentReportText), "_blank");
-    }
-
-    function shareViaEmail() {
-        window.open("mailto:?subject=" + encodeURIComponent("Word Sleuth Mission Report") +
-                    "&body=" + encodeURIComponent(currentReportText), "_blank");
-    }
-
-    function showCopyBox() {
-        document.getElementById("copy-fallback").style.display = "block";
+    function doNativeShare() { navigator.share({title:'Word Sleuth: Daily Mission',text:currentReportText}).then(()=>setTimeout(()=>location.reload(),1500)).catch(()=>{document.getElementById("deeplink-btns").style.display="block";}); }
+    function shareViaWhatsApp(){ window.open("https://wa.me/?text="+encodeURIComponent(currentReportText),"_blank"); }
+    function shareViaKakao()   { window.open("kakaolink://send?text="+encodeURIComponent(currentReportText),"_blank"); setTimeout(()=>{document.getElementById("copy-fallback").style.display="block";},1200); }
+    function shareViaSMS()     { const s=/iphone|ipad|ipod/i.test(navigator.userAgent)?"&":"?"; window.open("sms:"+s+"body="+encodeURIComponent(currentReportText),"_blank"); }
+    function shareViaEmail()   { window.open("mailto:?subject="+encodeURIComponent("Word Sleuth Mission Report")+"&body="+encodeURIComponent(currentReportText),"_blank"); }
+    function showCopyBox()     { document.getElementById("copy-fallback").style.display="block"; }
+    function doCopy(btn) {
+        const ta=document.getElementById("copy-text-area"); ta.select();
+        try{document.execCommand("copy");btn.innerText="✅ Copied!";}
+        catch(e){navigator.clipboard.writeText(currentReportText).then(()=>{btn.innerText="✅ Copied!";}).catch(()=>{btn.innerText="Select & copy manually";});}
     }
 
     function goToMenu() {
-        // Hide all screens
-        document.getElementById("reward-screen").style.display = "none";
-        document.getElementById("report-screen").style.display = "none";
-        document.getElementById("game-ui").style.display = "none";
-        document.getElementById("fitb-screen").style.display = "none";
-        // Reset share panel state for next use
-        document.getElementById("share-panel").style.display = "none";
-        document.getElementById("copy-fallback").style.display = "none";
-        const copyFallback = document.getElementById("copy-fallback");
-        if (copyFallback) copyFallback.style.display = "none";
-        // Reset reward button borders
-        document.querySelectorAll(".reward-btn").forEach(b => b.style.borderColor = "var(--gold)");
-        document.getElementById("custom-reward-input").value = "";
-        // Reset session state so next game is fresh
-        sessionWords = [];
-        warmUpSessionWords = null;
-        sessionNeedsPractice = [];
-        currentRound = 1;
-        thisWeekMode = false;
-        // Reload mode-specific word lists in case mode changed
-        troubleWords = safeGet(modeKey('troubleWords'), []);
-        masteredWords = safeGet(modeKey('masteredWords'), []);
-        // Update streak + word counts
-        document.getElementById("streak-warning").style.display = "none";
+        ["reward-screen","report-screen","game-ui","fitb-screen"].forEach(id=>document.getElementById(id).style.display="none");
+        document.getElementById("share-panel").style.display="none";
+        document.getElementById("copy-fallback").style.display="none";
+        document.querySelectorAll(".reward-btn").forEach(b=>b.style.borderColor="var(--gold)");
+        document.getElementById("custom-reward-input").value="";
+        sessionWords=[]; warmUpSessionWords=null; sessionNeedsPractice=[]; currentRound=1; thisWeekMode=false;
+        troubleWords=safeGet('troubleWords',[]); masteredWords=safeGet('masteredWords',[]);
+        document.getElementById("streak-warning").style.display="none";
         showStreakOnWelcome();
-        document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
-        document.getElementById("loading-screen").style.display = "inline-block";
+        document.getElementById("status-text").innerText=`Files ready. ${allWords.length} words loaded.`;
+        document.getElementById("loading-screen").style.display="inline-block";
     }
-
-    function doCopy(btn) {
-        const ta = document.getElementById("copy-text-area");
-        ta.select();
-        try {
-            document.execCommand("copy");
-            btn.innerText = "✅ Copied!";
-        } catch(e) {
-            // Clipboard API fallback
-            navigator.clipboard.writeText(currentReportText)
-                .then(() => { btn.innerText = "✅ Copied!"; })
-                .catch(() => { btn.innerText = "Select & copy manually"; });
-        }
-    }
-    // ──────────────────────────────────────────────────────────────────────────
 </script>
 
-<!-- ═══════════════════════════════════════════════════════════════════════════
-     LEADERBOARD — powered by Google Apps Script + Google Sheets
-     Replace APPS_SCRIPT_URL below with your deployed Web App URL from Step 3.
-     ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- LEADERBOARD — Google Apps Script -->
 <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLIaJhk-bayTocNqWzNB1Xqz4rgCeieQQPsqsba609-NvmZavcmVTHREn5MM9tfYQr/exec";
-
-    // ── Mode helpers ───────────────────────────────────────────────────────────
-    function selectMode(mode) {
-        isAdvanced = mode === "advanced";
-        document.getElementById("mode-btn-std").className = "mode-btn" + (isAdvanced ? "" : " selected");
-        document.getElementById("mode-btn-adv").className = "mode-btn" + (isAdvanced ? " selected adv" : "");
-    }
-
-    function updateModeSwitchBtn() {
-        const btn = document.getElementById("mode-switch-btn");
-        if (!btn) return;
-        if (isAdvanced) {
-            btn.innerText = "Switch to 📚 Standard";
-            btn.style.background = "#fff3ef";
-            btn.style.color = "#e17055";
-            btn.style.border = "2px solid #e17055";
-        } else {
-            btn.innerText = "Switch to 🚀 Advanced";
-            btn.style.background = "#f0eeff";
-            btn.style.color = "var(--primary)";
-            btn.style.border = "2px solid var(--primary)";
-        }
-    }
-
-    async function switchMode() {
-        isAdvanced = !isAdvanced;
-        localStorage.setItem("gameMode", isAdvanced ? "advanced" : "standard");
-        // Reload word lists and progress for the new mode
-        troubleWords = safeGet(modeKey('troubleWords'), []);
-        masteredWords = safeGet(modeKey('masteredWords'), []);
-        // Refetch the appropriate CSV
-        document.getElementById("status-text").innerText = "Loading words...";
-        document.getElementById("welcome-buttons").style.display = "none";
-        try {
-            const url = isAdvanced ? CSV_URL_ADVANCED : CSV_URL;
-            if (url.includes("ADVANCED_SHEET_GID")) {
-                document.getElementById("status-text").innerHTML =
-                    "⚠️ Advanced sheet URL not configured yet. Replace ADVANCED_SHEET_GID in the file.";
-                document.getElementById("welcome-buttons").style.display = "block";
-                isAdvanced = false;
-                localStorage.setItem("gameMode", "standard");
-                updateModeSwitchBtn();
-                return;
-            }
-            const response = await fetch(url);
-            const data = await response.text();
-            allWords = parseCSV(data);
-            masteredWords = masteredWords.filter(w => allWords.some(item => item.word === w));
-            safeSet(modeKey('masteredWords'), masteredWords);
-            document.getElementById("status-text").innerText = `Files ready. ${allWords.length} words loaded.`;
-        } catch(e) {
-            document.getElementById("status-text").innerText = "Error loading words. Retry.";
-        }
-        document.getElementById("welcome-buttons").style.display = "block";
-        updateModeSwitchBtn();
-        showStreakOnWelcome();
-    }
-
-    // ── Anonymous username generator ───────────────────────────────────────────
     let playerName = "";
-    let pendingUsername = "";
-
-    const ADJECTIVES = [
-        "Brave","Calm","Clever","Cool","Crazy","Daring","Dizzy","Eager",
-        "Fancy","Fast","Fluffy","Funny","Gentle","Goofy","Happy","Jolly",
-        "Kind","Lazy","Lucky","Mighty","Muddy","Noisy","Odd","Peppy",
-        "Proud","Quick","Quiet","Rare","Shiny","Silly","Sleepy","Sly",
-        "Smart","Sneaky","Snowy","Speedy","Spiky","Spooky","Swift","Tiny",
-        "Tricky","Vivid","Wacky","Wild","Witty","Wobbly","Zany","Zesty"
-    ];
-
-    const ANIMALS = [
-        "Badger","Bear","Beaver","Buffalo","Bunny","Camel","Capybara","Cheetah",
-        "Chipmunk","Cobra","Coyote","Crane","Dingo","Dolphin","Donkey","Dragon",
-        "Eagle","Falcon","Ferret","Flamingo","Fox","Frog","Gecko","Giraffe",
-        "Goat","Gorilla","Hamster","Hedgehog","Hippo","Hyena","Iguana","Jaguar",
-        "Kangaroo","Koala","Lemur","Leopard","Lion","Lizard","Llama","Lynx",
-        "Meerkat","Mongoose","Monkey","Moose","Narwhal","Otter","Owl","Panda",
-        "Panther","Parrot","Penguin","Porcupine","Puma","Rabbit","Raccoon",
-        "Rhino","Salamander","Shark","Sloth","Snake","Tiger","Toucan",
-        "Turtle","Walrus","Weasel","Wolf","Wombat","Zebra"
-    ];
-
-    function generateUsername() {
-        const adj    = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-        const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-        const num    = String(Math.floor(Math.random() * 90) + 10); // 10–99
-        pendingUsername = adj + animal + num;
-        document.getElementById("generated-username-display").innerText = pendingUsername;
-    }
 
     function initNameScreen() {
         const stored = localStorage.getItem("playerName");
-        // Restore saved mode
-        isAdvanced = localStorage.getItem("gameMode") === "advanced";
         if (stored && stored.trim()) {
             playerName = stored.trim();
             document.getElementById("name-screen").style.display = "none";
             document.getElementById("loading-screen").style.display = "inline-block";
-            document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
+            document.getElementById("welcome-player-name").innerText = `Playing as: ${playerName}`;
         } else {
             document.getElementById("name-screen").style.display = "inline-block";
             document.getElementById("loading-screen").style.display = "none";
-            // Pre-select correct mode button
-            selectMode(isAdvanced ? "advanced" : "standard");
-            generateUsername();
+            document.getElementById("name-input").addEventListener("keydown", e => { if(e.key==="Enter") saveName(); });
         }
     }
-
     function saveName() {
-        if (!pendingUsername) { generateUsername(); return; }
-        playerName = pendingUsername;
-        localStorage.setItem("playerName", playerName);
-        localStorage.setItem("gameMode", isAdvanced ? "advanced" : "standard");
-        // Reload with correct mode keys
-        troubleWords = safeGet(modeKey('troubleWords'), []);
-        masteredWords = safeGet(modeKey('masteredWords'), []);
+        const val = document.getElementById("name-input").value.trim();
+        if (!val) { alert("Please enter your name!"); return; }
+        playerName = val; localStorage.setItem("playerName", playerName);
         document.getElementById("name-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
-        document.getElementById("welcome-player-name").innerText = `🎭 ${playerName}`;
+        document.getElementById("welcome-player-name").innerText = `Playing as: ${playerName}`;
     }
-
-    // ── Push score to Google Sheet via Apps Script ─────────────────────────────
     async function pushLeaderboardScore(masteredCount) {
         if (!playerName) return;
-        try {
-            await fetch(APPS_SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({
-                    name: playerName,
-                    mastered: masteredCount,
-                    mode: isAdvanced ? "advanced" : "standard"
-                })
-            });
-        } catch(e) {
-            console.warn("Leaderboard write failed:", e);
-        }
+        try { await fetch(APPS_SCRIPT_URL, { method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify({name:playerName, mastered:masteredCount}) }); }
+        catch(e) { console.warn("Leaderboard write failed:", e); }
     }
-
-    // ── Fetch and render leaderboard ───────────────────────────────────────────
     async function showLeaderboard() {
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("leaderboard-screen").style.display = "inline-block";
         const list = document.getElementById("lb-list");
         list.innerHTML = "<p style='color:#aaa;'>Loading...</p>";
-
         try {
-            const res  = await fetch(APPS_SCRIPT_URL + "?action=get");
+            const res = await fetch(APPS_SCRIPT_URL + "?action=get");
             const rows = await res.json();
-
-            if (!rows.length) {
-                list.innerHTML = "<p style='color:#aaa;'>No scores yet — complete a mission to appear here!</p>";
-                return;
-            }
-
-            rows.sort((a, b) => b.mastered - a.mastered);
-            const medals  = ["🥇","🥈","🥉"];
-            const classes = ["gold","silver","bronze"];
-
-            list.innerHTML = rows.map((r, i) => {
-                const isMe      = r.name.toLowerCase() === playerName.toLowerCase();
-                const rankLabel = i < 3 ? medals[i] : `#${i + 1}`;
-                const rowClass  = isMe ? "lb-row me" : (i < 3 ? `lb-row ${classes[i]}` : "lb-row");
-                const modeBadge = r.mode === "advanced"
-                    ? `<span class="mode-badge adv">🚀 Adv</span>`
-                    : `<span class="mode-badge std">📚 Std</span>`;
-                return `<div class="${rowClass}">
-                    <span class="lb-rank">${rankLabel}</span>
-                    <span class="lb-name">${r.name}${isMe ? " (you)" : ""} ${modeBadge}</span>
-                    <span class="lb-score">${r.mastered} ⭐</span>
-                </div>`;
+            if (!rows.length) { list.innerHTML = "<p style='color:#aaa;'>No scores yet!</p>"; return; }
+            rows.sort((a,b)=>b.mastered-a.mastered);
+            const medals=["🥇","🥈","🥉"], cls=["gold","silver","bronze"];
+            list.innerHTML = rows.map((r,i)=>{
+                const isMe=r.name.toLowerCase()===playerName.toLowerCase();
+                const rc=isMe?"lb-row me":i<3?`lb-row ${cls[i]}`:"lb-row";
+                return `<div class="${rc}"><span class="lb-rank">${i<3?medals[i]:`#${i+1}`}</span><span class="lb-name">${r.name}${isMe?" (you)":""}</span><span class="lb-score">${r.mastered} ⭐</span></div>`;
             }).join('');
-        } catch(e) {
-            list.innerHTML = "<p style='color:var(--error);'>Could not load leaderboard. Check your connection.</p>";
-        }
+        } catch(e) { list.innerHTML = "<p style='color:var(--error);'>Could not load. Check connection.</p>"; }
     }
-
     function hideLeaderboard() {
         document.getElementById("leaderboard-screen").style.display = "none";
         document.getElementById("loading-screen").style.display = "inline-block";
     }
-
-    // Boot: show name screen or go straight to welcome
     window.addEventListener("load", initNameScreen);
 </script>
+
 <!-- Word list modal -->
 <div id="word-modal-overlay" onclick="closeWordListOnBg(event)">
     <div id="word-modal">
