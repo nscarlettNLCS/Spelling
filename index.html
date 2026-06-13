@@ -383,8 +383,11 @@
         }
         document.getElementById("fitb-sentence").innerHTML = blanked;
 
-        // 3 choices — correct word + 2 distractors from allWords
-        const distractors = shuffle(allWords.filter(w => w.word !== item.word)).slice(0,2);
+        // Distractors: use only single-use words in This Week mode, otherwise all words
+        const distractorPool = thisWeekMode
+            ? sessionWords.filter(w => w.word !== item.word)
+            : allWords.filter(w => w.word !== item.word);
+        const distractors = shuffle(distractorPool).slice(0,2);
         const choices = shuffle([item, ...distractors]);
         const cont = document.getElementById("fitb-choices");
         cont.innerHTML = "";
